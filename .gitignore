@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Secrets / user data
+.env
+app/data/remember_token.json
+
+# Database
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# Uploaded user data
+data/resumes/*
+data/job_descriptions/*
+
+# ML models / vector indexes
+models/
+
+# Logs / generated output
+logs/
+output/
+*.log
+error.txt
+error_log.txt
+output.txt
+output_log.txt
+
+# Build files
+dist/
+build/
+*.spec

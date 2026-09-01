@@ -1,0 +1,41 @@
+import os
+import sys
+from pathlib import Path
+
+if getattr(sys, "frozen", False):
+    BASE_DIR = Path(sys.executable).parent
+else:
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATA_DIR = BASE_DIR / "data"
+MODEL_DIR = BASE_DIR / "models"
+DB_DIR = BASE_DIR / "database"
+OUTPUT_DIR = BASE_DIR / "output"
+UPLOAD_DIR = DATA_DIR / "resumes"
+JD_DIR = DATA_DIR / "job_descriptions"
+KNOWLEDGE_DIR = DATA_DIR / "knowledge_base"
+ONET_DIR = KNOWLEDGE_DIR / "O_NET"
+ESCO_DIR = KNOWLEDGE_DIR / "ESCO"
+
+for d in [DATA_DIR, MODEL_DIR, DB_DIR, OUTPUT_DIR, UPLOAD_DIR, JD_DIR, KNOWLEDGE_DIR, ONET_DIR, ESCO_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
+
+DB_PATH = DB_DIR / "careerpilot.db"
+JWT_SECRET = os.getenv("CP_JWT_SECRET", "careerpilot-dev-secret-change-in-prod")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRY_HOURS = 24
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_MODEL = os.getenv("CP_OPENAI_MODEL", "gpt-4o-mini")
+
+EMBEDDING_MODEL = os.getenv("CP_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+FAISS_INDEX_PATH = MODEL_DIR / "faiss_index"
+WHISPER_MODEL = os.getenv("CP_WHISPER_MODEL", "base")
+XGBOOST_MODEL_PATH = MODEL_DIR / "xgboost" / "score_model.pkl"
+
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 8000
+
+LOG_LEVEL = os.getenv("CP_LOG_LEVEL", "INFO")
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
