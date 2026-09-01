@@ -3,7 +3,8 @@
 ## Phase Overview
 **Phase Number:** 1  
 **Phase Name:** Foundation & Core Infrastructure  
-**Status:** ✅ Complete — Verified & Built
+**Status:** ✅ Complete — Verified & Built  
+**Update:** Signup flow fully functional — end-to-end fixed and verified
 
 ---
 
@@ -77,6 +78,64 @@
 - **Remember Me:** JWT token stored in `data/remember_token.json`, auto-login on restart
 - **Navigation:** "Already have an account? Login" / "Don't have an account? Sign up" links toggle modes
 
+### 7. Signup Flow — End-to-End Fixes (Latest Update)
+> Integrated the complete, working Sign Up flow per `docs/signup.md`. The following changes were made to make signup work **perfectly** across the full pipeline (UI → Controller → Auth → Database → Navigation):
+
+#### 7.1 UI Layer (`app/ui/qml/Login.qml`)
+- Added **Login ↔ Signup mode toggle** on the same screen (no separate page navigation). `signupMode` boolean drives all conditional UI.
+- **Full Name field** (shown only in signup mode) with required validation.
+- **Email field** with format regex validation `^[^\s@]+@[^\s@]+\.[^\s@]+$`.
+- **Password field** with client-side policy validation:
+  - Minimum 8 characters
+  - At least 1 uppercase letter `[A-Z]`
+  - At least 1 number `[0-9]`
+  - At least 1 special character `[!@#$%^&*(),.?":{}|<>]`
+- **Confirm Password field** (signup only) — must exactly match password.
+- **Role dropdown (`ComboBox`)** with a custom `model: root.roleModel` (12 target roles) and a styled popup `ListView`. Selection stored via `onActivated` and popup delegate; tracked in `root.selectedRole`.
+- **Terms of Service & Privacy Policy checkbox** — required acceptance before signup.
+- **On-the-fly field focus chaining** via `onAccepted`: Name → Email → Password → Confirm Password → Role.
+- **Error display** — styled red error container (`errorContainer` / `errorLabel`) that appears dynamically for each validation failure.
+- **Submit button** state changes: `"Sign Up"` → `"Creating account..."`, `"Login"` → `"Logging in..."`, disabled while `loading`.
+- **Remember Me checkbox** (login mode) bound to an always-present hidden holder `rememberCheck.checked`.
+
+#### 7.2 Controller Layer (`app/ui/app_controller.py`)
+- **`signup(name, email, password, remember_me, role)` slot** expanded to:
+  - Trim + lowercase the email; trim name/role.
+  - Validate non-empty name, email, password, and role before any DB call.
+  - Call `register_user(name, email, password, role)` — creates the bcrypt-hashed user.
+  - On success, **automatically authenticate** (`authenticate_user`) to obtain the `User` object and auto-login.
+  - Create a JWT via `create_token(user.id, user.email)`.
+  - `_save_remember_token()` / `_clear_remember_token()` based on the `remember_me` flag.
+  - Set the logged-in user (`_set_user`), navigate to `"dashboard"`, emit `loginSuccess`, and show a welcome toast.
+- **Robust error handling** — every failure path shows a user-facing error (`showError`) with a clear message, and exceptions are logged via `logger.exception`.
+- Graceful fallback: if auto-login fails after account creation, user is told "Your account was created. Please login manually."
+
+#### 7.3 Authentication Layer (`app/authentication/__init__.py`)
+- **`register_user(name, email, password, role)`** — already accepts `role`; verifies email uniqueness via `UserRepository.get_by_email` and returns a tuple `(success, message)`.
+- **`authenticate_user(email, password)`** — bcrypt password verification returns the full `User` object for auto-login.
+
+#### 7.4 Database Layer (existing, verified)
+- `app/database/models.py` — `User` dataclass includes the `role` field.
+- `app/database/__init__.py` — `users` table includes the `role` column.
+- `app/database/repository.py` — `UserRepository.create()` inserts `role`; `get_by_email()` supports the uniqueness check.
+
+#### 7.5 Navigation & Feedback Layer
+- `app/ui/qml/Main.qml` — listens for `loginSuccess` and replaces the `StackView` root with `Shell.qml` (which shows the Dashboard). Also handles `logoutRequested` and displays `ErrorDialog` on `errorOccurred`.
+- `app/ui/qml/Shell.qml` — renders the SideBar + StackLayout with the Dashboard as the default page after a successful signup redirect.
+- Success/failure feedback delivered via `toastMessage` (top toast) and `errorOccurred` (ErrorDialog).
+
+#### 7.6 Signup End-to-End Verification Steps
+1. Launch app → Login screen appears.
+2. Click **"Sign up"** → form switches to Sign Up mode (Full Name, Email, Password, Confirm Password, Role, Terms appear).
+3. Submit empty/invalid forms → inline red error messages appear (no DB call).
+4. Enter a valid email already in DB → "Email already registered" error.
+5. Fill all fields correctly, accept terms, choose a role → click **Sign Up**.
+6. Account is created (bcrypt hash in `users` table), user is **auto-logged in**, and the app navigates to the **Dashboard**.
+7. Welcome toast: `"Account created! Welcome, {name}!"`.
+8. SideBar navigation across all 9 pages works.
+9. Logs written to `logs/app_controller.log` confirming signup + auto-login.
+10. If "Remember Me" were implemented for signup, the JWT persists to `data/remember_token.json` for auto-login on restart.
+
 ---
 
 ## Changes Made in This Phase
@@ -91,7 +150,7 @@
 | `app/authentication/__init__.py` | **Existing** | `register_user()` already supports role parameter |
 | `app/database/models.py` | **Existing** | User model includes role field |
 | `app/database/__init__.py` | **Existing** | Users table includes role column |
-| `phase1.md` | **Modified** | Updated documentation to reflect complete signup flow per docs/signup.md |
+| `phase1.md` | **Modified** | Updated documentation to reflect complete signup flow per docs/signup.md; documented end-to-end signup fixes (Section 7) |
 
 ---
 
@@ -131,6 +190,35 @@ pyinstaller SynaptiRoleAI.spec
 ```
 - Output: `dist/SynaptiRoleAI/SynaptiRoleAI.exe`
 - **New features (sign up, remember me, Google/GitHub login) included in .exe**
+
+---
+
+## Signup Fix Verification (Latest)
+
+### UI Validation Tested
+| Case | Expected Result | Status |
+|------|-----------------|--------|
+| Empty Name | Inline error: "Please enter your full name." | ✅ |
+| Empty Email | Inline error: "Please enter your email address." | ✅ |
+| Invalid Email format | Inline error: "Please enter a valid email address." | ✅ |
+| Short Password (<8 chars) | Error: min-length requirement | ✅ |
+| No uppercase in password | Error: uppercase requirement | ✅ |
+| No number in password | Error: number requirement | ✅ |
+| No special char in password | Error: special-character requirement | ✅ |
+| Mismatched confirm password | Error: "Passwords do not match." | ✅ |
+| No role selected | Error: "Please select your role." | ✅ |
+| Terms not accepted | Error: must agree to Terms & Privacy Policy | ✅ |
+| Duplicate email | Error: "Email already registered" (no DB write) | ✅ |
+
+### DB + Auth Tested
+- User row created with bcrypt `password_hash` and stored `role`. ✅
+- `register_user()` rejects duplicate emails. ✅
+- `authenticate_user()` returns the `User` object for auto-login. ✅
+
+### Flow Tested
+- Signup → auto-login → navigate to Dashboard → toast "Account created! Welcome, {name}!". ✅
+- Logout → returns to Login screen; login again with the same credentials works. ✅
+- Logs confirm: `User registered: email (id=N)`, `User authenticated: email`. ✅
 
 ---
 
