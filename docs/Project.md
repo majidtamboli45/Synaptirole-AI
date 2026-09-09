@@ -19,7 +19,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 2: Document Processing & Text Extraction
+### Phase 2: Document Processing & Text Extraction  *(Assigned To: Atharva)*
 - Resume/JD upload UI (drag-drop, file picker)
 - PyMuPDF integration for PDF parsing
 - python-docx integration for DOCX parsing
@@ -33,7 +33,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 3: NLP & Skill Extraction
+### Phase 3: NLP & Skill Extraction  *(Assigned To: Atharva)*
 - spaCy pipeline setup (en_core_web_lg or similar)
 - Custom NER for skills, education, experience, projects
 - Entity normalization & deduplication
@@ -46,7 +46,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 4: Semantic Skill Matching
+### Phase 4: Semantic Skill Matching  *(Assigned To: Gitanjali)*
 - Sentence-BERT integration (all-MiniLM-L6-v2 or similar)
 - Embedding generation for resume skills + JD skills
 - Cosine similarity computation
@@ -60,7 +60,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 5: Skill Gap Analysis & Dashboard Visualization
+### Phase 5: Skill Gap Analysis & Dashboard Visualization  *(Assigned To: Gitanjali)*
 - Skill gap computation logic
 - Priority ranking (HIGH/MEDIUM/LOW)
 - Dashboard UI: Job Fit %, Matched Skills %, Skill Gaps count
@@ -73,7 +73,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 6: LLM Integration — Personalized Question Generation
+### Phase 6: LLM Integration — Personalized Question Generation  *(Assigned To: Majid)*
 - LLM provider abstraction (OpenAI / Llama 3 / Mistral)
 - Prompt engineering for context-aware questions
 - Input: Resume + JD + Matched Skills + Skill Gaps + Interview Context
@@ -88,7 +88,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 7: Adaptive Interview Logic
+### Phase 7: Adaptive Interview Logic  *(Assigned To: Majid)*
 - Interview state machine (Initial → Follow-up / Advanced)
 - Answer quality assessment (heuristic + LLM-based)
 - Question selection strategy based on previous response
@@ -101,7 +101,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 8: Audio Pipeline — Speech-to-Text & Prosody
+### Phase 8: Audio Pipeline — Speech-to-Text & Prosody  *(Assigned To: Sanika)*
 - Microphone recording (PyAudio / sounddevice)
 - Whisper integration (local: faster-whisper / openai-whisper)
 - Librosa feature extraction: speaking rate, pauses, pitch, energy, filler words
@@ -115,7 +115,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 9: Video Pipeline — Behavioral Analysis
+### Phase 9: Video Pipeline — Behavioral Analysis  *(Assigned To: Sanika)*
 - OpenCV webcam capture
 - MediaPipe integration (Face Mesh, Pose, Hands)
 - Landmark extraction per frame
@@ -130,7 +130,7 @@ CareerPilot AI is a Windows desktop application (PySide6 + QML) that helps candi
 
 ---
 
-### Phase 10: RAG — Technical Knowledge Verification
+### Phase 10: RAG — Technical Knowledge Verification  *(Assigned To: Majid)*
 - Knowledge base construction (ESCO + O*NET + curated tech docs)
 - Document chunking & embedding (Sentence-BERT)
 - Vector store (FAISS / Chroma / local)
