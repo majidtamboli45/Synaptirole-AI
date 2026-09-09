@@ -25,7 +25,7 @@
 15. [Vision Module](#15-vision-module)
 16. [Scoring Module](#16-scoring-module)
 17. [Explainability Module](#17-explainability-module)
-18. [Recommendation Module](#18-recommendation-module)
+18. [Skill Gap & Improvement Module](#18-skill-gap--improvement-module)
 19. [Utilities](#19-utilities)
 20. [UI Layer — PySide6 + QML](#20-ui-layer--pyside6--qml)
 21. [QML Components Reference](#21-qml-components-reference)
@@ -41,16 +41,16 @@
 **SynaptiRole-AI** is a **Windows desktop application** that helps job candidates prepare for technical interviews. It uses AI/ML to:
 
 1. **Parse** the user's resume and a target job description.
-2. **Analyze skill gaps** using semantic matching (Sentence-BERT + FAISS).
-3. **Conduct an adaptive AI interview** — generates personalized questions via OpenAI LLM.
+2. **Analyze skill gaps** using semantic matching (Sentence-BERT + cosine similarity).
+3. **Conduct an adaptive personalized text-based interview** — generates personalized questions via a pretrained instruction-tuned LLM.
 4. **Capture audio + video** while the user answers questions.
-5. **Evaluate answers** using LLM scoring, audio feature analysis, and video/body language analysis.
-6. **Verify technical claims** using RAG (Retrieval-Augmented Generation) against O*NET/ESCO knowledge bases.
-7. **Fuse all scores** using XGBoost and produce a final performance score.
+5. **Evaluate answers** using LLM answer evaluation, audio feature analysis, and video/body language analysis.
+6. **Verify technical claims** using RAG (Retrieval-Augmented Generation) against O*NET + ESCO + curated technical documentation.
+7. **Produce a final performance score** using XGBoost.
 8. **Explain the score** using SHAP (SHapley Additive exPlanations).
-9. **Provide improvement recommendations** based on identified skill gaps.
+9. **Provide skill gap analysis and areas of improvement** based on identified skill gaps.
 
-The application runs entirely on the user's machine — no web server or cloud backend is required (except for the OpenAI API calls).
+The application runs locally using pretrained models — no web server or cloud backend is required. OpenAI API usage is optional.
 
 ---
 
@@ -61,16 +61,16 @@ The application runs entirely on the user's machine — no web server or cloud b
 | **UI Framework** | PySide6 + QML (Qt Quick) | Desktop GUI with modern declarative UI |
 | **Packaging** | PyInstaller | Build standalone `.exe` for Windows |
 | **Database** | SQLite | Local persistent storage (WAL mode, FK constraints) |
-| **LLM** | OpenAI API (`gpt-4o-mini`) | Question generation, answer evaluation, RAG verification |
+| **LLM** | Pretrained instruction-tuned LLM: Mistral / Llama / Qwen (optional: OpenAI GPT API) | Personalized question generation, answer evaluation, RAG verification |
 | **Embeddings** | Sentence-BERT (`all-MiniLM-L6-v2`) | Semantic skill matching, vector embeddings |
-| **Vector Search** | FAISS (`IndexFlatL2`) | Fast nearest-neighbor search for skill/knowledge matching |
-| **ML Model** | XGBoost | Score regression model for final assessment |
+| **Vector Search** | FAISS (`IndexFlatL2`) | Fast nearest-neighbor search for RAG knowledge retrieval |
+| **ML Model** | XGBoost | Final interview scoring regression model |
 | **Explainability** | SHAP | Explains "why" the user got a particular score |
-| **Vision** | MediaPipe + OpenCV | Face, gaze, hand, head pose, posture analysis |
+| **Vision** | MediaPipe + OpenCV | Gaze/camera orientation, head movement, hand gestures, shoulder/posture analysis |
 | **Audio** | Librosa + Whisper | Audio feature extraction + speech-to-text |
 | **Auth** | PyJWT (HS256) + bcrypt | JWT tokens + password hashing |
 | **NLP** | spaCy | Text preprocessing |
-| **Ontology** | O*NET + ESCO | Occupation-skill mappings for RAG knowledge base |
+| **Ontology** | O*NET + ESCO | Occupation-skill mappings for RAG knowledge base (plus curated technical documentation) |
 
 ---
 
@@ -120,12 +120,12 @@ Synaptirole-AI/
 │   │   ├── question_engine.py      # QuestionEngine — generates questions using LLM
 │   │   └── followup_question.py    # Follow-up question generation based on answers
 │   │
-│   ├── llm/                        # Large Language Model integration
+│   ├── llm/                        # Pretrained LLM integration
 │   │   ├── __init__.py
-│   │   ├── llm_manager.py          # OpenAI API client management
-│   │   ├── openai_model.py         # Low-level OpenAI API wrapper
-│   │   ├── question_generator.py   # Generates interview questions via LLM
-│   │   └── answer_evaluator.py     # Scores candidate answers via LLM
+│   │   ├── llm_manager.py          # Pretrained LLM client management (Mistral/Llama/Qwen, optional OpenAI)
+│   │   ├── pretrained_model.py     # Low-level wrapper around pretrained instruction-tuned LLM
+│   │   ├── question_generator.py   # Generates interview questions via pretrained LLM
+│   │   └── answer_evaluator.py     # Evaluates language/answer quality via pretrained LLM
 │   │
 │   ├── rag/                        # Retrieval-Augmented Generation
 │   │   ├── __init__.py
@@ -153,9 +153,8 @@ Synaptirole-AI/
 │   │
 │   ├── scoring/                    # Score computation pipeline
 │   │   ├── __init__.py
-│   │   ├── feature_engineering.py  # Build 13-dimensional feature vector
-│   │   ├── score_fusion.py         # Weighted fusion of answer/audio/video/skill scores
-│   │   ├── xgboost_model.py        # XGBoost regression model for final score
+│   │   ├── feature_engineering.py  # Build engineered feature vector from answer/audio/video/skill/RAG features
+│   │   ├── xgboost_model.py        # XGBoost regression model — final interview score
 │   │   └── final_score.py          # Compute and store final interview score
 │   │
 │   ├── explainability/             # Score explanation
@@ -210,9 +209,10 @@ Synaptirole-AI/
 ├── data/                           # Runtime data (mostly empty, populated at runtime)
 │   ├── resumes/                    # Uploaded resume files (PDF/DOCX)
 │   ├── job_descriptions/           # Uploaded JD files
-│   ├── knowledge_base/             # Ontology datasets for RAG
+│   ├── knowledge_base/             # Ontology datasets + technical docs for RAG
 │   │   ├── O_NET/                  # O*NET occupation-skill mappings
-│   │   └── ESCO/                   # ESCO occupation-skill mappings
+│   │   ├── ESCO/                   # ESCO occupation-skill mappings
+│   │   └── technical_docs/         # Curated technical documentation
 │   └── remember_token.json         # Stored JWT for persistent login
 │
 ├── database/
@@ -282,8 +282,8 @@ This file centralizes ALL configuration for the application. It auto-detects whe
 | `JWT_SECRET` | env `CP_JWT_SECRET` | JWT signing secret |
 | `JWT_ALGORITHM` | `HS256` | JWT algorithm |
 | `JWT_EXPIRY_HOURS` | `24` | Token validity duration |
-| `OPENAI_API_KEY` | env `OPENAI_API_KEY` | OpenAI API key |
-| `OPENAI_MODEL` | env `CP_OPENAI_MODEL` / `gpt-4o-mini` | LLM model name |
+| `LLM_MODEL` | env `CP_LLM_MODEL` / `mistral-7b-instruct` | Pretrained LLM model name (Mistral / Llama / Qwen) |
+| `OPENAI_API_KEY` | env `OPENAI_API_KEY` | Optional — OpenAI API key (only if OpenAI GPT backend used) |
 | `EMBEDDING_MODEL` | env / `all-MiniLM-L6-v2` | Sentence-BERT model |
 | `FAISS_INDEX_PATH` | `models/faiss_index` | FAISS index file path |
 | `WHISPER_MODEL` | env / `base` | Whisper model size |
@@ -312,8 +312,8 @@ All models are Python **dataclasses** with default values:
 | **User** | id, name, email, password_hash, role, phone, location, avatar_path | User account |
 | **Resume** | id, user_id, filename, file_path, raw_text, skills[], education[], experience[] | Parsed resume data |
 | **JobDescription** | id, user_id, title, company, file_path, raw_text, required_skills[], preferred_skills[] | Parsed JD data |
-| **Interview** | id, user_id, resume_id, jd_id, title, role, difficulty, total_questions, status, score, duration_seconds | Interview session |
-| **InterviewQuestion** | id, interview_id, question_index, question_text, difficulty, candidate_answer, answer_audio_path, answer_video_path, transcript, answer_score, audio_score, video_score, rag_verification, response_duration_seconds | Individual Q&A |
+| **Interview** | id, user_id, resume_id, jd_id, title, role, total_questions, status, score, duration_seconds | Interview session |
+| **InterviewQuestion** | id, interview_id, question_index, question_text, candidate_answer, answer_audio_path, answer_video_path, transcript, answer_score, audio_score, video_score, rag_verification, response_duration_seconds | Individual Q&A |
 | **SkillAnalysis** | id, user_id, resume_id, jd_id, matched_skills[], missing_skills[], partial_skills[], match_score | Skill gap analysis results |
 | **Report** | id, interview_id, user_id, overall_score, answer_score, audio_score, video_score, skill_match_score, strengths[], weaknesses[], recommendations[], shap_values{} | Final performance report |
 
@@ -407,6 +407,8 @@ The `AppController` stores the JWT in `data/remember_token.json`. On app startup
 
 This module performs **semantic skill matching** between the user's resume and the target job description.
 
+> **Distinction:** FAISS is used for **RAG knowledge retrieval**; skill matching is handled by **Sentence-BERT + cosine similarity**.
+
 | File | Purpose |
 |------|---------|
 | `sbert_model.py` | Loads the **Sentence-BERT** model (`all-MiniLM-L6-v2`) and generates sentence embeddings |
@@ -439,7 +441,7 @@ This module performs **semantic skill matching** between the user's resume and t
 **Interview Flow:**
 1. User starts an interview session (linked to a resume + JD).
 2. `AdaptiveInterviewEngine` initializes with the user's skill gap data.
-3. `QuestionEngine` generates personalized questions via OpenAI LLM.
+3. `QuestionEngine` generates personalized questions via a pretrained instruction-tuned LLM.
 4. For each question:
    - Question is displayed to the user.
    - User speaks their answer (audio + video captured).
@@ -455,15 +457,17 @@ This module performs **semantic skill matching** between the user's resume and t
 
 | File | Purpose |
 |------|---------|
-| `llm_manager.py` | Manages the OpenAI API client (initialization, configuration) |
-| `openai_model.py` | Low-level wrapper around the OpenAI API (chat completions) |
-| `question_generator.py` | Generates interview questions given: skill gaps, role, difficulty level |
-| `answer_evaluator.py` | Evaluates and scores a candidate's answer using LLM |
+| `llm_manager.py` | Manages the pretrained LLM client (loads/model selection: Mistral / Llama / Qwen; optional OpenAI GPT backend) |
+| `pretrained_model.py` | Low-level wrapper around the pretrained instruction-tuned LLM (chat completion) |
+| `question_generator.py` | Generates interview questions given: resume, JD, matched skills, skill gaps, target role, previous answer context |
+| `answer_evaluator.py` | Evaluates the quality of a candidate's answer using the pretrained LLM (language quality + qualitative feedback) |
 
 **LLM Usage:**
-- **Question Generation:** Sends a system prompt + user context (skills, gaps, role) to generate interview questions.
-- **Answer Evaluation:** Sends the question + candidate's transcript to the LLM for scoring (0-100) and qualitative feedback.
+- **Question Generation:** Sends a system prompt + user context (resume, skills, gaps, role, previous answers) to generate personalized interview questions.
+- **Answer Evaluation:** Sends the question + candidate's transcript to the LLM to evaluate language/answer quality and produce qualitative feedback.
 - **RAG Verification:** Sends the candidate's technical claims + retrieved context documents for fact-checking.
+
+The LLM evaluates the **language/answer quality** of responses; XGBoost produces the final numerical interview score from engineered features.
 
 ---
 
@@ -475,14 +479,24 @@ RAG is used to **verify technical claims** made by the candidate during the inte
 
 | File | Purpose |
 |------|---------|
-| `document_loader.py` | Loads documents from the `data/knowledge_base/` directory (O*NET + ESCO datasets) |
+| `document_loader.py` | Loads documents from the `data/knowledge_base/` directory (O*NET + ESCO + curated technical documentation) |
 | `embedding_model.py` | Generates embeddings for loaded documents using Sentence-BERT |
 | `vector_database.py` | Creates and queries a **FAISS** index (IndexFlatL2) for fast nearest-neighbor search |
 | `retriever.py` | Given a query (candidate's answer), retrieves the most relevant knowledge base documents |
 | `knowledge_verifier.py` | Combines retrieved documents with the LLM to **verify or refute** technical claims |
 
+**RAG Knowledge Base:**
+
+```
+RAG Knowledge Base
+├── O*NET
+├── ESCO
+├── Curated Technical Documentation
+└── Interview/Technical Reference Material
+```
+
 **RAG Flow:**
-1. On startup, load all O*NET/ESCO documents from `data/knowledge_base/`.
+1. On startup, load all documents (O*NET + ESCO + curated technical documentation) from `data/knowledge_base/`.
 2. Generate embeddings and build a FAISS index.
 3. During interview, when a candidate makes a technical claim:
    - Embed the claim and query the FAISS index.
@@ -519,15 +533,17 @@ RAG is used to **verify technical claims** made by the candidate during the inte
 | File | Purpose |
 |------|---------|
 | `camera.py` | Manages webcam capture using **OpenCV** |
-| `face_orientation.py` | Detects if the user is **facing the camera** (not looking away) |
+| `face_orientation.py` | Detects camera/gaze orientation — if the user is facing the camera (not looking away) |
 | `gaze_analysis.py` | Tracks **eye gaze direction** (looking at screen vs. looking away) using MediaPipe face mesh |
 | `hand_gestures.py` | Detects **hand movements** and gestures (excessive fidgeting) using MediaPipe hands |
-| `head_pose.py` | Estimates **head pose** (nodding, shaking, tilting) using MediaPipe face landmarks |
+| `head_pose.py` | Estimates **head movement** (nodding, shaking, tilting) using MediaPipe face landmarks |
 | `posture_analysis.py` | Analyzes **shoulder alignment** and overall body posture |
 | `video_analyzer.py` | **Orchestrator** — runs all vision sub-modules and aggregates results into a single video analysis score |
 
+> **Scope note:** The vision module does **NOT** perform facial-expression or emotion recognition (no FER-2013). It covers camera/gaze orientation, head movement, hand gestures, and shoulder/posture analysis only.
+
 **Video Features Extracted:**
-- **Face orientation** (camera-facing percentage)
+- **Camera/gaze orientation** (facing the camera %)
 - **Eye gaze stability** (looking at screen %)
 - **Head movement** (excessive nodding/shaking)
 - **Hand activity** (fidgeting level)
@@ -538,42 +554,48 @@ RAG is used to **verify technical claims** made by the candidate during the inte
 
 ## 16. Scoring Module
 
-**Files:** `app/scoring/` (5 files)
+**Files:** `app/scoring/` (4 files)
 
-This module combines all evaluation signals into a **final interview score**.
+This module generates the final interview performance score using **engineered multimodal features and XGBoost** — XGBoost is the learned scoring model, not a manually weighted fusion.
 
 | File | Purpose |
 |------|---------|
-| `feature_engineering.py` | Builds a **13-dimensional feature vector** from all sources |
-| `score_fusion.py` | **Weighted fusion** of answer, audio, video, and skill-match scores |
-| `xgboost_model.py` | Loads and runs the **XGBoost regression model** on the feature vector |
-| `final_score.py` | Computes the final score and stores it in the database |
+| `feature_engineering.py` | Builds an engineered feature vector from all sources |
+| `xgboost_model.py` | Runs the **XGBoost regression model** — produces the final interview score |
+| `final_score.py` | Stores the final score in the database |
 
-### 13-Dimensional Feature Vector
+**Feature Sources:**
+- LLM-based answer evaluation (language/answer quality)
+- Audio features from Librosa
+- Video/behavioral features from OpenCV + MediaPipe
+- Resume-JD skill match score
+- RAG verification results
 
-| Index | Feature | Source |
-|-------|---------|--------|
-| 0-4 | Answer quality features (5) | LLM answer evaluator |
-| 5-8 | Audio features (4) | Audio module (speaking rate, pauses, fillers, energy) |
-| 9-11 | Video features (3) | Vision module (gaze, posture, face orientation) |
-| 12 | Skill match score | Skills module |
-
-### Weighted Fusion
-
-| Component | Weight |
-|-----------|--------|
-| Answer Quality | **0.35** (35%) |
-| Audio Analysis | **0.20** (20%) |
-| Video Analysis | **0.20** (20%) |
-| Skill Match | **0.25** (25%) |
-
-### Final Score Computation
+**Flow:**
 
 ```
-final_score = (weighted_fusion + xgboost_prediction) / 2
+Answer Analysis
+       +
+Audio Analysis
+       +
+Video Analysis
+       +
+Skill Gap / Matching
+       +
+RAG Verification
+       ↓
+Feature Engineering
+       ↓
+XGBoost
+       ↓
+Final Interview Score
+       ↓
+SHAP Explainability
 ```
 
-The XGBoost model is trained on the same 13 features and its prediction is averaged with the weighted fusion for robustness.
+**Feature Engineering:** `feature_engineering.py` builds an engineered feature vector from answer quality, audio characteristics, video/behavioral features, skill match, and RAG verification. It does not rely on a fixed-dimensional hard-coded vector.
+
+XGBoost directly generates the final interview score from the engineered features.
 
 ---
 
@@ -587,28 +609,39 @@ The XGBoost model is trained on the same 13 features and its prediction is avera
 | `explanation.py` | Converts raw SHAP values into **human-readable explanations** (positive factors + areas for improvement) |
 
 **How it works:**
-1. After scoring, the 13-feature vector is fed to SHAP's `TreeExplainer`.
+1. After scoring, the engineered feature vector is fed to SHAP's `TreeExplainer`.
 2. Each feature gets a SHAP value indicating its positive or negative contribution.
-3. `explanation.py` maps feature indices to human-readable labels (e.g., "Speaking Rate", "Eye Contact", "Skill Match").
+3. `explanation.py` maps features to human-readable labels (e.g., "Speaking Rate", "Gaze/Camera Orientation", "Skill Match").
 4. Features with positive SHAP values → **strengths**.
 5. Features with negative SHAP values → **areas for improvement**.
 
 ---
 
-## 18. Recommendation Module
+## 18. Skill Gap & Improvement Module
 
 **Files:** `app/recommendation/` (4 files)
 
 | File | Purpose |
 |------|---------|
 | `skill_gap_analysis.py` | Analyzes the skill gap data to determine priority levels |
-| `improvement_engine.py` | Generates **improvement areas** with priority (HIGH / MEDIUM / LOW) |
+| `improvement_engine.py` | Generates **areas of improvement** with priority (HIGH / MEDIUM / LOW) |
 | `learning_recommendation.py` | Suggests **learning resources** (courses, books, practice) for each skill gap |
 
 **Priority Assignment:**
 - **HIGH** — Skill is required by JD and completely missing from resume.
 - **MEDIUM** — Skill is partially matched or preferred by JD.
 - **LOW** — Skill is nice-to-have but not critical.
+
+**Performance Report Output:**
+```
+Performance Report
+├── Overall Score
+├── Section-wise Performance
+├── Strengths
+├── Weaknesses
+├── Skill Gap Analysis
+└── Areas of Improvement
+```
 
 ---
 
@@ -666,7 +699,7 @@ The UI uses a **hybrid architecture**:
 - `saveProfile()` / `saveAccount()` — updates user in database.
 - `deleteAccount()` — deletes user and logs out.
 - `showError(title, message)` — triggers error dialog.
-- `loginWithGoogle()` / `loginWithGitHub()` — social login (creates dummy accounts).
+- `loginWithGoogle()` / `loginWithGitHub()` — social login (optional future enhancement; not currently implemented).
 
 ### 20.4 Navigation Flow
 
@@ -694,7 +727,7 @@ Main.qml (StackView)
 | 0 | `Dashboard` | Welcome dashboard with stats and quick actions |
 | 1 | `ResumeJD` | Upload and manage resume and job description files |
 | 2 | `SkillAnalysis` | View skill gap analysis (matched, missing, partial skills) |
-| 3 | `Interview` | Interview setup and question history |
+| 3 | `Interview` | Interview setup and personalized question generation |
 | 4 | `PerformanceReport` | Final performance report with scores and charts |
 | 5 | `Profile` | User profile view and editing |
 | 6 | `SettingsPage` | Application settings (theme, notifications, etc.) |
@@ -874,11 +907,10 @@ Displayed on SkillAnalysis page with visual cards and charts
 User navigates to Interview page → starts new interview
   ↓
 AdaptiveInterviewEngine initializes:
-  - Loads skill gap data
-  - Loads resume + JD context
-  - Sets difficulty level and total questions (default: 10)
+  - Loads resume, JD, skill-gap and interview context
+  - Sets total number of questions (default: 10)
   ↓
-QuestionEngine generates first question via OpenAI LLM:
+QuestionEngine generates first question via pretrained instruction-tuned LLM:
   - System prompt + user context → personalized question
   ↓
 Question displayed in ActualInterview page (index 8)
@@ -889,7 +921,7 @@ User speaks answer while:
   - Whisper transcribes speech to text
   ↓
 Answer is evaluated:
-  1. answer_evaluator.py scores the transcript (0-100) via LLM
+  1. answer_evaluator.py evaluates the transcript (language/answer quality) via pretrained LLM
   2. audio_features.py computes audio score (0-100)
   3. video_analyzer.py computes video score (0-100)
   4. knowledge_verifier.py verifies technical claims via RAG
@@ -899,10 +931,9 @@ Follow-up question may be generated if answer was weak
 Next question → repeat process
   ↓
 After all questions:
-  - feature_engineering.py builds 13-dim feature vector
-  - score_fusion.py computes weighted fusion
-  - xgboost_model.py predicts final score
-  - final_score.py averages both → stores in Report table
+  - feature_engineering.py builds the engineered feature vector
+  - xgboost_model.py produces the final interview score
+  - final_score.py stores the final score in Report table
   ↓
 shap_analysis.py generates SHAP values
   ↓
@@ -918,45 +949,36 @@ Report displayed on PerformanceReport page with charts and explanations
 ```
 For each answered question:
   ┌─────────────────────────────────────────┐
-  │  LLM Answer Score (0-100)              │
+  │  LLM Answer Evaluation (language quality)│
   │  Audio Features:                        │
   │    - Speaking rate                      │
   │    - Pause count & duration             │
   │    - Filler word count                  │
   │    - Pitch & energy                     │
   │  Video Features:                        │
-  │    - Face orientation %                 │
+  │    - Camera/gaze orientation %          │
   │    - Gaze stability %                   │
   │    - Posture quality                    │
   │    - Head movement                      │
   │    - Hand activity                      │
   │  Skill Match Score (from SkillAnalysis) │
+  │  RAG Verification results               │
   └─────────────────────────────────────────┘
                     ↓
-         Build 13-dimensional feature vector
+      Feature Engineering (engineered feature vector)
                     ↓
-    ┌───────────────┴───────────────┐
-    │                               │
-    ↓                               ↓
-Weighted Fusion                 XGBoost Model
-(0.35*answer +                 (trained on
- 0.20*audio +                   13 features)
- 0.20*video +                   → prediction
- 0.25*skill)                      ↓
-    │                               │
-    └───────────────┬───────────────┘
+            XGBoost Model
+         (learned scoring model)
                     ↓
-         (fusion + xgboost) / 2
+           Final Interview Score (0-100)
                     ↓
-              Final Score (0-100)
+              SHAP Analysis
                     ↓
-         SHAP Analysis
+        Strengths + Areas of Improvement
                     ↓
-     Strengths + Weaknesses
+         Learning Recommendations
                     ↓
-     Learning Recommendations
-                    ↓
-         Store in Report table
+           Store in Report table
 ```
 
 ---
@@ -965,14 +987,15 @@ Weighted Fusion                 XGBoost Model
 
 ### 23.1 Knowledge Base — `data/knowledge_base/`
 
-Contains two subdirectories of occupation-skill ontology data:
+Contains occupation-skill ontology data plus curated technical documentation:
 
 | Directory | Source | Contents |
 |-----------|--------|----------|
 | `O_NET/` | O*NET OnLine | Occupational descriptions, skill requirements, ability mappings |
 | `ESCO/` | European Skills/Competences | Occupation-skill relationships, skill hierarchies |
+| `technical_docs/` | Curated | Technical documentation and interview reference material |
 
-These are used by the RAG module to **verify technical claims** during interviews. The system can check if a candidate's answer about a skill or concept aligns with the authoritative ontology definitions.
+These are used by the RAG module to **verify technical claims** during interviews. The system can check if a candidate's answer about a skill or concept aligns with the authoritative ontology definitions and reference material.
 
 ### 23.2 Uploads
 
@@ -1017,7 +1040,7 @@ Stores the JWT token for "Remember Me" functionality. Example:
 | spacy | >=3.7 | NLP processing |
 | sentence-transformers | >=2.7 | Sentence-BERT embeddings |
 | torch | >=2.2 | PyTorch (required by sentence-transformers) |
-| openai | >=1.30 | OpenAI API client |
+| openai | >=1.30 | OpenAI API client (optional — only if OpenAI GPT backend used) |
 | faiss-cpu | >=1.8 | Vector similarity search |
 | numpy | >=1.26 | Numerical computing |
 | pandas | >=2.2 | Data manipulation |
@@ -1059,8 +1082,8 @@ pyinstaller SynaptiRoleAI.spec
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OPENAI_API_KEY` | `""` | **Required.** OpenAI API key for LLM calls |
-| `CP_OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use |
+| `OPENAI_API_KEY` | `""` | **Optional.** OpenAI API key — only required when using the OpenAI GPT backend |
+| `CP_LLM_MODEL` | `mistral-7b-instruct` | Pretrained LLM model to use (Mistral / Llama / Qwen) |
 | `CP_JWT_SECRET` | `careerpilot-dev-secret-change-in-prod` | JWT signing secret |
 | `CP_EMBEDDING_MODEL` | `all-MiniLM-L6-v2` | Sentence-BERT model name |
 | `CP_WHISPER_MODEL` | `base` | Whisper model size (tiny/base/small/medium/large) |
@@ -1084,8 +1107,8 @@ pyinstaller SynaptiRoleAI.spec
 | Audio analyzed | `app/audio/audio_features.py` |
 | Video analyzed | `app/vision/video_analyzer.py` |
 | Technical claims verified | `app/rag/knowledge_verifier.py` |
-| Scores fused | `app/scoring/score_fusion.py` |
-| XGBoost prediction | `app/scoring/xgboost_model.py` |
+| Features engineered | `app/scoring/feature_engineering.py` |
+| Final interview score (XGBoost) | `app/scoring/xgboost_model.py` |
 | SHAP explanation | `app/explainability/shap_analysis.py` |
 | Recommendations generated | `app/recommendation/improvement_engine.py` |
 | UI navigation | `app/ui/app_controller.py` (Python) + `app/ui/qml/Shell.qml` (QML) |
