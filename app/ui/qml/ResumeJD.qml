@@ -1,14 +1,27 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import "components"
 
 Item {
     id: root
 
-    function openPreview(title) {
+    property bool resumeDragging: false
+    property bool jdDragging: false
+
+    function openPreview(title, text) {
         previewTitle.text = title
+        previewTextArea.text = text
         previewPopup.open()
+    }
+
+    Connections {
+        target: App
+        function onResumeParsed() { statusBanner.updateStatus() }
+        function onJdParsed() { statusBanner.updateStatus() }
+        function onResumeUploaded() { statusBanner.updateStatus() }
+        function onJdUploaded() { statusBanner.updateStatus() }
     }
 
     Flickable {
@@ -60,11 +73,29 @@ Item {
             }
 
             Rectangle {
+                id: statusBanner
                 Layout.fillWidth: true
                 height: 54
                 radius: 12
-                color: Theme.greenSoft
-                border.color: "#bbf7d0"
+                color: _isReady() ? Theme.greenSoft : "#fffbeb"
+                border.color: _isReady() ? "#bbf7d0" : "#fde68a"
+
+                function _isReady() {
+                    return App?.documentsReady ?? false
+                }
+
+                function updateStatus() {
+                    color = _isReady() ? Theme.greenSoft : "#fffbeb"
+                    border.color = _isReady() ? "#bbf7d0" : "#fde68a"
+                    statusIcon.text = _isReady() ? "\u2713" : "\u23F3"
+                    statusIconBg.color = _isReady() ? Theme.green : "#f59e0b"
+                    statusTitle.text = _isReady()
+                        ? "Documents uploaded & parsed successfully"
+                        : "Upload your Resume and Job Description"
+                    statusSubtitle.text = _isReady()
+                        ? "Resume is ready \u2022 Job Description is ready \u2022 You can proceed to Mock Interviews"
+                        : "Upload both documents to enable personalized mock interviews"
+                }
 
                 Row {
                     anchors.verticalCenter: parent.verticalCenter
@@ -73,30 +104,42 @@ Item {
                     spacing: 10
 
                     Rectangle {
+                        id: statusIconBg
                         width: 26; height: 26; radius: 13
-                        color: Theme.green
-                        Text { anchors.centerIn: parent; text: "\u2713"; color: "#ffffff"; font.pixelSize: 13; font.weight: Font.Bold }
+                        color: "#f59e0b"
                         anchors.verticalCenter: parent.verticalCenter
+                        Text {
+                            id: statusIcon
+                            anchors.centerIn: parent
+                            text: "\u23F3"
+                            color: "#ffffff"
+                            font.pixelSize: 13
+                            font.weight: Font.Bold
+                        }
                     }
 
                     Column {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 0
                         Text {
-                            text: "Documents uploaded & parsed successfully"
+                            id: statusTitle
+                            text: "Upload your Resume and Job Description"
                             font.family: Theme.fontName
                             font.pixelSize: 13
                             font.weight: Font.DemiBold
-                            color: "#166534"
+                            color: statusBanner._isReady() ? "#166534" : "#92400e"
                         }
                         Text {
-                            text: "Resume is ready \u2022 Job Description is ready \u2022 You can proceed to Mock Interviews"
+                            id: statusSubtitle
+                            text: "Upload both documents to enable personalized mock interviews"
                             font.family: Theme.fontName
                             font.pixelSize: 11
-                            color: "#15803d"
+                            color: statusBanner._isReady() ? "#15803d" : "#a16207"
                         }
                     }
                 }
+
+                Component.onCompleted: updateStatus()
             }
 
             Row {
@@ -104,19 +147,31 @@ Item {
 
                 Repeater {
                     model: [
-                        { n: 1, label: "Upload Documents", done: true },
-                        { n: 2, label: "Documents Parsed", done: true },
-                        { n: 3, label: "Ready for Mock Interviews", done: true }
+                        { n: 1, label: "Upload Documents" },
+                        { n: 2, label: "Documents Parsed" },
+                        { n: 3, label: "Ready for Mock Interviews" }
                     ]
                     delegate: Row {
+                        id: stepItem
                         spacing: 8
+
+                        required property int index
+                        required property var modelData
+
+                        property int stepNum: modelData.n
+                        property string stepLabel: modelData.label
+                        property bool stepDone: index === 0
+                            ? ((App?.hasResume ?? false) && (App?.hasJd ?? false))
+                            : index === 1
+                                ? ((App?.resumeStatus === "parsed") && (App?.jdStatus === "parsed"))
+                                : (App?.documentsReady ?? false)
 
                         Rectangle {
                             width: stepRow.implicitWidth + 28
                             height: 38
                             radius: 19
-                            color: modelData.done ? Theme.primarySoft : "#f1f5f9"
-                            border.color: modelData.done ? "#ddd2f7" : Theme.border
+                            color: stepItem.stepDone ? Theme.primarySoft : "#f1f5f9"
+                            border.color: stepItem.stepDone ? "#ddd2f7" : Theme.border
 
                             Row {
                                 id: stepRow
@@ -125,11 +180,11 @@ Item {
 
                                 Rectangle {
                                     width: 22; height: 22; radius: 11
-                                    color: modelData.done ? Theme.primary : Theme.faint
+                                    color: stepItem.stepDone ? Theme.primary : Theme.faint
                                     anchors.verticalCenter: parent.verticalCenter
                                     Text {
                                         anchors.centerIn: parent
-                                        text: modelData.done ? "\u2713" : modelData.n
+                                        text: stepItem.stepDone ? "\u2713" : String(stepItem.stepNum)
                                         color: "#ffffff"
                                         font.family: Theme.fontName
                                         font.pixelSize: 11
@@ -138,18 +193,18 @@ Item {
                                 }
 
                                 Text {
-                                    text: modelData.label
+                                    text: stepItem.stepLabel
                                     font.family: Theme.fontName
                                     font.pixelSize: 12
                                     font.weight: Font.Medium
-                                    color: modelData.done ? Theme.primaryDark : Theme.muted
+                                    color: stepItem.stepDone ? Theme.primaryDark : Theme.muted
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
                             }
                         }
 
                         Text {
-                            visible: modelData.n < 3
+                            visible: stepItem.stepNum < 3
                             text: "\u2500\u2500\u2500"
                             color: Theme.border
                             font.pixelSize: 14
@@ -165,7 +220,34 @@ Item {
 
                 Card {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 330
+                    Layout.preferredHeight: 360
+
+                    DropArea {
+                        anchors.fill: parent
+                        keys: ["text/uri-list"]
+                        onEntered: { root.resumeDragging = true }
+                        onExited: { root.resumeDragging = false }
+                        onDropped: function(drop) {
+                            root.resumeDragging = false
+                            if (drop.hasUrls) {
+                                var url = drop.urls[0]
+                                var name = url.toString().split("/").pop()
+                                App?.uploadResume(url.toString(), name)
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        radius: 12
+                        color: "transparent"
+                        border.color: root.resumeDragging ? Theme.primary : "#e2e8f0"
+                        border.width: 2
+                        z: 10
+                        enabled: root.resumeDragging
+                        visible: root.resumeDragging
+                    }
 
                     ColumnLayout {
                         anchors.fill: parent
@@ -184,7 +266,12 @@ Item {
                                     border.color: "#fecaca"
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "PDF"
+                                        text: {
+                                            var name = App?.resumeFileName ?? ""
+                                            if (name.endsWith(".pdf")) return "PDF"
+                                            if (name.endsWith(".docx") || name.endsWith(".doc")) return "DOC"
+                                            return "TXT"
+                                        }
                                         font.family: Theme.fontName
                                         font.pixelSize: 12
                                         font.weight: Font.Bold
@@ -204,10 +291,21 @@ Item {
                                         color: Theme.text
                                     }
                                     Text {
-                                        text: "Arjun_Sharma_Resume.pdf \u2022 Uploaded 21 May 2025 \u2022 245 KB"
+                                        text: {
+                                            var name = App?.resumeFileName ?? ""
+                                            if (name) return name
+                                            return "No file uploaded yet"
+                                        }
                                         font.family: Theme.fontName
                                         font.pixelSize: 12
                                         color: Theme.muted
+                                    }
+                                    Text {
+                                        visible: App?.resumeFileSize !== ""
+                                        text: App?.resumeFileSize
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 10
+                                        color: Theme.faint
                                     }
                                 }
                             }
@@ -215,19 +313,38 @@ Item {
                             Item { Layout.fillWidth: true }
 
                             Rectangle {
+                                visible: App?.resumeStatus === "parsed"
                                 radius: 12
                                 height: 24
-                                width: parsedLabel.implicitWidth + 20
+                                width: parsedResumeLabel.implicitWidth + 20
                                 color: Theme.greenSoft
                                 Layout.alignment: Qt.AlignVCenter
                                 Text {
-                                    id: parsedLabel
+                                    id: parsedResumeLabel
                                     anchors.centerIn: parent
                                     text: "\u2713 Parsed"
                                     font.family: Theme.fontName
                                     font.pixelSize: 11
                                     font.weight: Font.DemiBold
                                     color: "#15803d"
+                                }
+                            }
+
+                            Rectangle {
+                                visible: App?.resumeStatus === "error"
+                                radius: 12
+                                height: 24
+                                width: errorResumeLabel.implicitWidth + 20
+                                color: "#fef2f2"
+                                Layout.alignment: Qt.AlignVCenter
+                                Text {
+                                    id: errorResumeLabel
+                                    anchors.centerIn: parent
+                                    text: "\u2717 Error"
+                                    font.family: Theme.fontName
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                    color: "#dc2626"
                                 }
                             }
                         }
@@ -238,44 +355,147 @@ Item {
                             color: Theme.border
                         }
 
-                        Text {
-                            text: "Quick Preview"
-                            font.family: Theme.fontName
-                            font.pixelSize: 13
-                            font.weight: Font.DemiBold
-                            color: Theme.muted
-                        }
+                        ColumnLayout {
+                            visible: App?.resumeStatus === "uploaded" || App?.resumeStatus === "parsed"
+                            spacing: 0
 
-                        GridLayout {
-                            Layout.fillWidth: true
-                            columns: 2
-                            columnSpacing: 16
-                            rowSpacing: 10
+                            Text {
+                                text: "Quick Preview"
+                                font.family: Theme.fontName
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                color: Theme.muted
+                            }
 
-                            Repeater {
-                                model: [
-                                    { k: "Name", v: "Arjun Sharma" },
-                                    { k: "Experience", v: "2+ Years" },
-                                    { k: "Current Role", v: "AI/ML Engineer" },
-                                    { k: "Current Company", v: "TechNova Solutions" }
-                                ]
-                                delegate: Column {
-                                    Layout.fillWidth: true
+                            GridLayout {
+                                Layout.fillWidth: true
+                                columns: 2
+                                columnSpacing: 16
+                                rowSpacing: 10
+                                Layout.topMargin: 8
+
+                                Column {
                                     spacing: 2
                                     Text {
-                                        text: modelData.k
+                                        text: "Name"
                                         font.family: Theme.fontName
                                         font.pixelSize: 11
                                         color: Theme.faint
                                     }
                                     Text {
-                                        text: modelData.v
+                                        text: App?.resumeName || "N/A"
                                         font.family: Theme.fontName
                                         font.pixelSize: 13
                                         font.weight: Font.Medium
                                         color: Theme.text
                                     }
                                 }
+
+                                Column {
+                                    spacing: 2
+                                    Text {
+                                        text: "Experience"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 11
+                                        color: Theme.faint
+                                    }
+                                    Text {
+                                        text: App?.resumeExperience || "N/A"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        font.weight: Font.Medium
+                                        color: Theme.text
+                                    }
+                                }
+
+                                Column {
+                                    Layout.columnSpan: 2
+                                    spacing: 2
+                                    Text {
+                                        text: "Current Role"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 11
+                                        color: Theme.faint
+                                    }
+                                    Text {
+                                        text: App?.resumeRole || "N/A"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        font.weight: Font.Medium
+                                        color: Theme.text
+                                    }
+                                }
+
+                                Column {
+                                    Layout.columnSpan: 2
+                                    spacing: 2
+                                    Text {
+                                        text: "Detected Skills"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 11
+                                        color: Theme.faint
+                                    }
+                                    Flow {
+                                        spacing: 4
+                                        Repeater {
+                                            model: (App?.resumeSkills ?? "").split(", ").filter(s => s.length > 0)
+                                            delegate: Rectangle {
+                                                width: chipLabel.implicitWidth + 14
+                                                height: 22
+                                                radius: 11
+                                                color: Theme.primarySoft
+                                                Text {
+                                                    id: chipLabel
+                                                    anchors.centerIn: parent
+                                                    text: modelData
+                                                    font.family: Theme.fontName
+                                                    font.pixelSize: 10
+                                                    font.weight: Font.Medium
+                                                    color: Theme.primaryDark
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        ColumnLayout {
+                            visible: !(App?.resumeFileName) || App?.resumeStatus === "none"
+                            spacing: 12
+                            Layout.topMargin: 20
+
+                            Text {
+                                text: "\u2B07"
+                                font.pixelSize: 28
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                                color: Theme.muted
+                            }
+                            Text {
+                                text: "Drag & drop your resume here"
+                                font.family: Theme.fontName
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                                color: Theme.text
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                            }
+                            Text {
+                                text: "or click the button below to browse files"
+                                font.family: Theme.fontName
+                                font.pixelSize: 12
+                                color: Theme.muted
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                            }
+                            Text {
+                                text: "Supports PDF, DOCX, DOC, TXT \u2022 Max 10 MB"
+                                font.family: Theme.fontName
+                                font.pixelSize: 11
+                                color: Theme.faint
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
                             }
                         }
 
@@ -285,15 +505,29 @@ Item {
                             spacing: 10
 
                             AppButton {
-                                text: "Preview Resume"
-                                iconText: "\u{1F441}"
-                                onClicked: root.openPreview("Arjun_Sharma_Resume.pdf")
+                                text: App?.resumeFileName ? "Preview Resume" : "Upload Resume"
+                                iconText: App?.resumeFileName ? "\u{1F441}" : "\u2B07"
+                                onClicked: {
+                                    if (App?.resumeFileName) {
+                                        root.openPreview("Resume - " + (App?.resumeFileName ?? ""), App?.resumeRawText ?? "")
+                                    } else {
+                                        resumeFileDialog.open()
+                                    }
+                                }
                             }
                             AppButton {
+                                visible: App?.resumeFileName !== ""
                                 kind: "secondary"
                                 text: "Re-upload"
                                 iconText: "\u{1F504}"
-                                onClicked: App?.notify("Choose a new resume file to replace the current one.")
+                                onClicked: resumeFileDialog.open()
+                            }
+                            AppButton {
+                                visible: App?.resumeFileName !== ""
+                                kind: "danger"
+                                text: "Remove"
+                                iconText: "\u2715"
+                                onClicked: App?.clearResume()
                             }
                         }
                     }
@@ -301,7 +535,34 @@ Item {
 
                 Card {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 330
+                    Layout.preferredHeight: 360
+
+                    DropArea {
+                        anchors.fill: parent
+                        keys: ["text/uri-list"]
+                        onEntered: { root.jdDragging = true }
+                        onExited: { root.jdDragging = false }
+                        onDropped: function(drop) {
+                            root.jdDragging = false
+                            if (drop.hasUrls) {
+                                var url = drop.urls[0]
+                                var name = url.toString().split("/").pop()
+                                App?.uploadJd(url.toString(), name)
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        radius: 12
+                        color: "transparent"
+                        border.color: root.jdDragging ? Theme.primary : "#e2e8f0"
+                        border.width: 2
+                        z: 10
+                        enabled: root.jdDragging
+                        visible: root.jdDragging
+                    }
 
                     ColumnLayout {
                         anchors.fill: parent
@@ -320,7 +581,12 @@ Item {
                                     border.color: "#bfdbfe"
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "PDF"
+                                        text: {
+                                            var name = App?.jdFileName ?? ""
+                                            if (name.endsWith(".pdf")) return "PDF"
+                                            if (name.endsWith(".docx") || name.endsWith(".doc")) return "DOC"
+                                            return "TXT"
+                                        }
                                         font.family: Theme.fontName
                                         font.pixelSize: 12
                                         font.weight: Font.Bold
@@ -340,10 +606,21 @@ Item {
                                         color: Theme.text
                                     }
                                     Text {
-                                        text: "AIML_Engineer_JD.pdf \u2022 Uploaded 21 May 2025 \u2022 180 KB"
+                                        text: {
+                                            var name = App?.jdFileName ?? ""
+                                            if (name) return name
+                                            return "No file uploaded yet"
+                                        }
                                         font.family: Theme.fontName
                                         font.pixelSize: 12
                                         color: Theme.muted
+                                    }
+                                    Text {
+                                        visible: App?.jdFileSize !== ""
+                                        text: App?.jdFileSize
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 10
+                                        color: Theme.faint
                                     }
                                 }
                             }
@@ -351,19 +628,38 @@ Item {
                             Item { Layout.fillWidth: true }
 
                             Rectangle {
+                                visible: App?.jdStatus === "parsed"
                                 radius: 12
                                 height: 24
-                                width: parsedLabel2.implicitWidth + 20
+                                width: parsedJdLabel.implicitWidth + 20
                                 color: Theme.greenSoft
                                 Layout.alignment: Qt.AlignVCenter
                                 Text {
-                                    id: parsedLabel2
+                                    id: parsedJdLabel
                                     anchors.centerIn: parent
                                     text: "\u2713 Parsed"
                                     font.family: Theme.fontName
                                     font.pixelSize: 11
                                     font.weight: Font.DemiBold
                                     color: "#15803d"
+                                }
+                            }
+
+                            Rectangle {
+                                visible: App?.jdStatus === "error"
+                                radius: 12
+                                height: 24
+                                width: errorJdLabel.implicitWidth + 20
+                                color: "#fef2f2"
+                                Layout.alignment: Qt.AlignVCenter
+                                Text {
+                                    id: errorJdLabel
+                                    anchors.centerIn: parent
+                                    text: "\u2717 Error"
+                                    font.family: Theme.fontName
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                    color: "#dc2626"
                                 }
                             }
                         }
@@ -374,67 +670,163 @@ Item {
                             color: Theme.border
                         }
 
-                        Text {
-                            text: "Quick Preview"
-                            font.family: Theme.fontName
-                            font.pixelSize: 13
-                            font.weight: Font.DemiBold
-                            color: Theme.muted
-                        }
+                        ColumnLayout {
+                            visible: App?.jdStatus === "uploaded" || App?.jdStatus === "parsed"
+                            spacing: 0
 
-                        GridLayout {
-                            columns: 2
-                            columnSpacing: 16
-                            rowSpacing: 10
+                            Text {
+                                text: "Quick Preview"
+                                font.family: Theme.fontName
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                color: Theme.muted
+                            }
 
-                            Repeater {
-                                model: [
-                                    { k: "Job Title", v: "AI/ML Engineer" },
-                                    { k: "Experience Required", v: "2+ Years" },
-                                    { k: "Employment Type", v: "Full-Time" },
-                                    { k: "Location", v: "Pune / Hybrid" }
-                                ]
-                                delegate: Column {
+                            GridLayout {
+                                Layout.fillWidth: true
+                                columns: 2
+                                columnSpacing: 16
+                                rowSpacing: 10
+                                Layout.topMargin: 8
+
+                                Column {
                                     spacing: 2
                                     Text {
-                                        text: modelData.k
+                                        text: "Job Title"
                                         font.family: Theme.fontName
                                         font.pixelSize: 11
                                         color: Theme.faint
                                     }
                                     Text {
-                                        text: modelData.v
+                                        text: App?.jdTitle || "N/A"
                                         font.family: Theme.fontName
                                         font.pixelSize: 13
                                         font.weight: Font.Medium
                                         color: Theme.text
                                     }
                                 }
+
+                                Column {
+                                    spacing: 2
+                                    Text {
+                                        text: "Company"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 11
+                                        color: Theme.faint
+                                    }
+                                    Text {
+                                        text: App?.jdCompany || "N/A"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        font.weight: Font.Medium
+                                        color: Theme.text
+                                    }
+                                }
+
+                                Column {
+                                    spacing: 2
+                                    Text {
+                                        text: "Experience Required"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 11
+                                        color: Theme.faint
+                                    }
+                                    Text {
+                                        text: App?.jdExperienceRequired || "N/A"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        font.weight: Font.Medium
+                                        color: Theme.text
+                                    }
+                                }
+
+                                Column {
+                                    spacing: 2
+                                    Text {
+                                        text: "Employment Type"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 11
+                                        color: Theme.faint
+                                    }
+                                    Text {
+                                        text: App?.jdEmploymentType || "N/A"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        font.weight: Font.Medium
+                                        color: Theme.text
+                                    }
+                                }
+
+                                Column {
+                                    Layout.columnSpan: 2
+                                    spacing: 2
+                                    Text {
+                                        text: "Key Skills"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 11
+                                        color: Theme.faint
+                                    }
+                                    Flow {
+                                        spacing: 4
+                                        Repeater {
+                                            model: (App?.jdSkills ?? "").split(", ").filter(s => s.length > 0)
+                                            delegate: Rectangle {
+                                                width: chipLabel2.implicitWidth + 14
+                                                height: 22
+                                                radius: 11
+                                                color: Theme.blueSoft
+                                                Text {
+                                                    id: chipLabel2
+                                                    anchors.centerIn: parent
+                                                    text: modelData
+                                                    font.family: Theme.fontName
+                                                    font.pixelSize: 10
+                                                    font.weight: Font.Medium
+                                                    color: "#1d4ed8"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
 
-                        Flow {
-                            spacing: 6
-                            clip: true
-                            height: 30
+                        ColumnLayout {
+                            visible: !(App?.jdFileName) || App?.jdStatus === "none"
+                            spacing: 12
+                            Layout.topMargin: 20
 
-                            Repeater {
-                                model: ["Python", "Machine Learning", "Deep Learning", "NLP", "SQL", "TensorFlow"]
-                                delegate: Rectangle {
-                                    width: chipLabel.implicitWidth + 18
-                                    height: 24
-                                    radius: 12
-                                    color: Theme.blueSoft
-                                    Text {
-                                        id: chipLabel
-                                        anchors.centerIn: parent
-                                        text: modelData
-                                        font.family: Theme.fontName
-                                        font.pixelSize: 11
-                                        font.weight: Font.Medium
-                                        color: "#1d4ed8"
-                                    }
-                                }
+                            Text {
+                                text: "\u2B07"
+                                font.pixelSize: 28
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                                color: Theme.muted
+                            }
+                            Text {
+                                text: "Drag & drop your job description here"
+                                font.family: Theme.fontName
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                                color: Theme.text
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                            }
+                            Text {
+                                text: "or click the button below to browse files"
+                                font.family: Theme.fontName
+                                font.pixelSize: 12
+                                color: Theme.muted
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                            }
+                            Text {
+                                text: "Supports PDF, DOCX, DOC, TXT \u2022 Max 10 MB"
+                                font.family: Theme.fontName
+                                font.pixelSize: 11
+                                color: Theme.faint
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
                             }
                         }
 
@@ -444,15 +836,29 @@ Item {
                             spacing: 10
 
                             AppButton {
-                                text: "Preview JD"
-                                iconText: "\u{1F441}"
-                                onClicked: root.openPreview("AIML_Engineer_JD.pdf")
+                                text: App?.jdFileName ? "Preview JD" : "Upload JD"
+                                iconText: App?.jdFileName ? "\u{1F441}" : "\u2B07"
+                                onClicked: {
+                                    if (App?.jdFileName) {
+                                        root.openPreview("JD - " + (App?.jdFileName ?? ""), App?.jdRawText ?? "")
+                                    } else {
+                                        jdFileDialog.open()
+                                    }
+                                }
                             }
                             AppButton {
+                                visible: App?.jdFileName !== ""
                                 kind: "secondary"
                                 text: "Re-upload"
                                 iconText: "\u{1F504}"
-                                onClicked: App?.notify("Choose a new JD file to replace the current one.")
+                                onClicked: jdFileDialog.open()
+                            }
+                            AppButton {
+                                visible: App?.jdFileName !== ""
+                                kind: "danger"
+                                text: "Remove"
+                                iconText: "\u2715"
+                                onClicked: App?.clearJd()
                             }
                         }
                     }
@@ -460,6 +866,7 @@ Item {
             }
 
             Card {
+                visible: App?.documentsReady ?? false
                 Layout.fillWidth: true
                 Layout.preferredHeight: 190
 
@@ -573,6 +980,28 @@ Item {
         }
     }
 
+    FileDialog {
+        id: resumeFileDialog
+        title: "Select Resume File"
+        nameFilters: ["PDF files (*.pdf)", "Word documents (*.docx *.doc)", "Text files (*.txt)"]
+        onAccepted: {
+            var url = selectedFile.toString()
+            var name = url.split("/").pop()
+            App?.uploadResume(url, name)
+        }
+    }
+
+    FileDialog {
+        id: jdFileDialog
+        title: "Select Job Description File"
+        nameFilters: ["PDF files (*.pdf)", "Word documents (*.docx *.doc)", "Text files (*.txt)"]
+        onAccepted: {
+            var url = selectedFile.toString()
+            var name = url.split("/").pop()
+            App?.uploadJd(url, name)
+        }
+    }
+
     Popup {
         id: previewPopup
         anchors.centerIn: parent
@@ -628,12 +1057,13 @@ Item {
                 Layout.margins: 24
 
                 TextArea {
+                    id: previewTextArea
                     readOnly: true
                     wrapMode: TextArea.Wrap
-                    text: "ARJUN SHARMA\nAI/ML Engineer \u2022 Pune, Maharashtra \u2022 arjun.sharma@gmail.com\n\nEXPERIENCE\n\nAI/ML Engineer - TechNova Solutions (2024 - Present)\n- Built and deployed ML pipelines processing 2M+ records daily.\n- Developed NLP models for document classification with 94% accuracy.\n- Collaborated with cross-functional teams to productionize models.\n\nMachine Learning Intern - DataSpark Labs (2023 - 2024)\n- Implemented CNN-based image quality checks reducing manual review by 60%.\n- Automated ETL workflows in Python and SQL.\n\nEDUCATION\n\nB.Tech in Artificial Intelligence & Data Science\nV.P.K.B.I.E.T, Baramati (2020 - 2024)\n\nSKILLS\nPython \u2022 Machine Learning \u2022 Deep Learning \u2022 NLP \u2022 SQL \u2022 TensorFlow \u2022 React.js\n\nPROJECTS\n\nSmart Resume Screener - Semantic matching of resumes to job descriptions using SBERT.\nVoice Notes Summarizer - Whisper + LLM based meeting summarization tool.\n\nCERTIFICATIONS\nDeep Learning Specialization - DeepLearning.AI (2024)"
                     font.family: "Consolas"
                     font.pixelSize: 12
                     color: Theme.text
+                    text: ""
                     background: Rectangle { color: "#fafbfe"; radius: 10; border.color: Theme.border }
                 }
             }

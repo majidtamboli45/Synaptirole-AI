@@ -1,28 +1,14 @@
-from pathlib import Path
-from app.utils import get_logger
+from app.resume.text_extractor import extract_text, TextExtractionError
+from app.resume.pdf_parser import extract_text_from_pdf, PDFParseError
+from app.resume.docx_parser import extract_text_from_docx, DOCXParseError
+from app.resume.resume_analyzer import analyze_resume
 
-logger = get_logger("pdf_parser")
-
-
-def extract_text(pdf_path: Path) -> str:
-    try:
-        import pymupdf
-        doc = pymupdf.open(str(pdf_path))
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
-        logger.info("Extracted %d chars from PDF: %s", len(text), pdf_path.name)
-        return text
-    except ImportError:
-        logger.warning("pymupdf not installed, trying pdfminer")
-        return _fallback_extract(pdf_path)
-
-
-def _fallback_extract(pdf_path: Path) -> str:
-    try:
-        from pdfminer.high_level import extract_text as pdfminer_extract
-        return pdfminer_extract(str(pdf_path))
-    except ImportError:
-        logger.error("No PDF library available")
-        return ""
+__all__ = [
+    "extract_text",
+    "TextExtractionError",
+    "extract_text_from_pdf",
+    "PDFParseError",
+    "extract_text_from_docx",
+    "DOCXParseError",
+    "analyze_resume",
+]

@@ -1,32 +1,44 @@
 from pathlib import Path
 from app.utils import get_logger
-from app.resume.pdf_parser import extract_text_from_pdf
-from app.resume.docx_parser import extract_text_from_docx
+from app.resume.text_extractor import extract_text, TextExtractionError
 
 logger = get_logger("jd_parser")
 
 
 def parse_jd(file_path: Path) -> dict:
-    ext = file_path.suffix.lower()
-    if ext == ".pdf":
-        text = extract_text_from_pdf(file_path)
-    elif ext in (".docx", ".doc"):
-        text = extract_text_from_docx(file_path)
-    elif ext == ".txt":
-        text = file_path.read_text(encoding="utf-8", errors="ignore")
-    else:
-        text = ""
+    try:
+        extraction = extract_text(file_path)
+    except TextExtractionError as exc:
+        logger.error("Failed to parse JD %s: %s", file_path.name, exc)
+        return {
+            "raw_text": "",
+            "cleaned_text": "",
+            "title": "",
+            "company": "",
+            "error": str(exc),
+        }
 
-    lines = text.split("\n")
-    title = ""
+    raw_text = extraction["raw_text"]
+    cleaned_text = extraction["cleaned_text"]
+
+    lines = [line.strip() for line in cleaned_text.split("\n") if line.strip()]
+    title = lines[0] if lines else "Untitled Position"
     company = ""
-    for line in lines[:10]:
-        stripped = line.strip()
-        if stripped and not title:
-            title = stripped
-        elif stripped and not company:
-            company = stripped
+    for line in lines[1:6]:
+        if any(kw in line.lower() for kw in ["inc", "ltd", "llc", "corp", "technologies", "solutions", "labs", "company", "group"]):
+            company = line
             break
+    if not company and len(lines) > 1:
+        company = lines[1]
 
     logger.info("JD parsed: title='%s', company='%s'", title, company)
-    return {"raw_text": text, "title": title, "company": company}
+    return {
+        "raw_text": raw_text,
+        "cleaned_text": cleaned_text,
+        "title": title,
+        "company": company,
+        "char_count": extraction["char_count"],
+        "word_count": extraction["word_count"],
+        "page_count": extraction["page_count"],
+        "file_name": extraction["file_name"],
+    }

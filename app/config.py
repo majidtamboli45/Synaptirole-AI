@@ -29,6 +29,12 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("CP_OPENAI_MODEL", "gpt-4o-mini")
 
 EMBEDDING_MODEL = os.getenv("CP_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+SPACY_MODEL = os.getenv("CP_SPACY_MODEL", "en_core_web_sm")
+SPACY_MODEL_FALLBACKS = ["en_core_web_lg", "en_core_web_md", "en_core_web_sm"]
+RESUME_NER_MODEL = os.getenv(
+    "CP_RESUME_NER_MODEL",
+    str(MODEL_DIR / "ner_resume_model"),
+)
 FAISS_INDEX_PATH = MODEL_DIR / "faiss_index"
 WHISPER_MODEL = os.getenv("CP_WHISPER_MODEL", "base")
 XGBOOST_MODEL_PATH = MODEL_DIR / "xgboost" / "score_model.pkl"

@@ -24,7 +24,9 @@ data/resumes/*
 data/job_descriptions/*
 
 # ML models / vector indexes
-models/
+models/*
+!models/ner_resume_model/
+!models/ner_resume_model/**
 
 # Logs / generated output
 logs/

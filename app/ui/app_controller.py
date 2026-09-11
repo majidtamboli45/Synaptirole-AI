@@ -8,6 +8,9 @@ from app.authentication.jwt_manager import create_token, verify_token
 from app.database import init_db
 from app.database.repository import UserRepository
 from app.utils import get_logger
+from app.utils.file_handler import save_upload, delete_file, get_file_info, get_file_size_mb
+from app.resume.resume_analyzer import analyze_resume
+from app.job.jd_parser import parse_job_description
 
 
 logger = get_logger("app_controller")
@@ -58,6 +61,12 @@ class AppController(QObject):
 
     userChanged = Signal()
 
+    resumeUploaded = Signal()
+    jdUploaded = Signal()
+    resumeParsed = Signal()
+    jdParsed = Signal()
+    documentsChanged = Signal()
+
     # ---------------------------------------------------------
     # Constructor
     # ---------------------------------------------------------
@@ -69,6 +78,11 @@ class AppController(QObject):
         self._user = None
         self._user_id = None
         self._remember_token = None
+
+        self._resume_path = None
+        self._resume_data = None
+        self._jd_path = None
+        self._jd_data = None
 
         init_db()
         self._load_remember_token()
@@ -715,6 +729,321 @@ class AppController(QObject):
                 "Error",
                 "Unable to delete account."
             )
+
+    # ---------------------------------------------------------
+    # Resume & JD
+    # ---------------------------------------------------------
+
+    @Property(bool, notify=documentsChanged)
+    def hasResume(self):
+        return self._resume_path is not None
+
+    @Property(str, notify=documentsChanged)
+    def resumeFileName(self):
+        if self._resume_path:
+            return self._resume_data.get("file_name", self._resume_path.name) if self._resume_data else self._resume_path.name
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def resumeFileSize(self):
+        if self._resume_path and self._resume_path.exists():
+            size_mb = get_file_size_mb(self._resume_path)
+            if size_mb < 1:
+                return f"{size_mb * 1024:.0f} KB"
+            return f"{size_mb:.2f} MB"
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def resumeName(self):
+        if self._resume_data:
+            return self._resume_data.get("name", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def resumeRole(self):
+        if self._resume_data:
+            return self._resume_data.get("current_role", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def resumeExperience(self):
+        if self._resume_data:
+            return self._resume_data.get("experience_years", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def resumeSkills(self):
+        if self._resume_data:
+            skills = self._resume_data.get("skills", [])
+            return ", ".join(skills[:7])
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def resumeRawText(self):
+        if self._resume_data:
+            return self._resume_data.get("raw_text", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def resumeStatus(self):
+        if self._resume_data and "error" not in self._resume_data:
+            return "parsed"
+        elif self._resume_data and "error" in self._resume_data:
+            return "error"
+        elif self._resume_path:
+            return "uploaded"
+        return "none"
+
+    @Property(bool, notify=documentsChanged)
+    def hasJd(self):
+        return self._jd_path is not None
+
+    @Property(str, notify=documentsChanged)
+    def jdFileName(self):
+        if self._jd_path:
+            return self._jd_data.get("file_name", self._jd_path.name) if self._jd_data else self._jd_path.name
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdFileSize(self):
+        if self._jd_path and self._jd_path.exists():
+            size_mb = get_file_size_mb(self._jd_path)
+            if size_mb < 1:
+                return f"{size_mb * 1024:.0f} KB"
+            return f"{size_mb:.2f} MB"
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdTitle(self):
+        if self._jd_data:
+            return self._jd_data.get("title", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdCompany(self):
+        if self._jd_data:
+            return self._jd_data.get("company", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdExperienceRequired(self):
+        if self._jd_data:
+            return self._jd_data.get("experience_required", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdEmploymentType(self):
+        if self._jd_data:
+            return self._jd_data.get("employment_type", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdSkills(self):
+        if self._jd_data:
+            skills = self._jd_data.get("skills", [])
+            return ", ".join(skills[:7])
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdRawText(self):
+        if self._jd_data:
+            return self._jd_data.get("raw_text", "")
+        return ""
+
+    @Property(str, notify=documentsChanged)
+    def jdStatus(self):
+        if self._jd_data and "error" not in self._jd_data:
+            return "parsed"
+        elif self._jd_data and "error" in self._jd_data:
+            return "error"
+        elif self._jd_path:
+            return "uploaded"
+        return "none"
+
+    @Property(bool, notify=documentsChanged)
+    def documentsReady(self):
+        return (
+            self._resume_data is not None
+            and "error" not in self._resume_data
+            and self._jd_data is not None
+            and "error" not in self._jd_data
+        )
+
+    @Slot(str, str)
+    def uploadResume(self, file_url: str, original_name: str):
+        logger.info("Resume upload requested: %s", original_name)
+
+        try:
+            from PySide6.QtCore import QUrl
+            local_path = QUrl(file_url).toLocalFile()
+            file_path = Path(local_path)
+
+            if not file_path.exists():
+                self.showError("Upload Failed", f"File not found: {original_name}")
+                return
+
+            doc_type = self._classify_file(file_path)
+
+            if doc_type == "jd":
+                self.showError(
+                    "Wrong File Type",
+                    "This looks like a Job Description, not a Resume. "
+                    "Please upload your Resume in the Resume section.",
+                )
+                return
+            if doc_type == "unknown":
+                self.showError(
+                    "Wrong File Type",
+                    "Could not identify this document as a Resume. "
+                    "Please upload a valid Resume (PDF, DOCX, DOC, TXT).",
+                )
+                return
+
+            file_bytes = file_path.read_bytes()
+
+            saved_path = save_upload(file_bytes, original_name, subfolder="resumes")
+
+            self._resume_path = saved_path
+            self.resumeUploaded.emit()
+            self.documentsChanged.emit()
+
+            logger.info("Resume saved: %s", saved_path.name)
+
+            self._parse_resume()
+
+        except Exception as exc:
+            logger.exception("Resume upload error")
+            self.showError("Upload Failed", f"Could not upload resume: {exc}")
+
+    def _classify_file(self, file_path: Path) -> str:
+        try:
+            from app.resume.text_extractor import extract_text
+            from app.utils.document_classifier import classify_document
+
+            extraction = extract_text(file_path)
+            return classify_document(extraction.get("cleaned_text", ""))
+        except Exception as exc:
+            logger.warning(
+                "Could not classify file %s: %s",
+                file_path.name,
+                exc,
+            )
+            return "unknown"
+
+    def _parse_resume(self):
+        if not self._resume_path:
+            return
+
+        logger.info("Parsing resume: %s", self._resume_path.name)
+
+        try:
+            self._resume_data = analyze_resume(self._resume_path)
+
+            if "error" in self._resume_data:
+                self.showError("Parse Error", self._resume_data["error"])
+            else:
+                self.resumeParsed.emit()
+                self.toastMessage.emit(
+                    f"Resume parsed: {self._resume_data.get('char_count', 0)} chars, "
+                    f"{len(self._resume_data.get('skills', []))} skills found"
+                )
+            self.documentsChanged.emit()
+
+        except Exception as exc:
+            logger.exception("Resume parse error")
+            self.showError("Parse Error", f"Could not parse resume: {exc}")
+            self._resume_data = {"error": str(exc)}
+            self.documentsChanged.emit()
+
+    @Slot(str, str)
+    def uploadJd(self, file_url: str, original_name: str):
+        logger.info("JD upload requested: %s", original_name)
+
+        try:
+            from PySide6.QtCore import QUrl
+            local_path = QUrl(file_url).toLocalFile()
+            file_path = Path(local_path)
+
+            if not file_path.exists():
+                self.showError("Upload Failed", f"File not found: {original_name}")
+                return
+
+            doc_type = self._classify_file(file_path)
+
+            if doc_type == "resume":
+                self.showError(
+                    "Wrong File Type",
+                    "This looks like a Resume, not a Job Description. "
+                    "Please upload the Job Description in the JD section.",
+                )
+                return
+            if doc_type == "unknown":
+                self.showError(
+                    "Wrong File Type",
+                    "Could not identify this document as a Job Description. "
+                    "Please upload a valid Job Description (PDF, DOCX, DOC, TXT).",
+                )
+                return
+
+            file_bytes = file_path.read_bytes()
+
+            saved_path = save_upload(file_bytes, original_name, subfolder="job_descriptions")
+
+            self._jd_path = saved_path
+            self.jdUploaded.emit()
+            self.documentsChanged.emit()
+
+            logger.info("JD saved: %s", saved_path.name)
+
+            self._parse_jd()
+
+        except Exception as exc:
+            logger.exception("JD upload error")
+            self.showError("Upload Failed", f"Could not upload job description: {exc}")
+
+    def _parse_jd(self):
+        if not self._jd_path:
+            return
+
+        logger.info("Parsing JD: %s", self._jd_path.name)
+
+        try:
+            self._jd_data = parse_job_description(self._jd_path)
+
+            if "error" in self._jd_data:
+                self.showError("Parse Error", self._jd_data["error"])
+            else:
+                self.jdParsed.emit()
+                self.toastMessage.emit(
+                    f"JD parsed: {len(self._jd_data.get('skills', []))} skills found"
+                )
+            self.documentsChanged.emit()
+
+        except Exception as exc:
+            logger.exception("JD parse error")
+            self.showError("Parse Error", f"Could not parse JD: {exc}")
+            self._jd_data = {"error": str(exc)}
+            self.documentsChanged.emit()
+
+    @Slot()
+    def clearResume(self):
+        if self._resume_path:
+            delete_file(self._resume_path)
+        self._resume_path = None
+        self._resume_data = None
+        self.resumeUploaded.emit()
+        self.documentsChanged.emit()
+        self.toastMessage.emit("Resume cleared. You can upload a new resume.")
+
+    @Slot()
+    def clearJd(self):
+        if self._jd_path:
+            delete_file(self._jd_path)
+        self._jd_path = None
+        self._jd_data = None
+        self.jdUploaded.emit()
+        self.documentsChanged.emit()
+        self.toastMessage.emit("Job Description cleared. You can upload a new JD.")
 
     # ---------------------------------------------------------
     # Interview
