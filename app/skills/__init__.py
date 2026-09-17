@@ -56,22 +56,28 @@ def extract_skills_from_text(text: str) -> list[str]:
     return extract_skills(text)
 
 
-def match_skills(resume_skills: list[str], jd_skills: list[str]) -> dict:
-    resume_set = set(s.lower() for s in resume_skills)
-    jd_set = set(s.lower() for s in jd_skills)
+def match_skills(
+    resume_skills: list[str],
+    jd_skills: list[str],
+    matched_threshold: float | None = None,
+    partial_threshold: float | None = None,
+) -> dict:
+    from app.skills.skill_matcher import compute_match_score
 
-    matched = sorted(resume_set & jd_set)
-    missing = sorted(jd_set - resume_set)
-    partial = sorted(resume_set - jd_set)
+    result = compute_match_score(
+        resume_skills,
+        jd_skills,
+        matched_threshold=matched_threshold,
+        partial_threshold=partial_threshold,
+    )
 
-    total = len(jd_set) if jd_set else 1
-    score = len(matched) / total * 100
+    logger.info(
+        "Semantic skill match: %.1f%% score (%d matched, %d partial, %d gap) via %s",
+        result["match_score"],
+        len(result["matched"]),
+        len(result["partial"]),
+        len(result["gap"]),
+        result["method_used"],
+    )
 
-    logger.info("Skill match: %.1f%% (%d matched, %d missing, %d extra)", score, len(matched), len(missing), len(partial))
-
-    return {
-        "matched": matched,
-        "missing": missing,
-        "partial": partial,
-        "match_score": round(score, 1),
-    }
+    return result

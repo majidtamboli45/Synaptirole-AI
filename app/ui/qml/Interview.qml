@@ -372,22 +372,55 @@ Rectangle {
                             icon: "◇"
                         }
 
-                        SettingRow {
-                            label: "Difficulty Level"
-                            value: "Medium"
-                            icon: "⚙"
-                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 31
 
-                        SettingRow {
-                            label: "No. of Questions"
-                            value: "10 Questions"
-                            icon: "▤"
-                        }
+                            Text {
+                                text: "◷"
+                                color: "#34416B"
+                                font.pixelSize: 16
+                                Layout.preferredWidth: 22
+                            }
 
-                        SettingRow {
-                            label: "Duration"
-                            value: "40 - 45 Minutes"
-                            icon: "◷"
+                            Text {
+                                text: "Duration"
+                                color: darkText
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                            }
+
+                            ComboBox {
+                                id: durationCombo
+                                Layout.preferredWidth: 130
+                                Layout.preferredHeight: 26
+
+                                model: ["15 mins", "30 mins", "45 mins", "60 mins"]
+                                currentIndex: 2
+
+                                background: Rectangle {
+                                    radius: 5
+                                    color: "#FFFFFF"
+                                    border.color: "#D0D5E0"
+                                    border.width: 1
+                                }
+
+                                contentItem: Text {
+                                    text: durationCombo.displayText
+                                    color: darkText
+                                    font.pixelSize: 10
+                                    verticalAlignment: Text.AlignVCenter
+                                    leftPadding: 8
+                                }
+
+                                indicator: Text {
+                                    x: durationCombo.width - width - 6
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: "⌄"
+                                    color: "#5F678A"
+                                    font.pixelSize: 11
+                                }
+                            }
                         }
 
                         ToggleRow {

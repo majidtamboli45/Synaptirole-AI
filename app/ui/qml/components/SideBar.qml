@@ -12,21 +12,15 @@ Rectangle {
     readonly property var mainItems: [
         { key: "dashboard", label: "Dashboard", icon: "\u{1F3E0}" },
         { key: "resumejd", label: "Resume & JD", icon: "\u{1F4C4}" },
+        { key: "skills", label: "Skill Analysis", icon: "\u{1F9E9}" },
         { key: "interview", label: "Mock Interviews", icon: "\u{1F3A4}" },
         { key: "reports", label: "Reports", icon: "\u{1F4CA}" },
         { key: "settings", label: "Settings", icon: "\u2699\uFE0F" }
     ]
 
-    readonly property var analysisItems: [
-        { key: "skills", label: "Skill Analysis", icon: "\u{1F9E9}" },
-        { key: "liveanalysis", label: "Live Analysis", icon: "\u{1F4F7}" }
-    ]
-
     function navLabel(key) {
         for (var i = 0; i < mainItems.length; i++)
             if (mainItems[i].key === key) return mainItems[i].label
-        for (var j = 0; j < analysisItems.length; j++)
-            if (analysisItems[j].key === key) return analysisItems[j].label
         return ""
     }
 
@@ -140,32 +134,6 @@ Rectangle {
 
         Repeater {
             model: root.mainItems
-            delegate: NavItem { itemData: modelData }
-        }
-
-        Item { width: 1; height: 10 }
-
-        Rectangle {
-            width: parent.width - 36
-            x: 18
-            height: 1
-            color: Theme.border
-        }
-
-        Text {
-            text: "ANALYSIS"
-            anchors.left: parent.left
-            anchors.leftMargin: 30
-            topPadding: 8
-            font.family: Theme.fontName
-            font.pixelSize: 10
-            font.letterSpacing: 1.2
-            font.weight: Font.DemiBold
-            color: Theme.faint
-        }
-
-        Repeater {
-            model: root.analysisItems
             delegate: NavItem { itemData: modelData }
         }
     }

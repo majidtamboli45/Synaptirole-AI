@@ -10,6 +10,20 @@ Item {
     property bool resumeDragging: false
     property bool jdDragging: false
 
+    property bool resumeParsing: false
+    property string _pendingResumeUrl: ""
+    property string _pendingResumeName: ""
+
+    Timer {
+        id: resumeParseTimer
+        interval: 50
+        repeat: false
+        onTriggered: {
+            App?.uploadResume(root._pendingResumeUrl, root._pendingResumeName)
+            root.resumeParsing = false
+        }
+    }
+
     function openPreview(title, text) {
         previewTitle.text = title
         previewTextArea.text = text
@@ -18,10 +32,14 @@ Item {
 
     Connections {
         target: App
-        function onResumeParsed() { statusBanner.updateStatus() }
+        function onResumeParsed() {
+            root.resumeParsing = false
+            statusBanner.updateStatus()
+        }
         function onJdParsed() { statusBanner.updateStatus() }
         function onResumeUploaded() { statusBanner.updateStatus() }
         function onJdUploaded() { statusBanner.updateStatus() }
+        function onErrorOccurred() { root.resumeParsing = false }
     }
 
     Flickable {
@@ -232,7 +250,10 @@ Item {
                             if (drop.hasUrls) {
                                 var url = drop.urls[0]
                                 var name = url.toString().split("/").pop()
-                                App?.uploadResume(url.toString(), name)
+                                root._pendingResumeUrl = url.toString()
+                                root._pendingResumeName = name
+                                root.resumeParsing = true
+                                resumeParseTimer.start()
                             }
                         }
                     }
@@ -292,13 +313,14 @@ Item {
                                     }
                                     Text {
                                         text: {
+                                            if (root.resumeParsing || App?.resumeStatus === "uploaded") return "Resume is being parsed..."
                                             var name = App?.resumeFileName ?? ""
                                             if (name) return name
                                             return "No file uploaded yet"
                                         }
                                         font.family: Theme.fontName
                                         font.pixelSize: 12
-                                        color: Theme.muted
+                                        color: (root.resumeParsing || App?.resumeStatus === "uploaded") ? Theme.primary : Theme.muted
                                     }
                                     Text {
                                         visible: App?.resumeFileSize !== ""
@@ -461,7 +483,7 @@ Item {
                         }
 
                         ColumnLayout {
-                            visible: !(App?.resumeFileName) || App?.resumeStatus === "none"
+                            visible: !(root.resumeParsing || App?.resumeStatus === "uploaded") && (!(App?.resumeFileName) || App?.resumeStatus === "none")
                             spacing: 12
                             Layout.topMargin: 20
 
@@ -865,100 +887,6 @@ Item {
                 }
             }
 
-            Card {
-                visible: App?.documentsReady ?? false
-                Layout.fillWidth: true
-                Layout.preferredHeight: 190
-
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0; color: "#4c1d95" }
-                    GradientStop { position: 1; color: "#1e3a8a" }
-                }
-                border.width: 0
-
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.margins: 28
-                    spacing: 24
-
-                    Column {
-                        Layout.fillWidth: true
-                        spacing: 8
-
-                        Text {
-                            text: "Ready to Start Your Mock Interviews?"
-                            font.family: Theme.fontName
-                            font.pixelSize: 20
-                            font.weight: Font.Bold
-                            color: "#ffffff"
-                        }
-                        Text {
-                            width: 520
-                            text: "The system will generate Resume-based, JD-based, Technical and Experience-based questions tailored to your profile."
-                            wrapMode: Text.WordWrap
-                            font.family: Theme.fontName
-                            font.pixelSize: 13
-                            color: "#c7d2fe"
-                            lineHeight: 1.25
-                        }
-                    }
-
-                    Column {
-                        spacing: 10
-                        Layout.alignment: Qt.AlignVCenter
-
-                        Button {
-                            id: proceedBtn
-                            width: 280
-                            height: 48
-
-                            contentItem: Row {
-                                spacing: 10
-                                anchors.centerIn: parent
-                                Text {
-                                    text: "Proceed to Mock Interviews"
-                                    font.family: Theme.fontName
-                                    font.pixelSize: 14
-                                    font.weight: Font.DemiBold
-                                    color: "#ffffff"
-                                    anchors.verticalCenter: parent.verticalCenter
-                                }
-                                Text {
-                                    text: "\u2192"
-                                    font.pixelSize: 15
-                                    font.weight: Font.Bold
-                                    color: "#ffffff"
-                                    anchors.verticalCenter: parent.verticalCenter
-                                }
-                            }
-
-                            background: Rectangle {
-                                radius: 12
-                                color: proceedArea.containsMouse ? "#a78bfa" : "#7c3aed"
-                                Behavior on color { ColorAnimation { duration: 120 } }
-                            }
-
-                            MouseArea {
-                                id: proceedArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: App?.navigate("interview")
-                            }
-                        }
-
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: "\u23F1 Takes ~30-45 mins"
-                            font.family: Theme.fontName
-                            font.pixelSize: 12
-                            color: "#c7d2fe"
-                        }
-                    }
-                }
-            }
-
             Row {
                 spacing: 8
                 Layout.alignment: Qt.AlignHCenter
@@ -987,7 +915,10 @@ Item {
         onAccepted: {
             var url = selectedFile.toString()
             var name = url.split("/").pop()
-            App?.uploadResume(url, name)
+            root._pendingResumeUrl = url
+            root._pendingResumeName = name
+            root.resumeParsing = true
+            resumeParseTimer.start()
         }
     }
 

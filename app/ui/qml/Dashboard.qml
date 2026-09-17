@@ -6,6 +6,50 @@ import "components"
 Item {
     id: root
 
+    property string displayName: App?.userName && App.userName !== "" ? App.userName.split(" ")[0] : "there"
+    property int priorityCount: 0
+
+    function skillData() {
+        try {
+            return JSON.parse(App.skillAnalysisJson)
+        } catch (e) {
+            return null
+        }
+    }
+
+    function refreshPriorities() {
+        priorityModel.clear()
+        var d = skillData()
+        if (!d || !d.priority_rankings) return
+        var prio = d.priority_rankings
+        var count = 0
+        for (var i = 0; i < prio.length; i++) {
+            var r = prio[i]
+            if (!r.priority) continue
+            count++
+            priorityModel.append({
+                skill: r.skill,
+                type: r.type,
+                status: r.status,
+                priority: r.priority || "",
+                similarity: r.similarity
+            })
+        }
+        root.priorityCount = count
+    }
+
+    ListModel { id: priorityModel }
+
+    Connections {
+        target: App
+        function onSkillAnalysisChanged() { refreshPriorities() }
+    }
+
+    Component.onCompleted: {
+        App.refreshSkillAnalysis()
+        refreshPriorities()
+    }
+
     Flickable {
         anchors.fill: parent
         contentWidth: width
@@ -29,7 +73,7 @@ Item {
                 Column {
                     spacing: 4
                     Text {
-                        text: "Welcome back, Arjun! \u{1F44B}"
+                        text: qsTr("Welcome back, %1! \u{1F44B}").arg(root.displayName)
                         font.family: Theme.fontName
                         font.pixelSize: 24
                         font.weight: Font.Bold
@@ -67,39 +111,39 @@ Item {
 
                 ScoreCard {
                     Layout.fillWidth: true
-                    title: "Interviews Taken"
-                    value: "12"
-                    compare: "20% vs last 7 days"
-                    up: true
-                    iconText: "\u{1F3A4}"
+                    title: "Job Fit"
+                    value: App.hasAnalysis ? App.jobFitPct + "%" : "—"
+                    compare: "Semantic resume–JD match"
+                    up: (parseInt(App.jobFitPct) || 0) >= 60
+                    iconText: "\u{1F3AF}"
                     iconColor: Theme.primary
                 }
                 ScoreCard {
                     Layout.fillWidth: true
-                    title: "Overall Score"
-                    value: "68/100"
-                    compare: "8 pts vs last 7 days"
-                    up: true
-                    iconText: "\u{1F3AF}"
+                    title: "Skills Matched"
+                    value: App.hasAnalysis ? App.matchedPct + "%" : "—"
+                    compare: "Of required + preferred skills"
+                    up: (parseInt(App.matchedPct) || 0) >= 50
+                    iconText: "\u{1F9E9}"
                     iconColor: Theme.blue
                 }
                 ScoreCard {
                     Layout.fillWidth: true
-                    title: "Skills Matched"
-                    value: "72%"
-                    compare: "10% vs last 7 days"
-                    up: true
-                    iconText: "\u{1F9E9}"
-                    iconColor: Theme.green
+                    title: "Skill Gaps"
+                    value: App.hasAnalysis ? String(App.gapCount) : "—"
+                    compare: App.hasAnalysis ? App.skillGapSummary : "Run analysis to view"
+                    up: App.gapCount === 0
+                    iconText: "\u{1F50D}"
+                    iconColor: App.gapCount > 0 ? Theme.red : Theme.green
                 }
                 ScoreCard {
                     Layout.fillWidth: true
-                    title: "Total Time Practiced"
-                    value: "8h 24m"
-                    compare: "1h 15m vs last 7 days"
-                    up: true
-                    iconText: "\u23F1\uFE0F"
-                    iconColor: Theme.amber
+                    title: "Priority Items"
+                    value: App.hasAnalysis ? priorityCount : "—"
+                    compare: "Need attention"
+                    up: false
+                    iconText: "\u{1F4CB}"
+                    iconColor: App.gapCount > 0 ? Theme.amber : Theme.green
                 }
             }
 
@@ -235,6 +279,71 @@ Item {
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            Card {
+                Layout.fillWidth: true
+                Layout.preferredHeight: priorityModel.count > 0 ? Math.min(70 + priorityModel.count * 66, 460) : 130
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 22
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Column {
+                            spacing: 2
+                            Text {
+                                text: "Skill Gap Priorities"
+                                font.family: Theme.fontName
+                                font.pixelSize: 16
+                                font.weight: Font.Bold
+                                color: Theme.text
+                            }
+                            Text {
+                                text: "Ranked by requirement type (required 1.0 / preferred 0.5) and match status"
+                                font.family: Theme.fontName
+                                font.pixelSize: 12
+                                color: Theme.muted
+                            }
+                        }
+
+                        Item { Layout.fillWidth: true }
+
+                        AppButton {
+                            kind: "secondary"
+                            text: "View Skill Analysis"
+                            onClicked: App?.navigate("skills")
+                        }
+                    }
+
+                    Repeater {
+                        model: priorityModel
+                        delegate: GapPriorityRow {
+                            Layout.fillWidth: true
+                            skill: model.skill
+                            type: model.type
+                            status: model.status
+                            priority: model.priority
+                            similarity: model.similarity
+                            barPct: model.similarity * 100
+                        }
+                    }
+
+                    Text {
+                        visible: priorityModel.count === 0
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.topMargin: 12
+                        text: App.hasAnalysis
+                            ? "\u{1F389} No skill gaps detected — great match!"
+                            : "Analyzing your skill match\u2026"
+                        font.family: Theme.fontName
+                        font.pixelSize: 13
+                        color: Theme.muted
                     }
                 }
             }

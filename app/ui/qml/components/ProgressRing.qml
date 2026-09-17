@@ -13,7 +13,6 @@ Item {
     width: size
     height: size
 
-    onValueChanged: canvas.requestPaint()
     onWidthChanged: canvas.requestPaint()
 
     Canvas {
@@ -23,13 +22,21 @@ Item {
         property real animatedValue: 0
         onAnimatedValueChanged: canvas.requestPaint()
 
-        NumberAnimation on animatedValue {
-            from: 0
-            to: root.value
-            duration: 900
-            easing.type: Easing.OutCubic
-            running: root.visible
+        Behavior on animatedValue {
+            NumberAnimation {
+                duration: 900
+                easing.type: Easing.OutCubic
+            }
         }
+
+        Connections {
+            target: root
+            function onValueChanged() {
+                canvas.animatedValue = root.value
+            }
+        }
+
+        Component.onCompleted: canvas.animatedValue = root.value
 
         onPaint: {
             var ctx = getContext("2d")
@@ -45,6 +52,7 @@ Item {
             ctx.stroke()
             var frac = Math.max(0, Math.min(animatedValue, 100)) / 100
             if (frac > 0.001) {
+                ctx.lineCap = "butt"
                 ctx.strokeStyle = root.ringColor
                 ctx.beginPath()
                 ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + frac * Math.PI * 2)

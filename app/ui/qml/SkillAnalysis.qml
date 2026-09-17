@@ -5,9 +5,145 @@ import "components"
 
 Item {
     id: root
+    objectName: "skillAnalysisPage"
+
+    property var analysisData: null
+    property int requiredMatchPct: 0
+    property int preferredMatchPct: 0
+    property int requiredCount: 0
+    property int preferredCount: 0
+    property string statsJson: "{}"
+
+    function skillData() {
+        try {
+            return JSON.parse(App.skillAnalysisJson)
+        } catch (e) {
+            return null
+        }
+    }
+
+    function refresh() {
+        matchedModel.clear()
+        partialModel.clear()
+        gapModel.clear()
+        priorityModel.clear()
+
+        var d = skillData()
+        root.analysisData = d
+
+        root.requiredMatchPct = 0
+        root.preferredMatchPct = 0
+        root.requiredCount = 0
+        root.preferredCount = 0
+        root.statsJson = "{}"
+        if (!d) return
+
+        root.requiredMatchPct = Math.round(d.required_match_pct || 0)
+        root.preferredMatchPct = Math.round(d.preferred_match_pct || 0)
+        root.requiredCount = d.required_count || 0
+        root.preferredCount = d.preferred_count || 0
+
+        var list = d.priority_rankings || []
+        for (var i = 0; i < list.length; i++) {
+            var r = list[i]
+            var entry = {
+                skill: r.skill,
+                type: r.type,
+                status: r.status,
+                priority: r.priority || "",
+                similarity: r.similarity
+            }
+            priorityModel.append(entry)
+            if (r.status === "matched") matchedModel.append(entry)
+            else if (r.status === "partial") partialModel.append(entry)
+            else gapModel.append(entry)
+        }
+        root.statsJson = JSON.stringify(root.stats())
+    }
+
+    function stats() {
+        return {
+            matched: matchedModel.count,
+            partial: partialModel.count,
+            gap: gapModel.count,
+            priority: priorityModel.count,
+            requiredMatchPct: root.requiredMatchPct,
+            preferredMatchPct: root.preferredMatchPct,
+            requiredCount: root.requiredCount,
+            preferredCount: root.preferredCount,
+            totalJdSkills: root.analysisData ? root.analysisData.total_jd_skills : 0,
+            jobFitPct: root.analysisData ? root.analysisData.job_fit_pct : 0,
+            matchedPct: root.analysisData ? root.analysisData.matched_pct : 0
+        }
+    }
+
+    ListModel { id: matchedModel; objectName: "matchedModel" }
+    ListModel { id: partialModel; objectName: "partialModel" }
+    ListModel { id: gapModel; objectName: "gapModel" }
+    ListModel { id: priorityModel; objectName: "priorityModel" }
+
+    Connections {
+        target: App
+        function onSkillAnalysisChanged() { refresh() }
+    }
+
+    Component.onCompleted: {
+        refresh()
+        if (App?.documentsReady) App.refreshSkillAnalysis()
+    }
+
+    Item {
+        id: emptyState
+        anchors.fill: parent
+        visible: !App.hasAnalysis
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 14
+            width: Math.min(parent.width - 80, 640)
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "\u{1F6A7}"
+                font.pixelSize: 44
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: App?.documentsReady === true
+                    ? "Analyzing your skills\u2026"
+                    : "No skill gap analysis yet"
+                font.family: Theme.fontName
+                font.pixelSize: 19
+                font.weight: Font.Bold
+                color: Theme.text
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                text: App?.documentsReady === true
+                    ? "Computing the semantic match between your resume and the job description\u2026"
+                    : "Upload a resume and job description to view your skill gap analysis."
+                font.family: Theme.fontName
+                font.pixelSize: 13
+                color: Theme.muted
+            }
+
+            AppButton {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: App?.documentsReady !== true
+                text: "Go to Documents"
+                onClicked: App?.navigate("resumejd")
+            }
+        }
+    }
 
     Flickable {
         anchors.fill: parent
+        visible: App.hasAnalysis
         contentWidth: width
         contentHeight: contentCol.height + 56
         clip: true
@@ -28,23 +164,45 @@ Item {
                 Column {
                     spacing: 4
                     Text {
-                        text: "Skill Analysis"
+                        text: "Skill Gap Analysis"
                         font.family: Theme.fontName
                         font.pixelSize: 24
                         font.weight: Font.Bold
                         color: Theme.text
                     }
-                    Text {
-                        text: "Semantic matching between your resume skills and job requirements (SBERT)."
-                        font.family: Theme.fontName
-                        font.pixelSize: 13
-                        color: Theme.muted
-                    }
                 }
 
                 Item { Layout.fillWidth: true }
 
-                NotificationBell { badgeCount: 3 }
+                Row {
+                    spacing: 8
+                    visible: App.analysisBusy
+                    Rectangle {
+                        width: 10; height: 10; radius: 5
+                        color: Theme.primary
+                        anchors.verticalCenter: parent.verticalCenter
+                        SequentialAnimation on opacity {
+                            loops: Animation.Infinite
+                            NumberAnimation { to: 0.2; duration: 500 }
+                            NumberAnimation { to: 1; duration: 500 }
+                        }
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "Refreshing\u2026"
+                        font.family: Theme.fontName
+                        font.pixelSize: 12
+                        color: Theme.muted
+                    }
+                }
+
+                AppButton {
+                    kind: "secondary"
+                    text: "Refresh"
+                    onClicked: App.refreshSkillAnalysis()
+                }
+
+                NotificationBell { badgeCount: App.gapCount }
 
                 ProfileChip {
                     onViewProfile: App?.navigate("profile")
@@ -77,20 +235,32 @@ Item {
 
                         RowLayout {
                             Layout.alignment: Qt.AlignHCenter
-                            spacing: 28
+                            spacing: 16
 
                             ProgressRing {
-                                value: 72
+                                value: root.analysisData ? Number(root.analysisData.job_fit_pct) : 0
+                                size: 118
+                                ringColor: Theme.primary
+                                subLabel: "Job Fit"
+                            }
+
+                            ProgressRing {
+                                value: root.analysisData ? Number(root.analysisData.matched_pct) : 0
                                 size: 118
                                 ringColor: Theme.green
                                 subLabel: "Skills Matched"
                             }
+                        }
 
-                            ProgressRing {
-                                value: 68
-                                size: 118
-                                ringColor: Theme.primary
-                                subLabel: "Resume-JD Fit"
+                        Column {
+                            Layout.fillWidth: true
+                            spacing: 6
+
+                            HBarRow {
+                                width: parent.width
+                                label: "Required skills matched (" + root.requiredCount + ")"
+                                value: root.requiredMatchPct
+                                barColor: Theme.primary
                             }
                         }
 
@@ -100,34 +270,41 @@ Item {
                             color: Theme.border
                         }
 
-                        Repeater {
-                            model: [
-                                { c: "#22c55e", label: "Matched", v: "9 skills" },
-                                { c: "#f59e0b", label: "Partially Matched", v: "3 skills" },
-                                { c: "#ef4444", label: "Missing", v: "4 skills" }
-                            ]
-                            delegate: Row {
-                                spacing: 10
-                                Rectangle {
-                                    width: 12; height: 12; radius: 6
-                                    color: modelData.c
-                                    anchors.verticalCenter: parent.verticalCenter
-                                }
-                                Text {
-                                    text: modelData.label
-                                    font.family: Theme.fontName
-                                    font.pixelSize: 13
-                                    color: Theme.text
-                                    anchors.verticalCenter: parent.verticalCenter
-                                }
-                                Item { width: 1; height: 1 }
-                                Text {
-                                    text: modelData.v
-                                    font.family: Theme.fontName
-                                    font.pixelSize: 13
-                                    font.weight: Font.DemiBold
-                                    color: Theme.muted
-                                    anchors.verticalCenter: parent.verticalCenter
+                        Column {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Repeater {
+                                model: [
+                                    { c: "#22c55e", label: "Matched", v: matchedModel.count + " skills" },
+                                    { c: "#f59e0b", label: "Partially Matched", v: partialModel.count + " skills" },
+                                    { c: "#ef4444", label: "Skill Gaps", v: gapModel.count + " skills" },
+                                    { c: Theme.primary, label: "Total JD Skills", v: (root.analysisData ? root.analysisData.total_jd_skills : 0) + " skills" }
+                                ]
+                                delegate: Row {
+                                    width: parent.width
+                                    spacing: 10
+                                    Rectangle {
+                                        width: 12; height: 12; radius: 6
+                                        color: modelData.c
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    Text {
+                                        text: modelData.label
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        color: Theme.text
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    Item { width: 1; height: 1; Layout.fillWidth: true }
+                                    Text {
+                                        text: modelData.v
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        font.weight: Font.DemiBold
+                                        color: Theme.muted
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
                                 }
                             }
                         }
@@ -136,7 +313,7 @@ Item {
 
                         Text {
                             Layout.fillWidth: true
-                            text: "\u{1F4A1} Add Docker & Kubernetes to your profile to reach 85%+ match."
+                            text: topRecommendation()
                             wrapMode: Text.WordWrap
                             font.family: Theme.fontName
                             font.pixelSize: 12
@@ -147,7 +324,7 @@ Item {
 
                 Card {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 330
+                    Layout.preferredHeight: 360
 
                     ColumnLayout {
                         anchors.fill: parent
@@ -155,37 +332,64 @@ Item {
                         spacing: 10
 
                         Text {
-                            text: "Skill Constellation"
+                            text: "Priority Ranking"
                             font.family: Theme.fontName
                             font.pixelSize: 15
                             font.weight: Font.Bold
                             color: Theme.text
                         }
 
-                        SkillConstellation {
-                            id: constellation
+                        Flickable {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            centerLabel: "AI/ML Engineer"
-                            nodes: [
-                                { name: "Python", status: 0, score: 95, x: -0.62, y: -0.55 },
-                                { name: "Machine Learning", status: 0, score: 90, x: 0.05, y: -0.78 },
-                                { name: "SQL", status: 0, score: 82, x: 0.68, y: -0.5 },
-                                { name: "NLP", status: 1, score: 65, x: 0.8, y: 0.25 },
-                                { name: "Deep Learning", status: 0, score: 78, x: 0.45, y: 0.7 },
-                                { name: "Docker", status: 2, score: 30, x: -0.3, y: 0.75 },
-                                { name: "Kubernetes", status: 2, score: 22, x: -0.78, y: 0.35 },
-                                { name: "TensorFlow", status: 1, score: 60, x: -0.85, y: -0.25 },
-                                { name: "React.js", status: 0, score: 74, x: -0.25, y: -0.35 }
-                            ]
+                            clip: true
+                            boundsBehavior: Flickable.StopAtBounds
+                            contentHeight: priorityCol.height
+                            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                            Column {
+                                id: priorityCol
+                                width: parent.width
+                                spacing: 8
+
+                                Repeater {
+                                    model: priorityModel
+                                    delegate: GapPriorityRow {
+                                        width: parent.width
+                                        skill: model.skill
+                                        type: model.type
+                                        status: model.status
+                                        priority: model.priority
+                                        similarity: model.similarity
+                                        barPct: model.similarity * 100
+                                    }
+                                }
+
+                                Text {
+                                    visible: priorityModel.count === 0
+                                    width: parent.width
+                                    text: (root.analysisData && root.analysisData.total_jd_skills) ? "No rankable skills." : "No skills to rank yet."
+                                    font.family: Theme.fontName
+                                    font.pixelSize: 13
+                                    color: Theme.muted
+                                }
+                            }
                         }
 
-                        Text {
+                        Row {
+                            spacing: 16
                             Layout.alignment: Qt.AlignHCenter
-                            text: "\u25CF Matched    \u25CF Partial    \u25CF Missing"
-                            font.family: Theme.fontName
-                            font.pixelSize: 11
-                            color: Theme.muted
+
+                            PriorityBadge { priority: "HIGH" }
+                            PriorityBadge { priority: "MEDIUM" }
+                            PriorityBadge { priority: "LOW" }
+                            Text {
+                                text: "Priority badges"
+                                font.family: Theme.fontName
+                                font.pixelSize: 11
+                                color: Theme.muted
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
                         }
                     }
                 }
@@ -195,43 +399,72 @@ Item {
                 Layout.fillWidth: true
                 spacing: 18
 
-                Repeater {
-                    model: [
-                        {
-                            title: "Matched Skills",
-                            tint: "#22c55e",
-                            items: [
-                                { name: "Python", score: 92, up: true },
-                                { name: "Machine Learning", score: 88, up: true },
-                                { name: "SQL", score: 84, up: true },
-                                { name: "Data Structures", score: 80, up: false }
-                            ]
-                        },
-                        {
-                            title: "Partially Matched",
-                            tint: "#f59e0b",
-                            items: [
-                                { name: "Deep Learning", score: 62, up: true },
-                                { name: "NLP", score: 55, up: true },
-                                { name: "TensorFlow", score: 48, up: false },
-                                { name: "System Design", score: 58, up: true }
-                            ]
-                        },
-                        {
-                            title: "Missing Skills",
-                            tint: "#ef4444",
-                            items: [
-                                { name: "Docker", score: 18, up: false },
-                                { name: "Kubernetes", score: 12, up: false },
-                                { name: "AWS Cloud", score: 25, up: false },
-                                { name: "MLOps", score: 20, up: true }
-                            ]
+                Card {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.preferredHeight: 320
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        spacing: 12
+
+                        Text {
+                            text: "Matched Skills (" + matchedModel.count + ")"
+                            font.family: Theme.fontName
+                            font.pixelSize: 14
+                            font.weight: Font.Bold
+                            color: Theme.text
                         }
-                    ]
-                    delegate: Card {
-                        id: skillGroup
-                        required property var modelData
+
+                        Flickable {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            clip: true
+                            boundsBehavior: Flickable.StopAtBounds
+                            contentHeight: matchedCol.height
+                            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                            Column {
+                                id: matchedCol
+                                width: parent.width
+                                spacing: 8
+
+                                Repeater {
+                                    model: matchedModel
+                                    delegate: GapPriorityRow {
+                                        width: parent.width
+                                        skill: model.skill
+                                        type: model.type
+                                        status: model.status
+                                        priority: model.priority
+                                        similarity: model.similarity
+                                        barPct: model.similarity * 100
+                                    }
+                                }
+
+                                Text {
+                                    visible: matchedModel.count === 0
+                                    width: parent.width
+                                    horizontalAlignment: Text.AlignHCenter
+                                    text: "None"
+                                    font.family: Theme.fontName
+                                    font.pixelSize: 13
+                                    color: Theme.faint
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    spacing: 20
+
+                    Card {
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
                         Layout.preferredHeight: 320
 
                         ColumnLayout {
@@ -240,26 +473,108 @@ Item {
                             spacing: 12
 
                             Text {
-                                text: skillGroup.modelData.title
+                                text: "Partially Matched (" + partialModel.count + ")"
                                 font.family: Theme.fontName
                                 font.pixelSize: 14
                                 font.weight: Font.Bold
                                 color: Theme.text
                             }
 
-                            Repeater {
-                                model: skillGroup.modelData.items
-                                delegate: SkillCard {
-                                    id: scItem
-                                    required property var modelData
-                                    skillName: scItem.modelData.name
-                                    score: scItem.modelData.score
-                                    improving: scItem.modelData.up
-                                    barColor: skillGroup.modelData.tint === "#22c55e" ? "#16a34a" : (skillGroup.modelData.tint === "#f59e0b" ? "#d97706" : "#dc2626")
+                            Flickable {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                clip: true
+                                boundsBehavior: Flickable.StopAtBounds
+                                contentHeight: partialCol.height
+                                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                                Column {
+                                    id: partialCol
+                                    width: parent.width
+                                    spacing: 8
+
+                                    Repeater {
+                                        model: partialModel
+                                        delegate: GapPriorityRow {
+                                            width: parent.width
+                                            skill: model.skill
+                                            type: model.type
+                                            status: model.status
+                                            priority: model.priority
+                                            similarity: model.similarity
+                                            barPct: model.similarity * 100
+                                        }
+                                    }
+
+                                    Text {
+                                        visible: partialModel.count === 0
+                                        width: parent.width
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: "None"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        color: Theme.faint
+                                    }
                                 }
                             }
+                        }
+                    }
 
-                            Item { Layout.fillHeight: true }
+                    Card {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.preferredHeight: 320
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 20
+                            spacing: 12
+
+                            Text {
+                                text: "Skill Gaps (" + gapModel.count + ")"
+                                font.family: Theme.fontName
+                                font.pixelSize: 14
+                                font.weight: Font.Bold
+                                color: Theme.text
+                            }
+
+                            Flickable {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                clip: true
+                                boundsBehavior: Flickable.StopAtBounds
+                                contentHeight: gapCol.height
+                                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                                Column {
+                                    id: gapCol
+                                    width: parent.width
+                                    spacing: 8
+
+                                    Repeater {
+                                        model: gapModel
+                                        delegate: GapPriorityRow {
+                                            width: parent.width
+                                            skill: model.skill
+                                            type: model.type
+                                            status: model.status
+                                            priority: model.priority
+                                            similarity: model.similarity
+                                            barPct: model.similarity * 100
+                                        }
+                                    }
+
+                                    Text {
+                                        visible: gapModel.count === 0
+                                        width: parent.width
+                                        horizontalAlignment: Text.AlignHCenter
+                                        text: "None"
+                                        font.family: Theme.fontName
+                                        font.pixelSize: 13
+                                        color: Theme.faint
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -282,7 +597,7 @@ Item {
 
                     Text {
                         width: 900
-                        text: "Recommendation: Strengthen Deep Learning fundamentals and add containerization (Docker/Kubernetes) skills to close the largest gaps for the AI/ML Engineer role."
+                        text: "\u{1F50D} Recommended focus: " + focusSummary()
                         font.family: Theme.fontName
                         font.pixelSize: 13
                         font.weight: Font.Medium
@@ -290,16 +605,125 @@ Item {
                         wrapMode: Text.WordWrap
                         anchors.verticalCenter: parent.verticalCenter
                     }
+                }
+            }
 
-                    Item { width: 1; height: 1 }
+            Card {
+                visible: App?.documentsReady ?? false
+                Layout.fillWidth: true
+                Layout.preferredHeight: 190
 
-                    AppButton {
-                        text: "Start Improvement Plan"
-                        anchors.verticalCenter: parent.verticalCenter
-                        onClicked: App?.notify("Personalized improvement plan generated.")
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0; color: "#4c1d95" }
+                    GradientStop { position: 1; color: "#1e3a8a" }
+                }
+                border.width: 0
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 28
+                    spacing: 24
+
+                    Column {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text {
+                            text: "Ready to Start Your Mock Interviews?"
+                            font.family: Theme.fontName
+                            font.pixelSize: 20
+                            font.weight: Font.Bold
+                            color: "#ffffff"
+                        }
+                        Text {
+                            width: 520
+                            text: "The system will generate Resume-based, JD-based, Technical and Experience-based questions tailored to your profile."
+                            wrapMode: Text.WordWrap
+                            font.family: Theme.fontName
+                            font.pixelSize: 13
+                            color: "#c7d2fe"
+                            lineHeight: 1.25
+                        }
+                    }
+
+                    Column {
+                        spacing: 10
+                        Layout.alignment: Qt.AlignVCenter
+
+                        Button {
+                            id: proceedBtn
+                            width: 280
+                            height: 48
+
+                            contentItem: Row {
+                                spacing: 10
+                                anchors.centerIn: parent
+                                Text {
+                                    text: "Proceed to Mock Interviews"
+                                    font.family: Theme.fontName
+                                    font.pixelSize: 14
+                                    font.weight: Font.DemiBold
+                                    color: "#ffffff"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                                Text {
+                                    text: "\u2192"
+                                    font.pixelSize: 15
+                                    font.weight: Font.Bold
+                                    color: "#ffffff"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+
+                            background: Rectangle {
+                                radius: 12
+                                color: proceedArea.containsMouse ? "#a78bfa" : "#7c3aed"
+                                Behavior on color { ColorAnimation { duration: 120 } }
+                            }
+
+                            MouseArea {
+                                id: proceedArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: App?.navigate("interview")
+                            }
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "\u23F1 Takes ~30-45 mins"
+                            font.family: Theme.fontName
+                            font.pixelSize: 12
+                            color: "#c7d2fe"
+                        }
                     }
                 }
             }
         }
+    }
+
+    function topRecommendation() {
+        var d = skillData()
+        if (!d || !d.recommendations || d.recommendations.length === 0) return "Your skills closely match the job. Keep it up!"
+        return d.recommendations[0]
+    }
+
+    function focusSummary() {
+        var d = skillData()
+        if (!d) return ""
+        var high = "", med = "", low = ""
+        for (var i = 0; i < d.priority_rankings.length; i++) {
+            var r = d.priority_rankings[i]
+            if (r.priority === "HIGH") high = (high ? high + ", " : "") + r.skill
+            else if (r.priority === "MEDIUM") med = (med ? med + ", " : "") + r.skill
+            else if (r.priority === "LOW") low = (low ? low + ", " : "") + r.skill
+        }
+        var out = []
+        if (high) out.push("HIGH: " + high)
+        if (med) out.push("MEDIUM: " + med)
+        if (low) out.push("LOW: " + low)
+        return out.length ? out.join(" \u00B7 ") : "Your skills fully cover the role."
     }
 }

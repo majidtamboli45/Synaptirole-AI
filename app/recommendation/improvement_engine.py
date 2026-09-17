@@ -6,9 +6,12 @@ logger = get_logger("improvement")
 def generate_improvements(scores: dict, skill_gap: dict) -> list[str]:
     improvements = []
 
-    if skill_gap.get("missing_skills"):
-        for skill in skill_gap["missing_skills"][:5]:
-            improvements.append(f"Learn {skill} — required for this role")
+    missing = skill_gap.get("gap_skills") or skill_gap.get("missing_skills") or []
+    partial = skill_gap.get("partial_skills") or []
+    for skill in missing[:5]:
+        improvements.append(f"Learn {skill} — required for this role")
+    for skill in partial[:3]:
+        improvements.append(f"Deepen {skill} — currently a partial match")
 
     audio_score = scores.get("audio_score", 100)
     if audio_score < 60:

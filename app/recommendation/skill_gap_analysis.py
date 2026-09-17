@@ -4,17 +4,23 @@ logger = get_logger("skill_gap_analysis")
 
 
 def generate_gap_report(resume_skills: list[str], jd_skills: list[str], scores: dict = None) -> dict:
-    r_set = set(s.lower() for s in resume_skills)
-    j_set = set(s.lower() for s in jd_skills)
-    missing = sorted(j_set - r_set)
-    matched = sorted(r_set & j_set)
+    from app.skills.skill_matcher import compute_match_score
+
+    result = compute_match_score(resume_skills, jd_skills)
+    matched = result["matched"]
+    gap = result["gap"]
+    partial = result["partial"]
+    total = len(result["jd_skills_normalized"])
 
     report = {
-        "total_required": len(j_set),
+        "total_required": total,
         "matched_count": len(matched),
-        "missing_count": len(missing),
-        "match_percentage": round(len(matched) / len(j_set) * 100, 1) if j_set else 100,
-        "missing_skills": missing,
+        "partial_count": len(partial),
+        "missing_count": len(gap),
+        "match_percentage": round(len(matched) / total * 100, 1) if total else 100,
+        "missing_skills": gap,
+        "gap_skills": gap,
+        "partial_skills": partial,
         "matched_skills": matched,
     }
 
@@ -28,5 +34,5 @@ def generate_gap_report(resume_skills: list[str], jd_skills: list[str], scores: 
             weak_areas.append("technical knowledge")
         report["weak_areas"] = weak_areas
 
-    logger.info("Gap report: %d/%d matched, %d missing", len(matched), len(j_set), len(missing))
+    logger.info("Gap report: %d matched, %d partial, %d gap", len(matched), len(partial), len(gap))
     return report

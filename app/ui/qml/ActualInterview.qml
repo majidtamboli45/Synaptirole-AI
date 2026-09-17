@@ -813,12 +813,6 @@ Rectangle {
                             label: "Question Type"
                             value: "AI Generated"
                         }
-
-                        InfoRow {
-                            icon: "⚙"
-                            label: "Difficulty"
-                            value: "Medium"
-                        }
                     }
                 }
 

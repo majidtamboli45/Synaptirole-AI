@@ -1,6 +1,7 @@
 from PySide6.QtCore import Property, QObject, Signal, Slot
 from uuid import uuid4
 import sys
+import threading
 from pathlib import Path
 
 from app.authentication import authenticate_user, register_user
@@ -53,6 +54,21 @@ class AppController(QObject):
 
     currentPageChanged = Signal()
 
+    skillAnalysisChanged = Signal()
+
+    analysisBusyChanged = Signal()
+
+    skillAnalysisReady = Signal(
+        str,
+        arguments=["json"]
+    )
+
+    skillAnalysisFailed = Signal(
+        str,
+        str,
+        arguments=["title", "message"]
+    )
+
     errorOccurred = Signal(
         str,
         str,
@@ -78,6 +94,12 @@ class AppController(QObject):
         self._user = None
         self._user_id = None
         self._remember_token = None
+        self._skill_analysis_json = ""
+
+        self._analysis_lock = threading.Lock()
+        self._analysis_running = False
+        self._analysis_rerun = False
+        self._analysis_busy = False
 
         self._resume_path = None
         self._resume_data = None
@@ -86,6 +108,9 @@ class AppController(QObject):
 
         init_db()
         self._load_remember_token()
+
+        self.skillAnalysisReady.connect(self._apply_skill_analysis)
+        self.skillAnalysisFailed.connect(self._handle_skill_analysis_error)
 
     # ---------------------------------------------------------
     # Remember Me
@@ -280,6 +305,168 @@ class AppController(QObject):
     @Slot()
     def showLogin(self):
         self.currentPage = "login"
+
+    # ---------------------------------------------------------
+    # Skill Gap Analysis (Phase 5)
+    # ---------------------------------------------------------
+
+    def _set_analysis_busy(self, busy: bool):
+        if self._analysis_busy != busy:
+            self._analysis_busy = busy
+            self.analysisBusyChanged.emit()
+
+    @Property(bool, notify=analysisBusyChanged)
+    def analysisBusy(self) -> bool:
+        """True while a skill-gap analysis is running on the worker thread."""
+        return self._analysis_busy
+
+    @Slot()
+    def refreshSkillAnalysis(self):
+        """Run the skill-gap pipeline off the GUI thread.
+
+        Only produces a result once a resume AND a job description have
+        been parsed successfully (``documentsReady``). The SBERT model
+        load + embedding pipeline can take many seconds, so it runs on a
+        daemon worker thread and the result is delivered back on the GUI
+        thread via ``skillAnalysisReady``. Re-entrant calls while a run
+        is in flight collapse into a single follow-up.
+        """
+        if not self.documentsReady:
+            return
+
+        with self._analysis_lock:
+            if self._analysis_running:
+                self._analysis_rerun = True
+                return
+            self._analysis_running = True
+
+        self._set_analysis_busy(True)
+
+        threading.Thread(
+            target=self._run_skill_analysis,
+            args=(self._user_id,),
+            daemon=True,
+        ).start()
+
+    def _run_skill_analysis(self, user_id):
+        try:
+            from app.recommendation.dashboard_service import dashboard_json_for_skills
+
+            resume_skills: list[str] = []
+            required_skills: list[str] = []
+            preferred_skills: list[str] = []
+
+            if self._resume_data and "error" not in self._resume_data:
+                resume_skills = list(self._resume_data.get("skills") or [])
+
+            if self._jd_data and "error" not in self._jd_data:
+                from app.job.job_analyzer import extract_preferred_skills
+
+                jd_skills = list(self._jd_data.get("skills") or [])
+                preferred = list(
+                    extract_preferred_skills(
+                        self._jd_data.get("cleaned_text") or ""
+                    ) or []
+                )
+                preferred_lower = {s.strip().lower() for s in preferred}
+
+                pref_skills = [
+                    s for s in jd_skills if s.lower() in preferred_lower
+                ]
+
+                if pref_skills:
+                    preferred_skills = pref_skills
+                    required_skills = [
+                        s for s in jd_skills if s.lower() not in preferred_lower
+                    ]
+                else:
+                    preferred_skills = []
+                    required_skills = jd_skills
+
+            self.skillAnalysisReady.emit(
+                dashboard_json_for_skills(
+                    resume_skills,
+                    required_skills,
+                    preferred_skills,
+                    user_id,
+                )
+            )
+        except Exception as exc:
+            logger.exception("Skill analysis failed")
+            self.skillAnalysisFailed.emit(
+                "Skill Analysis Failed",
+                "Unable to compute the skill gap analysis.",
+            )
+        finally:
+            with self._analysis_lock:
+                self._analysis_running = False
+                rerun = self._analysis_rerun
+                self._analysis_rerun = False
+            self._set_analysis_busy(False)
+            if rerun:
+                self.refreshSkillAnalysis()
+
+    def _clear_skill_analysis(self):
+        if self._skill_analysis_json:
+            self._skill_analysis_json = ""
+            self.skillAnalysisChanged.emit()
+
+    def _apply_skill_analysis(self, analysis_json):
+        self._skill_analysis_json = analysis_json
+        self.skillAnalysisChanged.emit()
+
+    def _handle_skill_analysis_error(self, title, message):
+        self._skill_analysis_json = ""
+        self.skillAnalysisChanged.emit()
+        self.showError(title, message)
+
+    @Property(str, notify=skillAnalysisChanged)
+    def skillAnalysisJson(self):
+        return self._skill_analysis_json
+
+    @Property(str, notify=skillAnalysisChanged)
+    def jobFitPct(self):
+        try:
+            import json
+            data = json.loads(self._skill_analysis_json or "{}")
+            return str(data.get("job_fit_pct", 0))
+        except Exception:
+            return "0"
+
+    @Property(str, notify=skillAnalysisChanged)
+    def matchedPct(self):
+        try:
+            import json
+            data = json.loads(self._skill_analysis_json or "{}")
+            return str(data.get("matched_pct", 0))
+        except Exception:
+            return "0"
+
+    @Property(int, notify=skillAnalysisChanged)
+    def gapCount(self):
+        try:
+            import json
+            data = json.loads(self._skill_analysis_json or "{}")
+            return int(data.get("gap_count", 0))
+        except Exception:
+            return 0
+
+    @Property(str, notify=skillAnalysisChanged)
+    def skillGapSummary(self):
+        try:
+            import json
+            data = json.loads(self._skill_analysis_json or "{}")
+            return (
+                f"{data.get('matched_count', 0)} matched, "
+                f"{data.get('partial_count', 0)} partial, "
+                f"{data.get('gap_count', 0)} gap"
+            )
+        except Exception:
+            return ""
+
+    @Property(bool, notify=skillAnalysisChanged)
+    def hasAnalysis(self):
+        return bool(self._skill_analysis_json)
 
     # ---------------------------------------------------------
     # Login
@@ -909,6 +1096,7 @@ class AppController(QObject):
 
             logger.info("Resume saved: %s", saved_path.name)
 
+            self._clear_skill_analysis()
             self._parse_resume()
 
         except Exception as exc:
@@ -948,6 +1136,9 @@ class AppController(QObject):
                     f"{len(self._resume_data.get('skills', []))} skills found"
                 )
             self.documentsChanged.emit()
+
+            if self.documentsReady:
+                self.refreshSkillAnalysis()
 
         except Exception as exc:
             logger.exception("Resume parse error")
@@ -995,6 +1186,7 @@ class AppController(QObject):
 
             logger.info("JD saved: %s", saved_path.name)
 
+            self._clear_skill_analysis()
             self._parse_jd()
 
         except Exception as exc:
@@ -1019,6 +1211,9 @@ class AppController(QObject):
                 )
             self.documentsChanged.emit()
 
+            if self.documentsReady:
+                self.refreshSkillAnalysis()
+
         except Exception as exc:
             logger.exception("JD parse error")
             self.showError("Parse Error", f"Could not parse JD: {exc}")
@@ -1031,6 +1226,7 @@ class AppController(QObject):
             delete_file(self._resume_path)
         self._resume_path = None
         self._resume_data = None
+        self._clear_skill_analysis()
         self.resumeUploaded.emit()
         self.documentsChanged.emit()
         self.toastMessage.emit("Resume cleared. You can upload a new resume.")
@@ -1041,6 +1237,7 @@ class AppController(QObject):
             delete_file(self._jd_path)
         self._jd_path = None
         self._jd_data = None
+        self._clear_skill_analysis()
         self.jdUploaded.emit()
         self.documentsChanged.emit()
         self.toastMessage.emit("Job Description cleared. You can upload a new JD.")
