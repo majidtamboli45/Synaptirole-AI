@@ -1,0 +1,68 @@
+# Redis Introduction
+
+> Source: https://www.geeksforgeeks.org/system-design/introduction-to-redis-server
+
+Redis (Remote Dictionary Server) is an in-memory database that stores data in RAM for very fast access. It is mainly used for caching and reducing the load on the main database.
+- Stores frequently accessed data for faster retrieval and better application performance.
+- Used for sessions, queues, leaderboards, and real-time analytics.
+Example: An e-commerce website can use Redis to cache product details so users can load product pages much faster.
+Real-World Applications
+Redis is widely used by large-scale applications to handle high-speed data access, real-time processing, and efficient caching.
+- Amazon & Flipkart: Use Redis to cache product details, prices, and user sessions, ensuring fast page loads and smooth checkout during high traffic sales.
+- Netflix: Uses Redis for caching frequently accessed content data and managing real-time user sessions to deliver a seamless streaming experience.
+- Facebook & Instagram: Use Redis to handle real-time notifications, feeds, and user activity for fast and responsive interactions.
+- Uber: Uses Redis for real-time location tracking, ride matching, and surge pricing calculations.
+Working
+Redis acts as a caching layer between the database and the client to speed up data access and reduce the load on the main database. When a client asks for data, the API Gateway forwards the request to Redis.
+- Request Handling: The client request is routed through the API Gateway, which first checks Redis for the required data.
+- Cache Hit: If the data exists in Redis, it is returned immediately without accessing the database.
+- Cache Miss: If the data is not found in Redis, the request is forwarded to the main database.
+- Cache Update: The data retrieved from the database is stored in Redis for future requests.
+- Response to Client: The API Gateway sends the final response to the client using data from Redis or the database.
+Example: When a user visits a popular product page, Redis serves the cached product information instantly instead of querying the database every time.
+Before starting to learn Redis, we need to install redis on our system.
+import redis
+r = redis.Redis(host='localhost', port=6379, db=0)
+r.set('name', 'Alia')
+print(r.get('name').decode('utf-8'))  
+r.set('name', 'Riya')
+print(r.get('name').decode('utf-8')) 
+r.delete('name')
+print(r.get('name'))  
+Output
+Understand the above example:
+import redis
+This line imports the redis Python library, which allows you to talk to a Redis server from your Python code.
+r = redis.Redis(host='localhost', port=6379, db=0)
+This line creates a connection to the Redis server.
+- host='localhost': Connects to the Redis server running on your local machine.
+- port=6379: Uses the default port on which Redis listens for connections.
+- db=0: Connects to Redis logical database 0. Redis supports multiple logical databases numbered from 0 onward.
+The variable r acts as a Redis client object that can be used to perform various Redis operations.
+r.set('name', 'Alia')
+This statement stores a key-value pair in Redis.
+- Key: name
+- Value: Alia
+After execution, Redis stores the data as:
+name -> Alia
+This line stores the key name with the value Alia in Redis. 
+print(r.get('name').decode('utf-8'))
+This statement retrieves and displays the value associated with the key name.
+- r.get('name') fetches the value from Redis.
+- Redis returns data in bytes format, such as b'Alia'.
+- .decode('utf-8') converts the bytes into a readable string.
+- The output displayed on the console is:
+Note: In this example, Redis is integrated with Python but redis can also be implemented in other programming languages like Java, JavaScript (Node.js), Go, Ruby, C# (.NET), PHP, and many more, using their respective Redis client libraries.
+Use Cases of Redis
+Redis is used when applications need very fast access to temporary or frequently used data, reducing repeated queries to the main database.
+- Caching: Stores frequently accessed data for faster retrieval and improved performance.
+- Session Management: Stores user login and session information for quick access.
+- Real-time Applications: Supports leaderboards, queues, notifications, and chat systems with fast updates.
+Example: In a messaging application, Redis can store the last few messages of a conversation using its list data structure so that users can quickly see recent messages without repeatedly querying the main database.
+Factors That Make Redis Fast
+Redis is fast because it stores data in RAM and uses an efficient architecture for quick data processing.
+- In-Memory Storage: Stores data in RAM for faster read and write operations.
+- Single-Threaded Event Loop: Avoids thread management and context-switching overhead.
+- Efficient Data Structures: Uses optimized lists, sets, hashes, and sorted sets.
+- Lightweight Protocol: Uses RESP for fast client-server communication.
+Example: When an application requests cached product data from Redis, the response can be returned in microseconds, whereas querying a disk-based database may take milliseconds.

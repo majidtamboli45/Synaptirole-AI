@@ -1,0 +1,252 @@
+# System Design Netflix
+
+> Source: https://www.geeksforgeeks.org/system-design/system-design-netflix-a-complete-architecture
+
+Designing Netflix involves building a scalable and highly available video streaming platform that delivers movies and TV shows to millions of users worldwide. This article explains the complete system design of Netflix, covering its architecture, APIs, database design, scalability, and performance considerations.
+- Learn how Netflix handles video streaming, content delivery, user recommendations, and playback at massive scale.
+- Understand the high-level architecture, low-level design, database choices, APIs, caching strategies, CDN usage, and techniques used to build a reliable video streaming platform.
+1. Problem Statement
+We need to design a Netflix-like video streaming platform that enables millions of users to watch movies and TV shows on demand with high-quality playback. The system should be scalable, highly available, and capable of delivering video content with low latency across different regions.
+- Users should be able to browse content, stream videos, search titles, and receive personalized recommendations seamlessly.
+- The system should ensure smooth video playback with minimal buffering while supporting multiple devices and varying network conditions.
+- The design should focus on scalability, fault tolerance, content delivery, data storage, and overall system performance.
+2. Requirements
+2.1 Functional Requirements
+Functional requirements define the core features that the Netflix system must support.
+- Users should be able to register, log in, and authenticate securely.
+- Users should be able to browse movies, TV shows, and other video content.
+- Users should be able to search content using titles, genres, actors, or keywords.
+- Users should be able to stream videos in multiple resolutions based on network conditions.
+- Users should receive personalized content recommendations based on their watch history and preferences.
+- Users should be able to continue watching from the last playback position across multiple devices.
+- Users should be able to create and manage multiple profiles under a single account.
+- Users should be able to download selected content for offline viewing.
+- Users should be able to rate content and manage their watchlist.
+2.2 Non-Functional Requirements
+Non-functional requirements define how well the system should perform under different conditions.
+- Availability: The platform should remain available with minimal downtime.
+- Scalability: It should support millions of concurrent users and continuous traffic growth.
+- Reliability: Video playback should be smooth with minimal interruptions or failures.
+- Low Latency: Videos should start quickly with minimal buffering.
+- Fault Tolerance: The system should continue operating even if individual servers or services fail.
+- Performance: The platform should deliver high-quality streaming across different devices and network conditions.
+- Security: User accounts, subscriptions, and streaming data should be securely protected.
+- Global Content Delivery: Videos should be served efficiently worldwide using Content Delivery Networks (CDNs).
+3. Capacity Estimation
+Before designing the architecture, we need to estimate the expected traffic, storage, and bandwidth requirements. These estimations help us choose the right CDN, storage, database, cache, and scaling strategy.
+Assumptions
+| Parameter | Assumption | 
+|---|---|
+| Registered Users | 300 Million | 
+| Daily Active Users | 100 Million | 
+| Daily Video Views | 1 Billion | 
+| Average Video Size | 500 MB | 
+| Read : Write Ratio | 1000 : 1 | 
+3.1 Storage Estimation
+Assume around 100,000 new videos are uploaded every day, and the average video size is 500 MB.
+Daily Storage
+= 100,000 × 500 MB
+= 50 TB/day
+For 30 days,
+Monthly Storage
+= 30 × 50 TB
+= 1.5 PB
+Estimated Storage: 1.5 PB/month (excluding replicas and backups).
+3.2 Bandwidth Estimation
+Assume the platform streams approximately 1 billion video views per day, with an average streamed size of 500 MB.
+Daily Data Transfer
+= 1 Billion × 500 MB
+= 500 PB/day
+Bandwidth
+= 500 PB / 86,400 seconds
+≈ 46 Tb/s
+Estimated Bandwidth: ~46 Tb/s
+Note: Most of this bandwidth is handled through geographically distributed CDNs rather than the origin servers.
+3.3 Server Estimation
+Assume a single streaming server can handle approximately 50,000 concurrent streaming sessions.
+Number of Streaming Servers
+= 100 Million / 50,000
+= 2,000 Servers
+Estimated Streaming Servers: 2,000 Servers (excluding CDN edge servers).
+3.4 Requests Per Second (RPS) Estimation
+To estimate the traffic handled by the platform, we calculate the average number of streaming requests processed every second.
+Assume Netflix serves 1 billion video play requests per day.
+Requests Per Second (RPS)
+= 1 Billion / 86,400
+≈ 11,574 requests/second
+≈ 11.5K RPS
+Estimated Traffic: The platform should be capable of handling approximately 11.5K requests per second, with the ability to support significantly higher traffic during peak viewing hours.
+Note: This is an average estimation. During peak hours (evenings, weekends, or new content releases), the actual RPS can be several times higher, so the system should be designed to handle sudden traffic spikes efficiently.
+4. High Level Design
+The High-Level Design (HLD) describes the overall architecture of the Netflix system and explains how different components work together to provide scalable, reliable, and low-latency video streaming.
+Core Components
+After the architecture diagram, explain each component one by one.
+- Client: The client represents the Netflix application running on mobile devices, smart TVs, web browsers, and other supported platforms. It allows users to browse content, stream videos, search titles, and manage profiles.
+- API Gateway: The API Gateway acts as the single entry point for all client requests. It authenticates users, applies rate limiting, and routes requests to the appropriate backend services.
+- Load Balancer: The Load Balancer distributes incoming requests across multiple application servers, ensuring high availability and preventing server overload.
+- User Service: The User Service manages user accounts, authentication, subscriptions, profiles, and watch history.
+- Content Service: The Content Service manages movies, TV shows, metadata, genres, subtitles, and content catalogs.
+- Streaming Service: The Streaming Service handles video playback requests and coordinates video delivery through the CDN.
+- Recommendation Service: The Recommendation Service generates personalized recommendations based on viewing history, ratings, and user preferences.
+- Search Service: The Search Service enables users to search for movies, TV shows, actors, genres, and keywords.
+- Notification Service: The Notification Service sends notifications for new releases, recommendations, subscription updates, and account activities.
+- CDN (Content Delivery Network): The CDN caches video content close to users, reducing latency and enabling high-quality streaming across different geographical regions.
+- Redis Cache: Redis stores frequently accessed data such as trending content, recommendation cache, user sessions, and popular searches to reduce database load.
+- Message Queue: A Message Queue enables asynchronous processing of recommendation updates, notifications, analytics, and content processing tasks.
+- Database: The database stores user accounts, subscriptions, watch history, content metadata, and recommendation data.
+- Object Storage: Object Storage stores original videos, multiple transcoded versions, subtitles, thumbnails, and other media assets.
+Request Flow
+After explaining the components, describe how a video streaming request travels through the system.
+- A user selects a movie or TV show from the Netflix application.
+- The request reaches the API Gateway, which authenticates the user.
+- The Load Balancer forwards the request to the appropriate backend service.
+- The Authentication Service verifies the user's subscription, while the Content Service retrieves the requested video metadata.
+- The Streaming Service generates a secure streaming URL and redirects the client to the nearest CDN.
+- The CDN delivers video segments to the user's device with low latency.
+- If the requested content is not available in the CDN cache, it is fetched from Object Storage and cached for future requests.
+- User watch history, playback progress, and analytics events are processed asynchronously through the Message Queue.
+- The Recommendation Service updates personalized recommendations based on the user's viewing activity.
+Data Flow
+The data flow shows how video streaming requests and playback information move through different components of the Netflix system.
+- The client sends a streaming request to the API Gateway, which authenticates the user and forwards it to the Streaming Service.
+- The Streaming Service retrieves user information, subscription status, and content metadata from Redis Cache or the Database.
+- The client is redirected to the nearest CDN, which streams video segments with minimal latency.
+- If the requested content is not available in the CDN cache, it is fetched from Object Storage and cached at the edge.
+- Playback history, user activity, analytics, and recommendation events are published to the Message Queue for asynchronous processing.
+- The Recommendation Service continuously updates personalized recommendations based on the user's viewing behavior and stores the updated results in Redis Cache and the Database.
+5. Technology Stack
+The following technologies can be used to build a scalable and high-performance video streaming platform like Netflix.
+| Category | Technology | 
+|---|---|
+| Frontend | React, JavaScript | 
+| Mobile | Kotlin, Swift | 
+| Backend | Java, Spring Boot | 
+| API | REST APIs | 
+| Video Streaming | HLS, MPEG-DASH | 
+| CDN | Open Connect CDN / CloudFront | 
+| Cache | Redis | 
+| Database | Cassandra, MySQL | 
+| Object Storage | Amazon S3 | 
+| Message Queue | Apache Kafka | 
+| Search | Elasticsearch | 
+| Authentication | JWT, OAuth 2.0 | 
+| Containerization | Docker | 
+| Orchestration | Kubernetes | 
+| Cloud Platform | AWS | 
+| Monitoring | Prometheus, Grafana | 
+6. Data Model Design
+The data model defines how Netflix stores and manages users, content, subscriptions, watch history, and recommendations. A well-designed schema ensures efficient content management, fast retrieval, and supports scalability for millions of users.
+- Identify the core entities required for video streaming and content management.
+- Define relationships between entities to maintain data consistency.
+- Select the appropriate database model based on scalability and performance requirements.
+Core Entities
+The Netflix system consists of the following core entities:
+- User: Stores user account information and authentication details.
+- Profile: Stores individual user profiles, preferences, and viewing settings.
+- Content: Stores movies, TV shows, genres, language, and metadata.
+- Subscription: Stores subscription plans, billing status, and renewal information.
+- Watch History: Stores playback history and viewing progress.
+- Watchlist: Stores movies and TV shows saved by users for future viewing.
+Database Selection
+A combination of SQL and NoSQL databases can be used depending on system requirements.
+- SQL Database is suitable for storing structured data such as user accounts, profiles, and subscription information.
+- NoSQL Database is better suited for storing watch history, user activity, and recommendation data because it provides horizontal scalability and high write throughput.
+- Video files, thumbnails, and subtitles should be stored separately in Object Storage, while only their metadata is maintained in the database.
+7. API Design
+The API design defines how the Netflix client communicates with backend services to perform operations such as authentication, content browsing, video streaming, watchlist management, and profile handling.
+- Design REST APIs that are simple, scalable, and easy to consume.
+- Use appropriate HTTP methods for different operations.
+- Secure APIs using authentication mechanisms such as JWT or OAuth.
+Authentication APIs
+| Method | Endpoint | Description | 
+|---|---|---|
+| POST | /api/v1/auth/register | Register a new user | 
+| POST | /api/v1/auth/login | Authenticate a user | 
+| POST | /api/v1/auth/logout | Logout the current user | 
+Content APIs
+| Method | Endpoint | Description | 
+|---|---|---|
+| GET | /api/v1/content | Fetch recommended movies and TV shows | 
+| GET | /api/v1/content/{contentId} | Fetch content details | 
+| GET | /api/v1/search | Search movies and TV shows | 
+Streaming APIs
+| Method | Endpoint | Description | 
+|---|---|---|
+| POST | /api/v1/stream/start | Start video streaming | 
+| GET | /api/v1/stream/{contentId} | Get streaming URL | 
+| POST | /api/v1/stream/progress | Update playback progress | 
+Watchlist APIs
+| Method | Endpoint | Description | 
+|---|---|---|
+| POST | /api/v1/watchlist | Add content to watchlist | 
+| GET | /api/v1/watchlist | Get user's watchlist | 
+| DELETE | /api/v1/watchlist/{contentId} | Remove content from watchlist | 
+Sample Request
+POST /api/v1/stream/start
+{
+"contentId": "movie_101",
+"profileId": "profile_001",
+"deviceType": "Smart TV"
+}
+Sample Response
+{
+"streamUrl": "https://cdn.netflix.com/stream/movie_101.m3u8",
+"quality": "1080p",
+"expiresIn": 3600,
+"status": "success"
+}
+The next section is:
+8. Low Level Design
+The Low-Level Design (LLD) describes the internal structure of the Netflix system by defining the key classes, their responsibilities, and their interactions. It helps organize the application into modular and maintainable components.
+Core Classes
+The Netflix system can be designed using the following core classes:
+- User: Manages user account information and authentication.
+- Profile: Stores individual viewing preferences and watch history for each profile.
+- Content: Represents movies and TV shows available on the platform.
+- WatchHistory: Tracks watched content, playback progress, and viewing timestamps.
+- Watchlist: Maintains the list of content saved by users for future viewing.
+- StreamingService: Handles video streaming requests and playback sessions.
+- RecommendationService: Generates personalized content recommendations.
+- SearchService: Provides search functionality for movies, TV shows, genres, and actors.
+SOLID Principles
+The Netflix system follows SOLID principles to keep the code modular, maintainable, and easy to extend.
+- Single Responsibility Principle (SRP): Each class has a single responsibility. For example, the StreamingService manages video playback, while the RecommendationService generates personalized recommendations.
+- Open/Closed Principle (OCP): New content types or recommendation algorithms can be added without modifying the existing business logic.
+- Liskov Substitution Principle (LSP): Different content types such as Movie and TVShow can be used wherever a generic Content object is expected.
+- Interface Segregation Principle (ISP): Services expose only the methods they require, preventing unnecessary dependencies between modules.
+- Dependency Inversion Principle (DIP): High-level services depend on abstractions rather than concrete implementations, allowing databases, caches, CDNs, and recommendation engines to be replaced easily.
+Design Patterns
+The following design patterns can be used in the Netflix system:
+| Design Pattern | Usage | 
+|---|---|
+| Singleton | Database, Redis Cache, and CDN client management | 
+| Factory | Create different content types (Movie, TV Show, Documentary) | 
+| Strategy | Select video quality, streaming protocol, and recommendation algorithm | 
+| Observer | Notify users about new releases, playback events, and watchlist updates | 
+9. Scalability & Performance
+Scalability and performance ensure that the Netflix system can support millions of concurrent users while providing low-latency video streaming, fast content discovery, and a seamless viewing experience.
+- CDN (Content Delivery Network): CDN caches video content at edge locations, enabling fast video delivery and reducing latency for users across different regions.
+- Redis Cache: Redis stores frequently accessed data such as user sessions, trending content, recommendations, and content metadata to reduce database load.
+- Load Balancing: A Load Balancer distributes incoming traffic across multiple application servers, ensuring high availability and preventing server overload.
+- Database Replication: Multiple database replicas improve read performance and provide fault tolerance during server failures.
+- Database Sharding: User profiles, watch history, and content metadata are partitioned across multiple database servers to support horizontal scaling.
+- Asynchronous Processing: Kafka or other message queues process recommendations, analytics, watch history, notifications, and background jobs asynchronously.
+- Horizontal Scaling: Additional Streaming Servers, Recommendation Servers, Search Services, and Content Services can be added dynamically as traffic increases.
+- Adaptive Video Streaming: Videos are encoded into multiple resolutions and streamed using HLS or MPEG-DASH, allowing playback quality to adjust automatically based on network conditions.
+- Auto Scaling: Cloud infrastructure automatically provisions additional resources during peak traffic and scales down during low demand.
+10. Bottlenecks & Improvements
+This section discusses the potential challenges the Netflix system may face at scale and the techniques used to improve performance, scalability, and reliability.
+Common Bottlenecks
+As the number of users and streaming requests grows, Netflix may encounter several bottlenecks.
+- Streaming Server Overload: Large numbers of concurrent viewers can overload streaming servers. Horizontal scaling and CDN distribution help reduce this load.
+- Database Bottleneck: High read traffic for user profiles and watch history can overload databases. Replication and sharding distribute the workload efficiently.
+- Cache Misses: Frequent cache misses increase database queries and response time. Optimizing cache policies improves overall performance.
+- Recommendation Processing: Generating personalized recommendations for millions of users is computationally expensive. Distributed ML models and asynchronous processing improve scalability.
+- Network Latency: Users located far from the origin servers may experience buffering. CDNs minimize latency by serving content from nearby edge locations.
+Possible Improvements
+The following techniques can further improve the scalability and reliability of the Netflix system.
+- Auto Scaling: Automatically add or remove servers based on traffic demand.
+- Multi-Region Deployment: Deploy services across multiple regions to reduce latency and improve availability.
+- Smart CDN Caching: Cache popular content closer to users to reduce origin server traffic.
+- Monitoring & Alerting: Continuously monitor system health and trigger alerts for failures or unusual traffic patterns.
+- Fault Tolerance: Use redundancy and failover mechanisms to eliminate single points of failure.

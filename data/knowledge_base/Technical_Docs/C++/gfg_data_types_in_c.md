@@ -1,0 +1,114 @@
+# Data Types in C++
+
+> Source: https://www.geeksforgeeks.org/cpp/cpp-data-types/
+
+Data types form the foundation of data representation in C++. Every variable must be associated with a data type that defines the kind of value it can store and how that value is handled by the compiler.
+- Data types determine the memory allocation, range of values, and operations supported by a variable.
+- Understanding different data types is essential for writing correct, efficient, and maintainable C++ programs.
+Classification of Data Types in C++
+Data types in C++ can be broadly classified into three categories:
+Integer Data Type (int)
+The int data type is used to store whole numbers.
+#include <iostream>
+using namespace std;
+int main() {
+  	// Creating a variable to store integer
+    int var = 10;
+  
+  	cout << var;
+    return 0;
+}
+Output
+10
+Explanation: The variable var stores the integer value 10. The keyword int specifies that the variable can hold integer values.
+Note: The C++ standard does not specify the exact memory size of data types (int, float, etc.). Their size may vary depending on the compiler and system architecture. The sizes mentioned in this article are common for many modern 64-bit systems but may differ on other platforms.
+Let us explore how primitive data types are used in C++.
+Character Data Type (char)
+The char data type stores a single character enclosed in single quotes. Typically occupies 1 byte and stores the ASCII value of the character internally.
+#include <iostream>
+using namespace std;
+int main()
+{
+    // Character variable
+    char c = 'A';
+    cout << c;
+    return 0;
+}
+Output
+A
+Boolean Data Type (bool)
+The boolean data type is used to store logical values: true(1) or false(0). The keyword used to define a boolean variable is bool. Its typical size is 1 byte.
+#include <iostream>
+using namespace std;
+int main()
+{
+    // Creating a boolean variable
+    bool isTrue = true;
+    
+    cout << isTrue;
+    return 0;
+}
+Output
+1
+Floating Point Data Type (float)
+Float is used to store decimal numbers. It is declared using the float keyword, typically occupies 4 bytes, and can store values approximately from 1.2e-38 to 3.4e+38.
+float f = 36.5f;
+Double Data Type (double)
+Double (double) is used to store decimal numbers with higher precision than float. It typically occupies 8 bytes and can store values approximately from 1.7e-308 to 1.7e+308.
+double pi = 3.1415926535;
+Void Data Type (void)
+The void data type represents the absence of value. We cannot create a variable of void type. It is used for pointer and functions that do not return any value using the keyword void.
+void display() {
+    cout << "Hello";
+}
+Derived Data Types in C++
+Derived data types are formed using fundamental data types.
+- Array: It stores multiple values of the same type in contiguous memory locations.
+- Pointer: It stores the memory address of another variable.
+- Reference: It acts as an alias for an existing variable.
+- Functions: It is used to represent a derived type because they have a specific return type and parameter types.
+User Defined Data Types
+User-defined data types allow programmers to create their own data structures.
+- Structure: Used to groups related variables under one name.
+- Class: It combines data and functions into a single unit.
+- Union: It allows multiple members to share the same memory location.
+Standard Library Types
+The C++ Standard Library provides many useful types that are implemented as classes or templates.
+| Type | Description | 
+|---|---|
+| std::string | Represents a sequence of characters | 
+| std::vector | Dynamic array | 
+| std::map | Stores key-value pairs | 
+These are not fundamental data types. They are types provided by the C++ Standard Library.
+For example:
+#include <string>
+std::string name = "Geeks";
+Size of Data Types in C++
+The exact size of a data type depends on the compiler and platform.
+| Data Type | Typical Size | 
+|---|---|
+| char | 1 byte | 
+| bool | 1 byte | 
+| int | 4 bytes | 
+| float | 4 bytes | 
+| double | 8 bytes | 
+The sizeof operator can be used to determine the actual size on a system.
+cout << sizeof(int);
+Note: The C++ standard specifies minimum ranges and relationships between sizes rather than requiring the same exact size on every platform.
+Data Type Modifiers
+C++ provides type modifiers that can alter the size, range, or representation of certain fundamental data types. The commonly used modifiers are short, long, signed, and unsigned.
+- short: Specifies a smaller integer type when supported.
+- long: Specifies an integer type with at least as much storage as int.
+- signed: Allows an integer type to represent both positive and negative values.
+- unsigned: Allows an integer type to represent only non-negative values and provides a larger positive range.
+Example
+short int a;
+long int b;
+signed int c;
+unsigned int d;
+long long int e;
+Rules for Type Modifiers
+- short and long are used with integer types, while long can also be used with double.
+- signed and unsigned are used with integral types such as char, short, int, and long.
+- int can be omitted in declarations such as unsigned x, short x, and long x.
+Note: signed and unsigned cannot be used with float, double, or bool.

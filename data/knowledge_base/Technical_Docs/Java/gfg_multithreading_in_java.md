@@ -1,0 +1,87 @@
+# Multithreading in Java
+
+> Source: https://www.geeksforgeeks.org/java/multithreading-in-java/
+
+Multithreading in Java is a feature that enables a program to run multiple threads simultaneously, allowing tasks to execute in parallel and utilize the CPU more efficiently. A thread is a lightweight, independent unit of execution inside a program (process).
+- Threads allow parallel execution of tasks.
+- A process can have multiple threads.
+- Each thread runs independently but shares the same memory.
+Example: Imagine a restaurant kitchen. Multiple chefs (threads) are preparing different dishes at the same time. This speeds up service and utilizes all available resources (CPU).
+Different Ways to Create Threads
+Threads can be created by using two mechanisms:
+1. Extending the Thread class
+We create a class that extends Thread and override its run() method to define the task. Then, we make an object of this class and call start(), which automatically calls run() and begins the thread’s execution.
+Example: Restaurant Kitchen (Extending Thread)
+class CookingTask extends Thread {
+    private String task;
+    CookingTask(String task) {
+        this.task = task;
+    }
+    public void run() {
+        System.out.println(task + " is being prepared by " +
+            Thread.currentThread().getName());
+    }
+}
+public class Restaurant {
+    public static void main(String[] args) {
+        Thread t1 = new CookingTask("Pasta");
+        Thread t2 = new CookingTask("Salad");
+        Thread t3 = new CookingTask("Dessert");
+        Thread t4 = new CookingTask("Rice");
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+    }
+}
+Output
+Rice is being prepared by Thread-3
+Pasta is being prepared by Thread-0
+Dessert is being prepared by Thread-2
+Salad is being prepared by Thread-1
+Explanation:
+- We created multiple threads (t1–t4) using the CookingTask class.
+- Each thread represents a dish being prepared.
+- Calling start() creates a new thread with its own call stack and internally invokes the run() method. This allows threads to run concurrently with the main thread and each other.
+Note: Thread execution order is not fixed. After start(), the JVM and OS decide when each thread runs, so the output may vary on each execution.
+2. Implementing the Runnable Interface
+We create a new class which implements java.lang.Runnable interface and define the run() method there. Then we instantiate a Thread object and call start() method on this object.
+Example: Restaurant Kitchen (Runnable Interface)
+class CookingJob implements Runnable {
+    private String task;
+    CookingJob(String task) {
+        this.task = task;
+    }
+    public void run() {
+        System.out.println(task + " is being prepared by " +
+            Thread.currentThread().getName());
+    }
+}
+public class RestaurantRunnable {
+    public static void main(String[] args) {
+        Thread t1 = new Thread(new CookingJob("Soup"));
+        Thread t2 = new Thread(new CookingJob("Pizza"));
+        Thread t3 = new Thread(new CookingJob("Burger"));
+        t1.start();
+        t2.start();
+        t3.start();
+    }
+}
+Output
+Burger is being prepared by Thread-2
+Pizza is being prepared by Thread-1
+Soup is being prepared by Thread-0
+Explanation:
+- Cookingob implements Runnable and overrides run().
+- We pass a Runnable object to the Thread constructor.
+- Calling start() starts a new thread and invokes its run() method. The thread runs independently, and its execution order is not guaranteed, so the output may appear in a different order each time.
+Note: The output order may vary each time because Java does not guarantee the order in which multiple threads execute. The output shown is only one possible order.
+Best Use Cases for Thread and Runnable
+- Use extends Thread: if your class does not extend any other class.
+- Use implements Runnable: if your class already extends another class (preferred because Java doesn’t support multiple inheritance).
+Advantages of Multithreading
+- Improved Performance: Multiple tasks can run simultaneously, reducing execution time.
+- Efficient CPU Utilization: Threads keep the CPU busy by running tasks in parallel.
+- Responsiveness: Applications (like GUIs) remain responsive while performing background tasks.
+- Resource Sharing: Threads within the same process share memory and resources, avoiding duplication.
+- Better User Experience: Smooth execution of tasks like file downloads, animations, and real-time updates.

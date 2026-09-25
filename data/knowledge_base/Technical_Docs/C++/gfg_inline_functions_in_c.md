@@ -1,0 +1,87 @@
+# Inline Functions in C++
+
+> Source: https://www.geeksforgeeks.org/cpp/inline-functions-cpp/
+
+An inline function is a function for which the compiler may replace the function call with the function's code to reduce function-call overhead. The inline keyword is only a request to the compiler, and the compiler may choose whether to inline the function.
+- Inline functions are mainly useful for small, frequently called functions where call overhead may matter.
+- They also allow a function definition to appear in multiple translation units, making them useful in header files.
+#include <iostream>
+using namespace std;
+inline int getSum(int a, int b){
+    return a + b;
+}
+int main(){
+    int num1 = 5, num2 = 10;
+    int result = getSum(num1, num2);
+    cout << "Sum: " << result << endl;
+    return 0;
+}
+Output
+Sum: 15
+Explanation: The getSum() function is declared using the inline keyword. The compiler may replace the function call with its body during compilation, potentially reducing function-call overhead.
+Inline Function with a Larger Function
+The inline keyword does not guarantee that a function will be expanded at every call. The compiler considers factors such as function size, optimization settings, recursion, and whether inlining is beneficial.
+#include <iostream>
+using namespace std;
+// The compiler may choose not to inline this function
+inline void displayMessage()
+{
+    for (int i = 0; i < 5; i++)
+        cout << "Hello " << i << endl;
+}
+int main()
+{
+    // Call the function
+    displayMessage();
+    return 0;
+}
+Output
+Hello 0
+Hello 1
+Hello 2
+Hello 3
+Hello 4
+Explanation: The function contains a loop and performs multiple operations. Although it is declared inline, the compiler may decide not to inline it. The inline keyword does not force code expansion.
+Compiler Decisions for Inline Functions
+The inline keyword does not force the compiler to inline a function.
+- The compiler may inline a function declared with inline.
+- The compiler may also inline a function that is not explicitly declared with inline.
+- The compiler considers factors such as function size, optimization level, call frequency, and available optimization opportunities.
+- Functions containing loops, recursion, or conditional statements are not automatically excluded from inlining.
+Inline Functions and Multiple Definitions
+The inline specifier also has an important role in the C++ One Definition Rule (ODR).
+- An inline function can have the same definition in multiple translation units.
+- This makes inline functions suitable for definitions in header files included by multiple source files.
+- The definitions must satisfy the requirements of the C++ ODR.
+- The inline keyword does not necessarily mean that the function will be physically substituted at every call.
+For example:
+// math_utils.h
+inline int square(int n) {
+    return n * n;
+}
+The header can be included in multiple source files without causing a multiple-definition violation, provided the inline definition satisfies the ODR requirements.
+Inline and Virtual Functions
+A virtual function can be inlined when the compiler can determine the actual function being called, such as through devirtualization. Therefore, it is incorrect to say that virtual functions can never be inlined.
+- Virtual dispatch normally selects the function at runtime.
+- If the compiler can determine the actual object type, it may eliminate the virtual call.
+- After determining the target function, the compiler may inline it.
+- Thus, virtual functions and inlining are not mutually exclusive.
+Advantages of Inline Functions
+- Reduces function-call overhead for suitable small functions.
+- Provides type safety and normal C++ scope rules.
+- Gives the compiler an opportunity to perform additional optimizations.
+Disadvantages
+- Inlining increases the number of variables and registers used at each call.
+- Excessive inlining can enlarge the binary and reduce instruction cache efficiency.
+- Changes in an inline function require recompiling all calling locations.
+- Inline functions may not suit embedded systems where code size is more critical than speed.
+Inline vs Macros
+Both inline functions and macros can avoid the overhead associated with a traditional function call, but they work differently. Inline functions are type-safe and follow normal C++ language rules, while macros are processed by the preprocessor.
+| Aspect | Inline Functions | Macros | 
+|---|---|---|
+| Definition | Inline functions are functions defined with the inline keyword. | Macros are preprocessor directives defined using. #define . | 
+| Scope | Inline functions have scope and type checking, like regular functions. | Macros have no scope or type checking. They are replaced by the preprocessor. | 
+| Evaluation of Arguments | Arguments are evaluated once. | Arguments may be evaluated multiple times (e.g., in expressions). | 
+| Handling | Inline functions are handled by the compiler. | Macros are handled by the preprocessor. | 
+| Execution Overhead | Compiler may ignore the inline request if the function is too large. | Macros are always substituted into code. | 
+| Recursion | Inline functions can call themselves recursively. | Macros cannot be recursive. |

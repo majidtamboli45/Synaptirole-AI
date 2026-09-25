@@ -1,0 +1,175 @@
+# Smart Pointers in C++
+
+> Source: https://www.geeksforgeeks.org/cpp/smart-pointers-cpp/
+
+Smart pointers are objects that manage dynamically allocated memory automatically. They are provided by the C++ Standard Library and help manage the lifetime of dynamically allocated objects.
+- Automatically release memory when the managed object is no longer needed.
+- Help reduce memory leaks and dangling pointer issues.
+- The <memory> header provides smart pointers such as unique_ptr, shared_ptr, and weak_ptr.
+Example: Problem with Raw Pointers (Memory Leak Example)
+#include <iostream>
+using namespace std;
+int main() {
+    int* ptr = new int(10);
+    cout << *ptr;
+    // delete ptr; is required to release the memory
+    return 0;
+} 
+Output
+10
+Explanation:
+- new int(10) dynamically allocates memory and stores 10 in it.
+- The memory remains allocated until it is explicitly released using delete.
+- Forgetting to call delete can cause a memory leak.
+- Smart pointers automatically manage this memory.
+Syntax of Smart Pointers
+Smart pointers are template classes, so the type of object they manage is specified inside angle brackets.
+smart_pointer_type<data_type> pointer_name;
+For example:
+unique_ptr<int> ptr;
+shared_ptr<int> ptr;
+weak_ptr<int> ptr;
+Types of Smart Pointers
+C++ provides three commonly used smart pointers:
+1. auto_ptr (Deprecated)
+auto_ptr was an early smart pointer that automatically deleted the managed object when it went out of scope.
+- Ownership is transferred, leaving the original pointer null (empty).
+- Copy semantics are unsafe and error-prone.
+#include <iostream>
+#include <memory>
+using namespace std;
+int main() {
+    auto_ptr<int> ptr1(new int(10));
+    cout << *ptr1 << endl;
+    auto_ptr<int> ptr2 = ptr1;  // ownership transfer
+    cout << *ptr2;
+    return 0;
+}
+Output
+10
+10
+Note: auto_ptr was deprecated in C++11 and removed in C++17.
+2. unique_ptr
+unique_ptr stores one pointer only at a time. We cannot copy unique_ptr, only transfer ownership of the object to another unique_ptr using the move() method.
+- Only one unique_ptr can own an object at a time.
+- Lightweight and efficient.
+- Ideal for single ownership scenarios.
+- make_unique() is the recommended and safer way to create a unique_ptr.
+#include <iostream>
+#include <memory>
+using namespace std;
+class Rectangle {
+    int length, breadth;
+public:
+    Rectangle(int l, int b) : length(l), breadth(b) {}
+    int area() {
+        return length * breadth;
+    }
+};
+int main() {
+    unique_ptr<Rectangle> ptr1 = make_unique<Rectangle>(10, 5);
+    cout << ptr1->area() << endl;
+    unique_ptr<Rectangle> ptr2 = move(ptr1);
+    cout << ptr2->area();
+    return 0;
+} 
+Output
+50
+50
+Explanation: make_unique() creates a unique_ptr that exclusively owns the Rectangle object, while move() transfers ownership from ptr1 to ptr2. The object is automatically deleted when the owning unique_ptr goes out of scope.
+3. shared_ptr
+shared_ptr allows multiple pointers to share ownership of the same object. It uses reference counting to manage memory.
+- Supports shared ownership.
+- Uses reference counting to manage the object's lifetime.
+- Multiple shared_ptr objects can own the same object.
+- make_shared() is the recommended way to create a shared_ptr.
+#include <iostream>
+#include <memory>
+using namespace std;
+class Rectangle {
+    int length, breadth;
+public:
+    Rectangle(int l, int b) : length(l), breadth(b) {}
+    int area() {
+        return length * breadth;
+    }
+};
+int main() {
+    shared_ptr<Rectangle> ptr1 = make_shared<Rectangle>(10, 5);
+    shared_ptr<Rectangle> ptr2 = ptr1;
+    cout << ptr1->area() << endl;
+    cout << ptr2->area() << endl;
+    cout << ptr1.use_count();
+    return 0;
+} 
+Output
+50
+50
+2
+Explanation: make_shared() creates a shared_ptr, and copying ptr1 to ptr2 makes them share ownership. use_count() shows the number of owners, and the object is destroyed when the last shared_ptr is gone.
+4. weak_ptr
+weak_ptr is a non-owning smart pointer used with shared_ptr. It provides access to an object without increasing its reference count. It is mainly used to prevent circular ownership between shared_ptr objects.
+- Does not own the managed object.
+- Does not increase the shared_ptr reference count.
+- Helps prevent circular ownership.
+- Uses lock() to obtain a temporary shared_ptr when the object is still alive.
+#include <iostream>
+#include <memory>
+using namespace std;
+class Rectangle {
+    int length, breadth;
+public:
+    Rectangle(int l, int b) : length(l), breadth(b) {}
+    int area() {
+        return length * breadth;
+    }
+};
+int main() {
+    shared_ptr<Rectangle> ptr1 = make_shared<Rectangle>(10, 5);
+    weak_ptr<Rectangle> ptr2 = ptr1;
+    cout << ptr1->area() << endl;
+    cout << ptr2.use_count();
+    return 0;
+} 
+Output
+50
+1
+Explanation: ptr1 owns the Rectangle object, while ptr2 observes it without increasing the reference count. lock() can be used to obtain a shared_ptr if the object is still alive.
+Problem: Circular Dependency with shared_ptr
+If two objects hold shared_ptr to each other:
+- Reference count never reaches zero
+- Memory leak occurs
+This is the reason we use weak pointers(weak_ptr) is a non-owning reference to an object managed by shared_ptr.
+So, in the case of shared_ptr because of cyclic dependency use_count never reaches zero which is prevented by using weak_ptr, which removes this problem by declaring A_ptr as weak_ptr, thus class A does not own it, only has access to it and we also need to check the validity of object as it may go out of scope. In general, it is a design issue.
+#include <iostream>
+#include <memory>
+using namespace std;
+class Rectangle {
+    int length, breadth;
+public:
+    Rectangle(int l, int b) : length(l), breadth(b) {}
+    int area() { return length * breadth; }
+};
+int main() {
+    shared_ptr<Rectangle> P1(new Rectangle(10, 5));
+    weak_ptr<Rectangle> P2(P1);
+    cout << P1->area() << endl;
+    cout << P2.use_count();
+    return 0;
+}
+Output
+50
+1
+Problems with Raw Pointers
+Raw pointers provide direct control over memory but require careful manual management.
+- Memory Leak: Occurs when dynamically allocated memory is not released after use.
+- Dangling Pointer: Occurs when a pointer refers to memory that has already been deallocated.
+- Wild Pointer: A pointer that has not been properly initialized and does not point to a valid memory location.
+- Manual Memory Management: The programmer must explicitly manage allocation and deallocation using new and delete.
+Pointers Vs Smart Pointers
+| Pointer | Smart Pointer | 
+|---|---|
+| A pointer is a variable that stores the memory address of another variable. | A smart pointer is a class that manages a pointer automatically. | 
+| Memory must be manually managed (using new /delete ). | Memory is automatically managed and released when no longer needed. | 
+| Does not automatically free memory when it goes out of scope. | Automatically frees memory when it goes out of scope. | 
+| Requires careful handling, increasing chances of errors (e.g., memory leaks). | Safer to use, as it reduces risks like memory leaks and dangling pointers. |

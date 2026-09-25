@@ -28,6 +28,10 @@ models/*
 !models/ner_resume_model/
 !models/ner_resume_model/**
 
+# Generated caches (rebuilt on demand; see docs/Latency_issue_fix.md)
+data/ontology_index_cache.pkl
+data/ontology_index_cache.pkl.tmp
+
 # Logs / generated output
 logs/
 output/

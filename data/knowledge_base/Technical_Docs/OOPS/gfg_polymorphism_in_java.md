@@ -1,0 +1,164 @@
+# Polymorphism in Java
+
+> Source: https://www.geeksforgeeks.org/java/polymorphism-in-java/
+
+Polymorphism is one of the fundamental concepts of Object-Oriented Programming (OOP) that allows a single entity to take multiple forms. It enables the same method or interface to behave differently depending on the object involved. Polymorphism improves code flexibility, reusability, and maintainability.
+- Polymorphism means "many forms".
+- It allows the same method to exhibit different behaviors.
+- It is achieved through method overloading and method overriding.
+Example: Consider a person who plays different roles in life, like a father, a husband, and an employee. Each of these roles defines different behaviors of the person depending on the object calling it.
+class Person {
+    // Method that displays the
+    // role of a person
+    void role() { System.out.println("I am a person."); }
+}
+// Derived class Father that
+// overrides the role method
+class Father extends Person {
+    // Overridden method to show
+    // the role of a father
+    @Override void role()
+    {
+        System.out.println("I am a father.");
+    }
+}
+public class Main {
+    public static void main(String[] args)
+    {
+        // Creating a reference of type Person
+        // but initializing it with Father class object
+        Person p = new Father();
+        // Calling the role method. It calls the
+        // overridden version in Father class
+        p.role();
+    }
+}
+Output
+I am a father.
+Explanation: In the above example, the Person class has a method role() that prints a general message. The Father class overrides role() to print a specific message. The reference of type Person is used to point to an object of type Father, demonstrating polymorphism at runtime. The overridden method in Father is invoked when role() is called.
+Types of Polymorphism in Java
+In Java Polymorphism is mainly divided into two types:
+1. Compile-Time Polymorphism
+Compile-time polymorphism also known as static polymorphism, occurs when the method to be executed is determined during compilation. It is primarily achieved through method overloading.
+- Method selection occurs at compile time.
+- Improves readability and flexibility.
+Method Overloading
+Method overloading allows multiple methods with the same name but different parameter lists within the same class. The compiler chooses the appropriate method based on the arguments passed. The parameters can differ in:
+- Number of parameters
+- Data types of parameters
+- Order of parameters
+Syntax:
+class Demo {
+ void show(int a) {
+ }
+  void show(int a, int b) {
+  }
+}
+Example: Method overloading by changing the number of arguments
+class Helper {
+    // Method with 2 integer parameters
+    static int Multiply(int a, int b)
+    {
+        // Returns product of integer numbers
+        return a * b;
+    }
+    // Method 2
+    // With same name but with 2 double parameters
+    static double Multiply(double a, double b)
+    {
+        // Returns product of double numbers
+        return a * b;
+    }
+}
+// Main class
+class Geeks {
+    // Main driver method
+    public static void main(String[] args)
+    {
+        // Calling method by passing
+        // input as in arguments
+        System.out.println(Helper.Multiply(2, 4));
+        System.out.println(Helper.Multiply(5.5, 6.3));
+    }
+}
+Output
+8
+34.65
+Explanation: The Multiply method is overloaded with different parameter types. The compiler picks the correct method during compile time based on the arguments.
+2. Runtime Polymorphism
+Runtime polymorphism also known as dynamic polymorphism, occurs when the method call is resolved during program execution. It is achieved through method overriding.
+- Method selection occurs at runtime.
+- Depends on the actual object type.
+Method Overriding
+Method overriding occurs when a subclass provides its own implementation of a method already defined in its superclass. The overridden method is selected based on the actual object created.
+Syntax:
+class Parent {
+ void print() {
+ }
+}
+class Child extends Parent {
+@Override
+void print() {
+ }
+}
+Note: At runtime, the method that gets executed depends on the actual object type, not the reference type.
+Example: This program demonstrates method overriding in Java, where the Print() method is redefined in the subclasses (subclass1 and subclass2) to provide specific implementations.
+// Class 1
+// Helper class
+class Parent {
+    // Method of parent class
+    void Print() { System.out.println("parent class"); }
+}
+// Class 2
+// Helper class
+class Subclass1 extends Parent {
+    // Method
+    void Print() { System.out.println("subclass1"); }
+}
+// Class 3
+// Helper class
+class Subclass2 extends Parent {
+    // Method
+    void Print() { System.out.println("subclass2"); }
+}
+// Class 4
+// Main class
+class Geeks {
+    // Main driver method
+    public static void main(String[] args)
+    {
+        // Creating object of class 1
+        Parent a;
+        // Now we will be calling print methods
+        // inside main() method
+        a = new Subclass1();
+        a.Print();
+        a = new Subclass2();
+        a.Print();
+    }
+}
+Output
+subclass1
+subclass2
+Explanation: In the above example, when an object of a child class is created, then the method inside the child class is called. This is because the method in the parent class is overridden by the child class. At runtime, the JVM determines which method to execute based on the actual type of the object, not the reference type. If the object is of a child class, the overridden method in the child class is invoked.
+Compile-Time vs Runtime Polymorphism
+| Feature | Compile-Time Polymorphism | Runtime Polymorphism | 
+|---|---|---|
+| Also called | Static polymorphism | Dynamic polymorphism | 
+| Mainly achieved using | Method overloading | Method overriding | 
+| Method selection | Compile time | Runtime | 
+| Inheritance required | No | Yes | 
+| Example | add(int, int) andadd(double, double) | Dog.sound() overridingAnimal.sound() | 
+Advantages of Polymorphism
+- Makes code flexible and reusable.
+- Improves code readability.
+- Makes programs easier to maintain.
+- Allows the same method to perform different tasks.
+- Makes it easier to add new classes and features.
+- Supports abstraction and loose coupling.
+Disadvantages of Polymorphism
+- Can make code more complex to understand.
+- Can make debugging difficult, especially with runtime polymorphism.
+- May require more classes and methods, increasing code size.
+- Runtime polymorphism can have a small performance overhead.
+- Improper use can make the program harder to maintain.

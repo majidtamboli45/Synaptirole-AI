@@ -1,0 +1,88 @@
+# SQL NOT NULL Constraint
+
+> Source: https://www.geeksforgeeks.org/sql/sql-not-null-constraint/
+
+In SQL, NOT NULL constraint in SQL ensures a column must always contain a value and cannot be left empty. Unlike a PRIMARY KEY, which uniquely identifies each record and also disallows NULLs, NOT NULL only enforces the presence of data without requiring uniqueness.
+- NOT NULL is used to enforce mandatory fields.
+- Prevents NULL values from being inserted or updated.
+- It is applicable at the column level.
+Query:
+CREATE TABLE student (
+student_id INT NOT NULL,
+full_name VARCHAR(50),
+city VARCHAR(50)
+);
+--Insert data into student table
+INSERT INTO student (student_id, full_name, city) VALUES
+(101, 'Bob', 'London'),
+(102, 'Lucas', 'London');
+Output:
+Query:
+INSERT INTO student (student_id, full_name, city) VALUES
+(NULL, 'John', 'London');
+Error:
+- The insert fails because student_id has a NULL value.
+- A NOT NULL column requires a valid value, so it rejects NULL.
+Syntax
+CREATE TABLE table_Name
+(
+column1 data_type(size) NOT NULL,
+column2 data_type(size) NOT NULL,
+....
+);
+- CREATE TABLE table_name: creates a new table.
+- column1 data_type(size): defines a column with its name, data type, and size.
+- NOT NULL: ensures the column cannot have NULL (empty) values.
+SQL NOT NULL Constraint Syntax
+The syntax for applying the NOT NULL constraint can be as follows:
+1. During Table Creation
+CREATE TABLE table_Name (
+column1 data_type(size) NOT NULL,
+column2 data_type(size) NOT NULL,
+...
+);
+2. Modifying an Existing Table
+You can also add a NOT NULL constraint to an existing column in a table using the ALTER TABLE statement:
+ALTER TABLE table_name
+MODIFY column_name data_type(size) NOT NULL;
+Example of SQL NOT NULL Constraint
+Let's understand NOT NULL in SQL with examples. Here we will look at different examples of the SQL NOT NULL Constraint command.
+Example 1: Applying NOT NULL in Table Creation
+Let’s look at an example where we create an employee table with a NOT NULL constraint applied to the emp_id column to ensure that each employee has a unique, non-null ID.
+Query:
+CREATE TABLE emp (
+emp_id INT NOT NULL PRIMARY KEY,
+name VARCHAR(50),
+country VARCHAR(50),
+age INT,
+salary INT
+);
+INSERT INTO emp (emp_id, name, country, age, salary)
+VALUES
+(1, 'John', 'USA', 28, 35000),
+(2, 'Emma', 'Canada', 32, 55000),
+(3, 'Lucas', 'Germany', 26, 42000);
+Output:
+- All rows insert successfully because emp_id has valid (non-NULL) values.
+- NOT NULL constraint is satisfied, so the database accepts the rows.
+Query:
+-- Attempt to insert a row with NULL in NOT NULL column (this will throw an error)
+-- ERROR: Column 'emp_id' cannot be NULL
+INSERT INTO emp (emp_id, name, country, cge, salary) VALUES
+(NULL, 'Oliver', 'France', 30, 50000);
+Error:
+- Fails because emp_id cannot be NULL due to the NOT NULL constraint.
+- Database returns an error saying the emp_id column cannot accept NULL values.
+Example 2: Adding NOT NULL to an Existing Table
+You can add a NOT NULL constraint to an existing table using ALTER TABLE. Suppose the student table already exists which allows NULL values, and we now want to make the stud_id column non-nullable.
+Query:
+ALTER TABLE student
+MODIFY COLUMN stud_id SET NOT NULL;
+- stud_id cannot store NULL values anymore.
+- Any future insert with NULL stud_id will fail with a NOT NULL error.
+Query:
+INSERT INTO student (stud_id, full_name, city) VALUES
+(NULL, 'Mark', 'London');
+Error
+- Insert fails because stud_id is NULL.
+- The NOT NULL column cannot accept NULL values.

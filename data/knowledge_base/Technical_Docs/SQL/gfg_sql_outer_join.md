@@ -1,0 +1,57 @@
+# SQL Outer Join
+
+> Source: https://www.geeksforgeeks.org/sql/sql-outer-join/
+
+SQL provides the OUTER JOIN to return both matching and non-matching rows from two tables. It includes unmatched records by filling missing values with NULL. It is more inclusive than INNER JOIN.
+Let's create the two tables, employees and Departments for understanding all types of Outer Joins with examples.
+Types of Outer Joins
+There are three main types of Outer Joins in SQL:
+1. LEFT OUTER JOIN (or LEFT JOIN)
+LEFT OUTER JOIN (referred to as LEFT JOIN) returns all rows from the left table and the matching rows from the right table. If there is no match, the result will include NULL values for columns from the right table.
+Syntax:
+SELECT table1.column1, table1.column2, table2.column1, ...
+FROM table1
+LEFT JOIN table2
+ON table1.matching_column = table2.matching_column;
+Example: To retrieve all employees along with their respective departments, even if they don't belong to any department (i.e., the department is NULL), we can use the LEFT OUTER JOIN
+Query:
+SELECT employees.name,
+       employees.department_id,
+       departments.department_name
+FROM employees
+LEFT JOIN departments
+    ON employees.department_id = departments.department_id;
+Output
+2. RIGHT OUTER JOIN (RIGHT JOIN)
+RIGHT OUTER JOIN (often called RIGHT JOIN) returns all rows from the right table and the matching rows from the left table. If there is no match, the result will include NULL values for columns from the left table.
+Syntax:
+SELECT table1.column1, table1.column2, table2.column1, ...
+FROM table1
+RIGHT JOIN table2
+ON table1.matching_column = table2.matching_column;
+Example: Let’s now look at a RIGHT OUTER JOIN on the employees and Departments tables. Suppose we want to retrieve all departments, even if no employees belong to a specific department.
+Query:
+SELECT employees.name,
+       employees.department_id,
+       departments.department_name
+FROM employees
+RIGHT JOIN departments
+    ON employees.department_id = departments.department_id;
+Output
+3. FULL OUTER JOIN
+FULL OUTER JOIN returns all rows when there is a match in either the left or right table. If there is no match, the result will include NULL for the missing side of the table. Essentially, it combines the results of both LEFT JOIN and RIGHT JOIN.
+Syntax:
+SELECT table1.column1, table1.column2, table2.column1, ...
+FROM table1
+FULL JOIN table2
+ON table1.matching_column = table2.matching_column;
+Example: Let’s now use a FULL OUTER JOIN to get all employees and all departments, regardless of whether an employee belongs to a department or a department has employees.
+Query:
+SELECT employees.name,
+       employees.department_id,
+       departments.department_name
+FROM employees
+FULL JOIN departments
+    ON employees.department_id = departments.department_id;
+Output:
+To better understand differences between joins, see our detailed comparison of INNER JOIN vs OUTER JOIN in SQL.

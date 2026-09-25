@@ -1,0 +1,115 @@
+# SQL Data Types
+
+> Source: https://www.geeksforgeeks.org/sql/sql-data-types/
+
+In SQL, each column must be assigned a data type that defines the kind of data it can store, such as integers, dates, text or binary values. Choosing the correct data type is important for data integrity, query performance and efficient indexing.
+1. Numeric Data Types
+Numeric data types are used to store integer and decimal values. They support mathematical operations and are commonly used for financial, scientific and analytical data.
+Exact Numeric Datatype
+Exact numeric types are used when precise numeric values are needed, such as for financial data, quantities and counts. Some common exact numeric types include:
+| Data Type | Description | Range | 
+|---|---|---|
+| BIGINT | Large integer numbers | -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 | 
+| INT | Standard integer values | -2,147,483,648 to 2,147,483,647 | 
+| SMALLINT | Small integers | -32,768 to 32,767 | 
+| TINYINT | Very small integers | 0 to 255 | 
+| DECIMAL | Exact fixed-point numbers (e.g., for financial values) | -10^38 + 1 to 10^38 - 1 | 
+| NUMERIC | Similar to DECIMAL, used for precision data | -10^38 + 1 to 10^38 - 1 | 
+Example:
+CREATE TABLE product_sales (
+product_id INT PRIMARY KEY,
+quantity SMALLINT,
+unit_price DECIMAL(10,2),
+total_amount DECIMAL(10,2)
+);
+Approximate Numeric Datatype
+These types are used to store approximate values, such as scientific measurements or large ranges of data that don't need exact precision.
+| Data Type | Description | Range | 
+|---|---|---|
+| FLOAT | Approximate numeric values | -1.79E+308 to 1.79E+308 | 
+| REAL | Similar to FLOAT, but with less precision | -3.40E+38 to 3.40E+38 | 
+Example:
+CREATE TABLE measurements (
+sensor_id INT,
+temperature FLOAT,
+humidity REAL
+);
+| Data Type | Description | 
+|---|---|
+| CHAR | Stores fixed-length non-Unicode characters with a maximum length of 8000 characters | 
+| VARCHAR | Stores variable-length non-Unicode characters with a maximum length of 8000 characters | 
+| VARCHAR(MAX) | Stores variable-length non-Unicode data with a maximum size of 2³¹ − 1 characters (introduced in SQL Server 2005) | 
+| TEXT | Stores variable-length non-Unicode data with a maximum size of 2,147,483,647 characters | 
+2. Character and String Data Types
+Character data types are used to store text or character-based data. The choice between fixed-length and variable-length data types depends on the nature of your data.
+Example:
+CREATE TABLE employee_info (
+emp_id INT PRIMARY KEY,
+first_name VARCHAR(50),
+last_name CHAR(30),
+bio NVARCHAR(MAX)
+);
+Unicode Character String Data Types
+Unicode data types are used to store characters from any language, supporting a wider variety of characters. These are given in below table.
+| Data Type | Description | 
+|---|---|
+| NCHAR | The maximum length of 4000 characters(Fixed-Length Unicode Characters) | 
+| NVARCHAR | The maximum length of 4000 characters.(Variable-Length Unicode Characters) | 
+| NVARCHAR(MAX) | The maximum length of 231 - 1 characters(SQL Server 2005 only). (Variable Length Unicode data) | 
+Example:
+CREATE TABLE international_users (
+user_id INT PRIMARY KEY,
+full_name NVARCHAR(100),
+country NCHAR(50)
+);
+3. Date and Time Data Type
+SQL provides several data types for storing date and time information. They are essential for managing timestamps, events and time-based queries. These are given in the below table.
+| Data Type | Description | Storage Size | 
+|---|---|---|
+| DATE | Stores the data of date (year, month, day) | 3 Bytes | 
+| TIME | Stores the data of time (hour, minute,second) | 3 Bytes | 
+| DATETIME | Stores both the data and time (year, month, day, hour, minute, second) | 8 Bytes | 
+Example:
+CREATE TABLE orders (
+order_id INT PRIMARY KEY,
+order_date DATE,
+order_time TIME,
+shipped DATETIME
+);
+4. Binary Data Types in SQL
+Binary data types are used to store binary data such as images, videos or other file types. These include
+| Data Type | Description | Max Length | 
+|---|---|---|
+| BINARY | Fixed-length binary data. | 8000 bytes | 
+| VARBINARY | Variable-length binary data. | 8000 bytes | 
+| IMAGE | Stores binary data as images. | 2,147,483,647 bytes | 
+Example:
+CREATE TABLE product_images (
+image_id INT PRIMARY KEY,
+image_name VARCHAR(100),
+image_data VARBINARY(MAX)
+);
+5. Boolean Data Type in SQL
+Boolean data types store logical values such as TRUE and FALSE. In SQLite, these values are typically represented using integers. where:
+- 1 represents TRUE
+- 0 represents FALSE
+Example:
+CREATE TABLE user_status (
+user_id INT PRIMARY KEY,
+is_active INTEGER,
+is_verified INTEGER
+);
+6. Special Data Types
+SQL also supports some specialized data types for advanced use cases:
+- XML Data Type: Used to store XML data and manipulate XML structures in the database
+Example:
+CREATE TABLE xml_records (
+record_id INT PRIMARY KEY,
+config_data XML
+);
+- Spatial Data Type (Geometry): stores planar spatial data, such as points, lines and polygons, in a database table.
+Example:
+CREATE TABLE locations (
+location_id INT PRIMARY KEY,
+area GEOMETRY
+);

@@ -1,0 +1,46 @@
+# UPDATE VIEW in SQL
+
+> Source: https://www.geeksforgeeks.org/sql/update-view-in-sql/
+
+The UPDATE VIEW operation modifies an existing view without affecting the original tables. It can be done in two ways:
+- UPDATE statement: Updates data in simple single-table views.
+- CREATE OR REPLACE VIEW: Creates a new view or replaces an existing one with an updated definition.
+Syntax:
+UPDATE view_name
+SET column1 = value1, column2 = value2, ...
+WHERE condition;
+To modify the structure of a view:
+CREATE OR REPLACE VIEW view_name AS
+SELECT column1, column2, ...
+FROM table_name
+WHERE condition;
+Examples of Updating a View
+To understand How to Create and Update Views we need to create a table on which we will perform various operations and queries.
+1. Updating View Using IN Operator
+This method allows updating the values in the view using the UPDATE keyword. We will set specific conditions to update data in the view. The query for updating the view is as below.
+Query:
+UPDATE view1  
+SET Marks=50
+where Roll_no in (3,5);
+Output:
+2. Updating View Using Arithmetic Operation
+The view can also be updated using arithmetic operations. In this example, the Marks value is modified using the formula Marks * 0.95. The following query updates the view with the new calculated values.
+Query:
+UPDATE view1 SET Marks = Marks*0.95;
+Output:
+3. Updating View Using Aggregate Function
+The view can also be updated using aggregate functions. To modify the view structure, use CREATE OR REPLACE VIEW. The following query updates the view by applying an aggregate function.
+Query:
+CREATE OR REPLACE VIEW view1 AS
+SELECT Subject, SUM(Marks) AS TotalMarks
+FROM Student
+GROUP BY Subject;
+Output:
+4. Updating View Using Subqueries
+The view can be updated using nested queries (subqueries). To modify the structure of an existing view, the CREATE OR REPLACE VIEW statement is used. The following query updates the view by incorporating a subquery.
+Query:
+CREATE OR REPLACE VIEW view1 AS
+SELECT Name,
+(SELECT SUM(Marks) FROM Student s WHERE s.Subject = Student.Subject) AS TotalMarks
+FROM Student;
+Output:

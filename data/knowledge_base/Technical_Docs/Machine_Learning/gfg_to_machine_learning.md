@@ -1,0 +1,51 @@
+# Introduction to Machine Learning
+
+> Source: https://www.geeksforgeeks.org/machine-learning/introduction-machine-learning/
+
+Machine Learning is a technique that allows computers to learn from data and make decisions without explicit programming. It works by identifying patterns in data and using them to make predictions. It is used in areas such as: Image Recognition, Speech Processing, Language Translation and Recommender Systems.
+Real-World Example
+If you frequently watch action movies on Netflix, Machine Learning can identify this preference and suggest more action movies or similar shows. Similarly, shopping apps can use your searches, views and purchases to suggest products you may be interested in. These personalized recommendations help users discover relevant content and products more easily.
+Need for Machine Learning
+Machine Learning is needed for problems where traditional programming is difficult to scale or requires too many manually defined rules. It can learn patterns from data, automate tasks and make useful predictions.
+1. Solving Complex Problems
+ML can handle tasks that are difficult to solve with fixed rules by learning patterns from data.
+Examples:
+- Image and speech recognition
+- Language translation and medical diagnosis
+2. Handling Large Amounts of Data
+ML can analyze large datasets to identify patterns, detect anomalies and generate predictions.
+Examples:
+- Fraud detection in financial transactions
+- Traffic and demand prediction
+3. Automating Tasks
+ML can automate repetitive tasks, reducing manual effort and improving efficiency.
+Examples:
+- Spam email detection
+- Chatbots for customer support
+- Invoice and document processing
+4. Personalizing User Experiences
+ML analyzes user behavior and preferences to provide personalized recommendations and content.
+Examples:
+- Music apps recommending songs based on listening habits
+- Shopping apps suggesting products based on searches and purchases
+How Machines Learn from Data
+Machine Learning uses data to learn patterns and build models that can make predictions or decisions on new data. The basic process involves the following steps:
+- Data: Machine Learning starts with data such as text, images, numbers or other information. The quality and relevance of the data are important for effective learning.
+- Algorithm: An ML algorithm is selected based on the task, such as classification, regression or clustering.
+- Training: The algorithm learns patterns from the training data and uses them to build a machine learning model.
+- Prediction: The trained model applies the learned patterns to new data and produces predictions or results.
+- Evaluation: The model is tested on unseen data to measure its performance and ability to generalize to real-world data.
+Data is the foundation of machine learning because models learn patterns and make predictions from it. Good quality and diverse data help improve accuracy, performance and real-world results.
+Applications
+- Healthcare: Disease diagnosis, outcome prediction and treatment support
+- Finance: Fraud detection, credit risk assessment and trading analysis
+- E-commerce: Product recommendations, demand forecasting and customer behavior analysis
+- Transportation: Route optimization, autonomous driving and predictive maintenance
+- Media: Content recommendations, speech recognition and image recognition
+- Manufacturing: Defect detection, equipment monitoring and failure prediction
+Challenges
+- Data Quality and Bias: Poor-quality or biased data can lead to inaccurate or unfair predictions, so data must be carefully collected and monitored.
+- Overfitting and Generalization: A model may perform well on training data but poorly on new data, making it important to ensure that it generalizes well.
+- Privacy: ML systems may process sensitive or personal data, creating privacy and security risks.
+- Explainability: Complex models can be difficult to understand, making it harder to explain their predictions and decisions.
+- Deployment and Resources: ML models can require significant computational resources and ongoing monitoring and maintenance after deployment.

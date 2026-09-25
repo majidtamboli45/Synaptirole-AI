@@ -1,0 +1,193 @@
+# Queue in C++ STL
+
+> Source: https://www.geeksforgeeks.org/cpp/queue-cpp-stl/
+
+A queue is a container adapter that stores elements in FIFO (First In, First Out) order. It allows elements to be inserted from the back and removed from the front, ensuring the first inserted element is removed first.
+- Supports efficient insertion and deletion operations
+- Widely used in scheduling, buffering, and task management systems
+Creating a Queue: A queue is defined in the <queue> header file and can be created using the std::queue class template.
+#include <iostream>
+#include <queue>
+using namespace std;
+int main()
+{
+    queue<int> q;
+    q.push(10);
+    q.push(5);
+    // Accessing the front and back elements
+    cout << "Front element: " << q.front() << endl;
+    cout << "Back element: " << q.back() << endl;
+    // Removing an element from the front
+    q.pop();
+    cout << "Front element after pop: " << q.front() << endl;
+    return 0;
+}
+Output
+Front element: 10
+Back element: 5
+Front element after pop: 5
+Explanation: The program creates a queue and adds 10 and 5 using push(). The front() and back() functions access the first and last elements, respectively. The pop() function removes 10 from the front, making 5 the new front element.
+Syntax
+queue<T> q;
+where,
+- T: DataType of elements in the queue.
+- q: Name assigned to the queue.
+Basic Operations on Queue
+The commonly used operations on a queue are discussed below.
+1. Inserting Elements
+The push() function inserts an element at the back of the queue. This operation is also known as enqueue.
+- Elements are always inserted at the back.
+- The time complexity of push() is O(1).
+#include <iostream>
+#include <queue>
+using namespace std;
+int main(){
+    queue<int> q;
+    // Pushing elements into the queue
+    q.push(3);
+    q.push(4);
+    q.push(5);
+    return 0;
+}
+Explanation: This code creates a queue and inserts three elements using the push() function. The elements are added to the back of the queue in the order 3, 4, 5.
+2. Accessing Elements
+The front() and back() functions are used to access the front and back elements of a queue.
+- front() returns the first element in the queue.
+- back() returns the last element in the queue.
+- Both operations take O(1) time.
+#include <iostream>
+#include <queue>
+using namespace std;
+int main()
+{
+    queue<int> q;
+    // Insert elements into the queue
+    q.push(3);
+    q.push(4);
+    q.push(5);
+    // Access the front and back elements
+    cout << "Front: " << q.front() << endl;
+    cout << "Back: " << q.back();
+    return 0;
+}
+Output
+Front: 3
+Back: 5
+Explanation: This code inserts three elements into the queue and uses front() to access the first element and back() to access the last element.
+3. Deleting Elements
+The pop() function removes the front element of the queue. This operation is also known as dequeue.
+- Elements can only be removed from the front.
+- The time complexity of pop() is O(1).
+- pop() only removes the element; it does not return its value.
+#include <iostream>
+#include <queue>
+using namespace std;
+int main()
+{
+    queue<int> q;
+    // Insert elements into the queue
+    q.push(3);
+    q.push(4);
+    q.push(5);
+    // Remove the front element
+    q.pop();
+    // Print and remove the remaining elements
+    while (!q.empty())
+    {
+        cout << q.front() << " ";
+        q.pop();
+    }
+    return 0;
+}
+Output
+4 5 
+Explanation: The code first inserts 3, 4, and 5 into the queue. The pop() function removes 3, which is the front element. The while loop then prints and removes the remaining elements one by one.
+4. Checking if Queue is Empty
+The empty() function checks whether the queue contains any elements.
+- Returns true if the queue is empty.
+- Returns false if the queue contains one or more elements.
+- The time complexity is O(1).
+#include <iostream>
+#include <queue>
+using namespace std;
+int main()
+{
+    queue<int> q;
+    // Check whether the queue is empty
+    if (q.empty())
+        cout << "Queue is empty" << endl;
+    // Insert an element into the queue
+    q.push(100);
+    // Check the queue again
+    if (!q.empty())
+        cout << "Queue is not empty. Front element: "
+             << q.front() << endl;
+    return 0;
+}
+Output
+Queue is empty
+Queue is not empty. Front element: 100
+Explanation: The code first checks an empty queue using empty(). After inserting 100, it checks the queue again and confirms that it is no longer empty.
+5. Finding the Size of Queue
+The size() function returns the number of elements currently present in the queue.
+- It does not modify the queue.
+- The time complexity is O(1).
+#include <iostream>
+#include <queue>
+using namespace std;
+int main()
+{
+    queue<int> q;
+    // Insert two elements
+    q.push(10);
+    q.push(5);
+    // Display the current size
+    cout << "Size of queue: " << q.size() << endl;
+    // Remove the front element
+    q.pop();
+    // Display the updated size
+    cout << "Size of queue: " << q.size() << endl;
+    return 0;
+}
+Output
+Size of queue: 2
+Size of queue: 1
+Explanation: The code inserts two elements into the queue, so size() initially returns 2. After removing one element using pop(), the queue contains one element.
+Traversing a Queue
+A queue does not provide iterators, so its elements cannot be directly traversed like a vector or list. To inspect all elements without modifying the original queue, we can create a copy and repeatedly access and remove its front element.
+#include <iostream>
+#include <queue>
+using namespace std;
+int main()
+{
+    queue<int> q;
+    // Insert elements into the queue
+    q.push(3);
+    q.push(4);
+    q.push(5);
+    // Create a copy of the original queue
+    queue<int> temp(q);
+    // Traverse the copied queue
+    while (!temp.empty())
+    {
+        cout << temp.front() << " ";
+        temp.pop();
+    }
+    return 0;
+}
+Output
+3 4 5 
+Explanation: The code creates a copy of the original queue and traverses the copy using front() and pop(). Since the copy is modified instead of the original queue, the elements of q remain unchanged.
+Member Functions of std::queue
+The following are the commonly used member functions of std::queue:
+| Functions | Description | 
+|---|---|
+| front() | Access the front element of the queue. | 
+| back() | Access the end element of the queue. | 
+| empty() | Check whether a queue is empty or not. | 
+| size() | Returns the number of elements in the queue. | 
+| push() | Adding an element at the back of the queue. | 
+| push_range() | Adding multiple elements at the end of queue. | 
+| emplace() | Constructs and inserts an element at the back of the queue. | 
+| pop() | Delete the front element of the queue. | 
+| swap() | Swap two queues. |

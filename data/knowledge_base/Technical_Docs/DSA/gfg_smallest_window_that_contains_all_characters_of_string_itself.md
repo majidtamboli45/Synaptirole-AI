@@ -1,0 +1,437 @@
+# Smallest window that contains all characters of string itself
+
+> Source: https://www.geeksforgeeks.org/dsa/smallest-window-contains-characters-string
+
+Given a string s, find the smallest window length that contains all the characters of the given string at least one time.
+Examples:
+Input: s = "aabcbcdbca"
+Output: 4
+Explanation: Sub-String "dbca" has the smallest length that contains all the characters of string s.
+Input: s = "aaab"
+Output: 2
+Explanation: Sub-String "ab" has the smallest length that contains all the characters of string s.
+Input: s = "geeksforgeeks"
+Output: 7
+Explanation: There are multiple substring with smallest length that contains all characters of string s, "eksforg" and "ksforge".
+Table of Content
+[Naive Approach] Generating All Substrings - O(n ^ 2) Time and O(1) Space
+The idea is to try every possible starting position and expand the window towards the right.
+For each window, keep track of the distinct characters present in it.
+As soon as the window contains all distinct characters of the string, update the minimum length.
+- Store all distinct characters of s invisited array .
+- For every starting index i , create acur array for the current window.
+- Expand the window from i and mark each character incur .
+- When cur contains all characters invisited , updateans and stop.
+#include <bits/stdc++.h>
+using namespace std;
+int findSubString(string &s)
+{
+    int n = s.size();
+    // Initially, the answer can be the whole string
+    int ans = n;
+    // Store all distinct characters present in the string
+    vector<bool> visited(26, false);
+    for (int i = 0; i < n; i++)
+    {
+        visited[s[i] - 'a'] = true;
+    }
+    // Try every possible starting position
+    for (int i = 0; i < n; i++)
+    {
+        vector<bool> cur(26, false);
+        // Expand the window from i to the right
+        for (int j = i; j < n; j++)
+        {
+            cur[s[j] - 'a'] = true;
+            // If the current window contains all distinct characters
+            if (cur == visited)
+            {
+                ans = min(ans, j - i + 1);
+                break;
+            }
+        }
+    }
+    return ans;
+}
+int main()
+{
+    string s = "aabcbcdbca";
+    cout << findSubString(s) << endl;
+    return 0;
+}
+import java.util.*;
+class GFG {
+    static int findSubString(String s)
+    {
+        int n = s.length();
+        // Initially, the answer can be the whole string
+        int ans = n;
+        // Store all distinct characters present in the
+        // string
+        boolean[] visited = new boolean[26];
+        for (int i = 0; i < n; i++) {
+            visited[s.charAt(i) - 'a'] = true;
+        }
+        // Try every possible starting position
+        for (int i = 0; i < n; i++) {
+            boolean[] cur = new boolean[26];
+            // Expand the window from i to the right
+            for (int j = i; j < n; j++) {
+                cur[s.charAt(j) - 'a'] = true;
+                // If the current window contains all
+                // distinct characters
+                if (Arrays.equals(cur, visited)) {
+                    ans = Math.min(ans, j - i + 1);
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+    public static void main(String[] args)
+    {
+        String s = "aabcbcdbca";
+        System.out.println(findSubString(s));
+    }
+}
+def findSubString(s):
+    n = len(s)
+    # Initially, the answer can be the whole string
+    ans = n
+    # Store all distinct characters present in the string
+    visited = [False] * 26
+    for i in range(n):
+        visited[ord(s[i]) - ord('a')] = True
+    # Try every possible starting position
+    for i in range(n):
+        cur = [False] * 26
+        # Expand the window from i to the right
+        for j in range(i, n):
+            cur[ord(s[j]) - ord('a')] = True
+            # If the current window contains all distinct characters
+            if cur == visited:
+                ans = min(ans, j - i + 1)
+                break
+    return ans
+# Driver Code
+if __name__ == "__main__":
+    s = "aabcbcdbca"
+    print(findSubString(s))
+using System;
+class GFG {
+    static int findSubString(string s)
+    {
+        int n = s.Length;
+        // Initially, the answer can be the whole string
+        int ans = n;
+        // Store all distinct characters present in the
+        // string
+        bool[] visited = new bool[26];
+        for (int i = 0; i < n; i++) {
+            visited[s[i] - 'a'] = true;
+        }
+        // Try every possible starting position
+        for (int i = 0; i < n; i++) {
+            bool[] cur = new bool[26];
+            // Expand the window from i to the right
+            for (int j = i; j < n; j++) {
+                cur[s[j] - 'a'] = true;
+                // If the current window contains all
+                // distinct characters
+                if (AreEqual(cur, visited)) {
+                    ans = Math.Min(ans, j - i + 1);
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+    // Check whether both boolean arrays are equal
+    static bool AreEqual(bool[] a, bool[] b)
+    {
+        for (int i = 0; i < 26; i++) {
+            if (a[i] != b[i])
+                return false;
+        }
+        return true;
+    }
+    public static void Main()
+    {
+        string s = "aabcbcdbca";
+        Console.WriteLine(findSubString(s));
+    }
+}
+function findSubString(s)
+{
+    let n = s.length;
+    // Initially, the answer can be the whole string
+    let ans = n;
+    // Store all distinct characters present in the string
+    let visited = new Array(26).fill(false);
+    for (let i = 0; i < n; i++) {
+        visited[s.charCodeAt(i) - "a".charCodeAt(0)] = true;
+    }
+    // Try every possible starting position
+    for (let i = 0; i < n; i++) {
+        let cur = new Array(26).fill(false);
+        // Expand the window from i to the right
+        for (let j = i; j < n; j++) {
+            cur[s.charCodeAt(j) - "a".charCodeAt(0)] = true;
+            // If the current window contains all distinct
+            // characters
+            if (cur.every(
+                    (value, index) => value
+                                      === visited[index])) {
+                ans = Math.min(ans, j - i + 1);
+                break;
+            }
+        }
+    }
+    return ans;
+}
+// Driver Code
+let s = "aabcbcdbca";
+console.log(findSubString(s));
+Output
+4
+[Expected Approach] Using Sliding Window - O(n) Time and O(1) Space
+The idea is to use a sliding window.
+- First, count the total number of distinct characters in s.
+- Then expand the window from the right and shrink it from the left whenever it contains all distinct characters.
+- Keep updating the minimum window length.
+- Find the total number of distinct characters in s and store it in distinct.
+- Use two pointers, start and i, to represent the current window.
+- Move i from left to right and maintain the frequency of each character in the current window.
+- Whenever a new character enters the window, increase cnt.
+- When cnt == distinct, the current window contains all distinct characters.
+- Update ans with the current window length and move start forward to make the window smaller.
+#include <iostream>
+using namespace std;
+int findSubString(string &s)
+{
+    int n = s.size();
+    // to store all distinct characters
+    vector<bool> visited(26, false);
+    int distinct = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (visited[s[i] - 'a'] == false)
+        {
+            visited[s[i] - 'a'] = true;
+            distinct++;
+        }
+    }
+    // to store the visited of characters
+    // in the current window
+    vector<int> cur(26, 0);
+    int cnt = 0;
+    int ans = n;
+    int start = 0;
+    for (int i = 0; i < n; i++)
+    {
+        // Count characters in the current
+        // window
+        cur[s[i] - 'a']++;
+        if (cur[s[i] - 'a'] == 1)
+        {
+            cnt++;
+        }
+        // If the count becomes same as overall
+        while (cnt == distinct)
+        {
+            ans = min(ans, i - start + 1);
+            // Remove characters from left
+            cur[s[start] - 'a']--;
+            if (cur[s[start] - 'a'] == 0)
+            {
+                cnt--;
+            }
+            start++;
+        }
+    }
+    return ans;
+}
+int main()
+{
+    string s = "aabcbcdbca";
+    cout << findSubString(s) << endl;
+    
+    return 0;
+}
+import java.util.*;
+class GFG {
+    static int findSubString(String s)
+    {
+        int n = s.length();
+        // to store all distinct characters
+        boolean[] visited = new boolean[26];
+        int distinct = 0;
+        for (int i = 0; i < n; i++) {
+            if (visited[s.charAt(i) - 'a'] == false) {
+                visited[s.charAt(i) - 'a'] = true;
+                distinct++;
+            }
+        }
+        // to store the visited of characters
+        // in the current window
+        int[] cur = new int[26];
+        int cnt = 0;
+        int ans = n;
+        int start = 0;
+        for (int i = 0; i < n; i++) {
+            // Count characters in the current
+            // window
+            cur[s.charAt(i) - 'a']++;
+            if (cur[s.charAt(i) - 'a'] == 1) {
+                cnt++;
+            }
+            // If the count becomes same as overall
+            while (cnt == distinct) {
+                ans = Math.min(ans, i - start + 1);
+                // Remove characters from left
+                cur[s.charAt(start) - 'a']--;
+                if (cur[s.charAt(start) - 'a'] == 0) {
+                    cnt--;
+                }
+                start++;
+            }
+        }
+        return ans;
+    }
+    public static void main(String[] args)
+    {
+        String s = "aabcbcdbca";
+        System.out.println(findSubString(s));
+    }
+}
+def findSubString(s):
+    n = len(s)
+    # to store all distinct characters
+    visited = [False] * 26
+    distinct = 0
+    for i in range(n):
+        index = ord(s[i]) - ord('a')
+        if visited[index] == False:
+            visited[index] = True
+            distinct += 1
+    # to store the visited of characters
+    # in the current window
+    cur = [0] * 26
+    cnt = 0
+    ans = n
+    start = 0
+    for i in range(n):
+        index = ord(s[i]) - ord('a')
+        # Count characters in the current
+        # window
+        cur[index] += 1
+        if cur[index] == 1:
+            cnt += 1
+        # If the count becomes same as overall
+        while cnt == distinct:
+            ans = min(ans, i - start + 1)
+            # Remove characters from left
+            start_index = ord(s[start]) - ord('a')
+            cur[start_index] -= 1
+            if cur[start_index] == 0:
+                cnt -= 1
+            start += 1
+    return ans
+# Driver Code
+if __name__ == "__main__":
+    s = "aabcbcdbca"
+    print(findSubString(s))
+using System;
+class GFG {
+    static int findSubString(string s)
+    {
+        int n = s.Length;
+        // to store all distinct characters
+        bool[] visited = new bool[26];
+        int distinct = 0;
+        for (int i = 0; i < n; i++) {
+            if (visited[s[i] - 'a'] == false) {
+                visited[s[i] - 'a'] = true;
+                distinct++;
+            }
+        }
+        // to store the visited of characters
+        // in the current window
+        int[] cur = new int[26];
+        int cnt = 0;
+        int ans = n;
+        int start = 0;
+        for (int i = 0; i < n; i++) {
+            // Count characters in the current
+            // window
+            cur[s[i] - 'a']++;
+            if (cur[s[i] - 'a'] == 1) {
+                cnt++;
+            }
+            // If the count becomes same as overall
+            while (cnt == distinct) {
+                ans = Math.Min(ans, i - start + 1);
+                // Remove characters from left
+                cur[s[start] - 'a']--;
+                if (cur[s[start] - 'a'] == 0) {
+                    cnt--;
+                }
+                start++;
+            }
+        }
+        return ans;
+    }
+    public static void Main()
+    {
+        string s = "aabcbcdbca";
+        Console.WriteLine(findSubString(s));
+    }
+}
+function findSubString(s)
+{
+    let n = s.length;
+    // to store all distinct characters
+    let visited = new Array(26).fill(false);
+    let distinct = 0;
+    for (let i = 0; i < n; i++) {
+        let index = s.charCodeAt(i) - "a".charCodeAt(0);
+        if (visited[index] === false) {
+            visited[index] = true;
+            distinct++;
+        }
+    }
+    // to store the visited of characters
+    // in the current window
+    let cur = new Array(26).fill(0);
+    let cnt = 0;
+    let ans = n;
+    let start = 0;
+    for (let i = 0; i < n; i++) {
+        let index = s.charCodeAt(i) - "a".charCodeAt(0);
+        // Count characters in the current
+        // window
+        cur[index]++;
+        if (cur[index] === 1) {
+            cnt++;
+        }
+        // If the count becomes same as overall
+        while (cnt === distinct) {
+            ans = Math.min(ans, i - start + 1);
+            // Remove characters from left
+            let startIndex
+                = s.charCodeAt(start) - "a".charCodeAt(0);
+            cur[startIndex]--;
+            if (cur[startIndex] === 0) {
+                cnt--;
+            }
+            start++;
+        }
+    }
+    return ans;
+}
+// Driver Code
+let s = "aabcbcdbca";
+console.log(findSubString(s));
+Output
+4
+Related Article:

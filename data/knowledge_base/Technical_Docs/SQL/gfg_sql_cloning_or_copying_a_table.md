@@ -1,0 +1,93 @@
+# SQL Cloning or Copying a Table
+
+> Source: https://www.geeksforgeeks.org/sql/sql-cloning-or-copying-a-table/
+
+Cloning or copying a table in SQL is used to create a duplicate of an existing table for various purposes.
+- Helps create backup copies of important data.
+- Allows testing and analysis without affecting the original table.
+Example: First, we will create a demo SQL database and table, on which we will use the Cloning command.
+Query:
+CREATE TABLE employee_copy
+AS
+SELECT * 
+FROM employee;
+Output:
+Methods for Cloning Tables in SQL
+There are three different methods to create a clone table in SQL:
+- Simple Cloning
+- Deep Cloning
+- Shallow Cloning
+Step 1: Create the Original Table
+The following student table is used to demonstrate table cloning, with sample records added for illustration.
+Simple Cloning
+In this method, the clone table creates a copy of the original table’s structure and data, but constraints like primary keys, unique keys and auto-increment properties are not preserved.
+Syntax
+CREATE TABLE clone_table 
+SELECT * FROM original_table;
+Example: Let us see the example to understand how simple cloning syntax works.
+Query
+CREATE TABLE student_copy AS
+SELECT * FROM student;
+SELECT * FROM student_copy;
+Output:
+- Original student table: student_id is PRIMARY KEY and AUTO_INCREMENT
+- roll_no is UNIQUE in the original table
+- Cloned table student_copy does not retain constraints
+- It only copies structure and data, without primary key, auto-increment or unique key
+Drawback Of Simple Cloning
+Simple SQL cloning may not preserve unique constraints and auto-increment settings, which can affect data integrity. Reapply them manually after cloning if needed.
+Query:
+INSERT INTO  student_copy VALUES
+(0, 'Noah Anderson', 'S400'),
+(0, 'Emma Johnson', 'S500');
+Output:
+- In the original table student, the column student_id was set as the primary key.
+- In , student_copy the last two entries have duplicate values.
+- AUTO_INCREMENT doesn’t work in the cloned table.
+- Using Shallow Cloning can prevent these issues.
+Shallow Cloning
+Shallow cloning creates a new table with the same structure as the original table but without copying any data. It preserves constraints such as primary keys, unique keys, indexes and auto-increment settings.
+Syntax
+CREATE TABLE clone_table  
+LIKE original_table;
+Query
+CREATE TABLE student_shallow_clone LIKE student;
+SELECT * FROM student_shallow_clone;
+Insert Data into Shallow Clone
+INSERT INTO student_shallow_clone(name, roll_no)
+VALUES ('Ethan Miller', 'S100');
+INSERT INTO student_shallow_clone(name, roll_no)
+VALUES ('Olivia Brown', 'S200');
+INSERT INTO student_shallow_clone (name, roll_no)
+VALUES ('Liam Wilson', 'S300');
+Output:
+- This cloning method copies the table structure and may include indexes and AUTO_INCREMENT
+- It does not copy all properties (like triggers, foreign keys, permissions, metadata)
+- The cloned table does not work exactly like the original
+Deep Cloning
+Deep cloning creates a copy of a table along with all its data, preserving both the structure and records of the original table.
+Syntax
+CREATE TABLE clone_table LIKE original_table;
+INSERT INTO clone_table
+SELECT *
+FROM original_table;
+Query
+CREATE TABLE student_deep_clone LIKE student;
+INSERT INTO student_deep_clone
+SELECT *
+FROM student;
+SELECT *
+FROM student_deep_clone;
+Output:
+The output of the "student_deep_clone" is exactly the same as the "student" table. We can add new entries to the deep clone table to confirm the preservation of constraints:
+INSERT INTO student_deep_clone (name, roll_no)
+VALUES ('Emma Johnson', 'S400');
+INSERT INTO student_deep_clone (name, roll_no)
+VALUES ('Sophia Davis', 'S500');
+SELECT *
+FROM student_deep_clone;
+Output:
+- This cloning method preserves all table properties.
+- Indexes and AUTO_INCREMENT are copied from the original table.
+- The cloned table works like the original with the same structure and constraints.
+To better understand table cloning methods, see our detailed comparison of Shallow Cloning and Deep Cloning in SQL.

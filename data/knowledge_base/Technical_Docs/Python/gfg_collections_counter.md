@@ -1,0 +1,132 @@
+# Python Collections Counter
+
+> Source: https://www.geeksforgeeks.org/python/counters-in-python-set-1/
+
+Counter is a subclass of Python’s dict from the collections module. It is mainly used to count the frequency of elements in an iterable (like lists, strings or tuples) or from a mapping (dictionary). It provides a clean and efficient way to tally items without writing extra loops and comes with helpful built-in methods.
+from collections import Counter
+# Create a list of items
+a = [1, 1, 1, 2, 3, 3, 4]
+# Use Counter to count occurrences
+cnt = Counter(a)
+print(cnt)
+Output
+Counter({1: 3, 3: 2, 2: 1, 4: 1})
+Explanation: Counter object shows that 1 appears 3 times, 3 appears 2 times, 2 appears once and 4 appears once.
+Syntax
+collections.Counter([iterable-or-mapping])
+Parameters (all optional):
+- iterable: Sequence like list, tuple, or string.
+- mapping: Dictionary with elements as keys and counts as values.
+- keyword arguments: String keys mapped to counts.
+Return Type: Returns a collections.Counter object (dictionary-like).
+Creating a Counter
+We can create Counters from different data sources.
+from collections import Counter
+ctr1 = Counter([1, 2, 2, 3, 3, 3]) # From a list
+ctr2 = Counter({1: 2, 2: 3, 3: 1}) # From a dictionary
+ctr3 = Counter('hello') # From a string
+print(ctr1)
+print(ctr2)
+print(ctr3)
+Output
+Counter({3: 3, 2: 2, 1: 1})
+Counter({2: 3, 1: 2, 3: 1})
+Counter({'l': 2, 'h': 1, 'e': 1, 'o': 1})
+Explanation:
+- ctr1 counts numbers from a list.
+- ctr2 directly takes a dictionary of counts.
+- ctr3 counts characters in the string "hello".
+Refer to collection module to learn in detail.
+Accessing Counter Elements
+We can access the count of each element using the element as the key. If an element is not in the Counter, it returns 0.
+from collections import Counter
+ctr = Counter([1, 2, 2, 3, 3, 3])
+# Accessing count of an element
+print(ctr[1])  
+print(ctr[2])  
+print(ctr[3])  
+print(ctr[4])  # (element not present)
+Output
+1
+2
+3
+0
+Explanation: Counter returns the count of each element. If an element does not exist (4 in this case), it returns 0.
+Why use Counter() instead of a normal dictionary?
+Counter and dictionary are similar, but Counter provides additional functionality specifically for counting elements.
+- Returns 0 for missing keys, whereas a dictionary raises a KeyError.
+- Designed specifically for counting hashable items, while a dictionary is a general-purpose data structure.
+- Provides built-in methods like most_common(), elements(), update() and subtract() for easier frequency operations.
+- Supports arithmetic operations such as addition (+), subtraction (-), intersection (&) and union (|).
+- Requires less manual code for counting compared to updating values in a dictionary.
+Counter Methods
+1. update(): Adds counts from another iterable or mapping. Existing counts increase and new elements are added.
+from collections import Counter
+ctr = Counter([1, 1, 2])
+ctr.update([2, 2, 3, 3])
+print(ctr)
+Output
+Counter({2: 3, 1: 2, 3: 2})
+Explanation:
+- ctr = Counter([1, 1, 2]) -> counts are {1:2, 2:1}
+- ctr.update([2, 2, 3, 3]), 2 appears twice-> 2:1 becomes 2:3 and 3 appears twice -> added as 3:2
+- Final Counter merges both sequences.
+2. elements(): Returns an iterator over elements repeating each as many times as its count. Elements are returned in arbitrary order.
+from collections import Counter
+ctr = Counter([1, 1, 2, 2, 2, 3])
+items = list(ctr.elements())
+print(items)  
+Output
+[1, 1, 2, 2, 2, 3]
+Explanation:
+- ctr stores {1:2, 2:3, 3:1}
+- ctr.elements() -> expands this into: 1 twice, 2 thrice and 3 once
+- list() converts the iterator into a list.
+3. most_common(): Returns a list of the n most common elements and their counts from the most common to the least. If n is not specified, it returns all elements in the Counter.
+from collections import Counter
+ctr = Counter([1, 2, 2, 2, 3, 3, 3, 3])
+common = ctr.most_common(2)
+print(common) 
+Output
+[(3, 4), (2, 3)]
+Explanation:
+- ctr counts are {3:4, 2:3, 1:1}
+- ctr.most_common(2) picks: 3 with count 4 and 2 with count 3
+- Returned as a list of (element, count) pairs.
+4. Increasing Count Manually: Increases the count of a single element by 1.
+from collections import Counter
+ctr = Counter([1, 1, 2, 3])
+ctr[2] += 2
+ctr[4] += 1
+print(ctr)
+Output
+Counter({2: 3, 1: 2, 3: 1, 4: 1})
+Explanation:
+- ctr[2] += 2 -> 2 was 1, now becomes 3
+- ctr[4] += 1 -> 4 was not present, so becomes 1
+5. subtract(): Subtracts element counts from another iterable or mapping. Counts can go negative.
+from collections import Counter
+ctr = Counter([1, 1, 2, 2, 2, 3])
+ctr.subtract([2, 2, 3])
+print(ctr)  
+Output
+Counter({1: 2, 2: 1, 3: 0})
+Explanation:
+- Original: {2:3, 1:2, 3:1}
+- ctr.subtract([2, 2, 3]): 2 appears twice-> 2:3 becomes 2:1 and 3 appears once-> 3:1 becomes 3:0
+- 1 is untouched because it does not appear in the subtract list.
+Note: Counts can even go negative if subtraction exceeds the original count.
+Arithmetic Operations on Counters
+Counters support addition, subtraction, intersection and union operations, allowing for various arithmetic operations.
+from collections import Counter
+ctr1 = Counter([1, 2, 2, 3])
+ctr2 = Counter([2, 3, 3, 4])
+print(ctr1 + ctr2)   # Addition
+print(ctr1 - ctr2)   # Subtraction 
+print(ctr1 & ctr2)   # Intersection
+print(ctr1 | ctr2)   # Union
+Output
+Counter({2: 3, 3: 3, 1: 1, 4: 1})
+Counter({1: 1, 2: 1})
+Counter({2: 1, 3: 1})
+Counter({2: 2, 3: 2, 1: 1, 4: 1})

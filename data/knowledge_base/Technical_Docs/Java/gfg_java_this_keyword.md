@@ -1,0 +1,234 @@
+# Java this Keyword
+
+> Source: https://www.geeksforgeeks.org/java/java-this-keyword/
+
+The this keyword in Java is a reference that refers to the current object of a class. It is available in instance methods, constructors, and instance initializer blocks, and it is commonly used to access the current object's instance members.
+- Return the current object from a method.
+- Pass the current object as an argument to a method or constructor.
+public class Person {
+    // Fields Declared
+    String name;
+    int age;
+    // Constructor
+    Person(String name, int age)
+    {
+        this.name = name;
+        this.age = age;
+    }
+    // Getter for name
+    public String get_name() { return name; }
+    // Setter for name
+    public void change_name(String name)
+    {
+        this.name = name;
+    }
+    // Method to Print the Details of the person
+    public void printDetails()
+    {
+        System.out.println("Name: " + this.name);
+        System.out.println("Age: " + this.age);
+        System.out.println();
+    }
+    // main function
+    public static void main(String[] args)
+    {
+        // Objects Declared
+        Person first = new Person("ABC", 18);
+        Person second = new Person("XYZ", 22);
+        first.printDetails();
+        second.printDetails();
+        first.change_name("PQR");
+        System.out.println("Name has been changed to: "
+                           + first.get_name());
+    }
+}
+Output
+Name: ABC
+Age: 18
+Name: XYZ
+Age: 22
+Name has been changed to: PQR
+Explanation: The constructor uses this.name and this.age to refer to the instance variables of the current object. When first.printDetails() is called, this refers to the first object; when second.printDetails() is called, this refers to the second object. Thus, each object accesses its own instance data.
+Uses of this Keyword in Java
+1. To Refer to Current Class Instance Variables
+The this keyword is commonly used when a constructor or method parameter has the same name as an instance variable.
+class Geeks {
+    int a;
+    int b;
+    // Parameterized constructor
+    Geeks(int a, int b)
+    {
+        this.a = a;
+        this.b = b;
+    }
+    void display()
+    {
+        // Displaying value of variables a and b
+        System.out.println("a = " + a + "  b = " + b);
+    }
+    public static void main(String[] args)
+    {
+        Geeks object = new Geeks(10, 20);
+        object.display();
+    }
+}
+Output
+a = 10  b = 20
+Explanation: Here, a and b on the right side refer to constructor parameters, while this.a and this.b refer to the current object's instance variables. Therefore, this removes the ambiguity between the parameters and instance variables.
+2. To Invoke the Current Class Constructor
+The this() syntax is used for constructor chaining, where one constructor calls another constructor of the same class.
+class Geeks {
+    int a;
+    int b;
+    // Default constructor
+    Geeks()
+    {
+        this(10, 20);
+        System.out.println(
+            "Inside  default constructor \n");
+    }
+    // Parameterized constructor
+    Geeks(int a, int b)
+    {
+        this.a = a;
+        this.b = b;
+        System.out.println(
+            "Inside parameterized constructor");
+    }
+    public static void main(String[] args)
+    {
+        Geeks object = new Geeks();
+    }
+}
+Output
+Inside parameterized constructor
+Inside  default constructor 
+Explanation: The default constructor Geeks() calls the parameterized constructor using this(10, 20), so the parameterized constructor executes first. After initializing a and b, control returns to the default constructor, which then prints its own message.
+3. To Return the Current Class Instance
+The this keyword can be returned from an instance method to return the current object. 
+class Geeks {
+    int a;
+    int b;
+    // Default constructor
+    Geeks()
+    {
+        a = 10;
+        b = 20;
+    }
+    // Method that returns current class instance
+    Geeks get() { 
+        return this; 
+    }
+    // Displaying value of variables a and b
+    void display()
+    {
+        System.out.println("a = " + a + "  b = " + b);
+    }
+    public static void main(String[] args)
+    {
+        Geeks object = new Geeks();
+        object.get().display();
+    }
+}
+Output
+a = 10  b = 20
+Explanation: The method get() returns the current object using this, so object.get() refers to the same Geeks instance created in main. Calling display() on it prints the values of a and b that were initialized in the default constructor.
+4. To Pass the Current Object as a Method Argument
+The this keyword can be passed as an argument to another method.
+class Geeks {
+    int a;
+    int b;
+    // Default constructor
+    Geeks()
+    {
+        a = 10;
+        b = 20;
+    }
+    // Method that receives "this"
+    // keyword as parameter
+    void display(Geeks obj)
+    {
+        System.out.println("a = " + obj.a
+                           + "  b = " + obj.b);
+    }
+    // Method that returns current class instance
+    void get() { 
+        display(this); 
+    }
+    // main function
+    public static void main(String[] args)
+    {
+        Geeks object = new Geeks();
+        object.get();
+    }
+}
+Output
+a = 10  b = 20
+Explanation: The get() method passes this to display(this). Thus, the current Geeks object is passed to the display() method, where its instance variables are accessed through obj.
+5. To Invoke the Current Class Method
+The this keyword can be used to explicitly invoke an instance method of the current object.
+class Geeks {
+    void display()
+    {
+        // calling function show()
+        this.show();
+        System.out.println("Inside display function");
+    }
+    void show()
+    {
+        System.out.println("Inside show function");
+    }
+    public static void main(String args[])
+    {
+        Geeks g1 = new Geeks();
+        g1.display();
+    }
+}
+Output
+Inside show function
+Inside display function
+Explanation: Inside display(), this.show() calls the show() method of the same Geeks object before executing the next statement. After show() prints its message, control returns to display(), which then prints "Inside display function".
+6. To Pass the Current Object as a Constructor Argument
+The this keyword can be passed to another class's constructor when the current object needs to be provided as an argument.
+class A {
+    B obj;
+    // Parameterized constructor with object of B
+    // as a parameter
+    A(B obj)
+    {
+        this.obj = obj;
+        // calling display method of class B
+        obj.display();
+    }
+}
+class B {
+    int x = 5;
+    // Default Constructor that create an object of A
+    // with passing this as an argument in the
+    // constructor
+    B() { A obj = new A(this); }
+    // method to show value of x
+    void display()
+    {
+        System.out.println("Value of x in Class B : " + x);
+    }
+    public static void main(String[] args)
+    {
+        B obj = new B();
+    }
+}
+Output
+Value of x in Class B : 5
+Explanation: In class B, the constructor passes this to new A(this), sending the current B object to class A. Class A stores this reference and calls obj.display(), which prints the value of x from the same B instance.
+Advantages of Using "this" Reference
+There are many advantages of using "this" reference in Java as mentioned below:
+- It helps to distinguish between instance variables and local variables with the same name.
+- It can be used to pass the current object as an argument to another method.
+- It can be used to return the current object from a method.
+- It can be used to invoke a constructor from another overloaded constructor in the same class.
+Disadvantages of Using "this" Reference
+Although "this" reference comes with many advantages there are disadvantages of also:
+- Overuse of this can make the code harder to read and understand.
+- Using this unnecessarily can add unnecessary overhead to the program.
+- Using this in a static context results in a compile-time error.
+- Overall, this keyword is a useful tool for working with objects in Java, but it should be used judiciously and only when necessary.

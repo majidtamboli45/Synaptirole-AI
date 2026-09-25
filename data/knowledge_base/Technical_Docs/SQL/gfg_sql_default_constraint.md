@@ -1,0 +1,46 @@
+# SQL DEFAULT Constraint
+
+> Source: https://www.geeksforgeeks.org/sql/sql-default-constraint/
+
+The DEFAULT constraint in SQL automatically assigns a predefined value to a column when no value is provided during insertion. It helps maintain consistency and reduces the need to specify values for every column in an INSERT query.
+- Fills the column with a preset value when omitted.
+- Ensures consistent data without manual input.
+Query:
+CREATE TABLE geeks (
+id INT NOT NULL,
+name VARCHAR(255),
+age INT,
+location VARCHAR(255) DEFAULT 'London'
+);
+INSERT INTO geeks (id, name, age, location)
+VALUES
+(4, 'Emma', 23, 'New York'),
+(5, 'Sophia', 27, DEFAULT),
+(6, 'Olivia', 25, 'Toronto'),
+(7, 'Ava', 26, DEFAULT);
+Output:
+- DEFAULT inserts'London' when the default value is used.
+- Given values (New York, Toronto) override the default.
+Syntax
+CREATE TABLE table_name (
+column1 datatype DEFAULT default_value,
+column2 datatype DEFAULT default_value
+);
+Dropping the DEFAULT Constraint
+If you no longer want a column to use a default value, you can drop the DEFAULT constraint. This will only apply to new rows and will not affect existing data in the table.
+Syntax:
+ALTER TABLE table_name
+ALTER COLUMN column_name
+DROP DEFAULT;
+Query:
+ALTER TABLE geeks
+ALTER COLUMN location
+DROP DEFAULT;
+--Let us add 2 new rows in the geeks table
+INSERT INTO geeks VALUES (8, 'John', 24, 'New York');
+INSERT INTO geeks VALUES (9, 'Jane', 26,NULL);
+SELECT * FROM geeks;
+Output
+- The DROP DEFAULT removes the default value from the Location column, so SQL no longer auto-fills it.
+- The first INSERT adds a normal value, while the second INSERT stores NULL in Location because no default exists anymore.
+Note: Dropping the default constraint will not affect the current data in the table, it will only apply to new rows.

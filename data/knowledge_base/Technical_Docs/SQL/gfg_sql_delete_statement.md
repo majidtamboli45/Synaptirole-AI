@@ -1,0 +1,51 @@
+# SQL DELETE Statement
+
+> Source: https://www.geeksforgeeks.org/sql/sql-delete-statement/
+
+The SQL DELETE statement is used to remove specific rows from a table while keeping the table structure intact. It is different from DROP, which deletes the entire table.
+- Removes rows based on conditions.
+- Retains table schema, constraints and indexes.
+- Can delete a single row or all rows.
+Example: First, we create a demo SQL database and table, on which we will use the SQL DELETE command.
+Query:
+DELETE FROM employee
+WHERE employee_id = 5;
+Output:
+- This query deletes the row from the employees table where the employee_id is 5.
+- Only that specific record is removed; all other rows remain unchanged.
+Syntax
+DELETE FROM table_name 
+WHERE some_condition;
+- Some_condition: A condition used to filter the rows you want to delete.
+- table_name: The name of the table from which you want to delete the rows.
+Note: We can delete single or multiple records using the WHERE clause; if it’s omitted, all records in the table are removed.
+Working with the DELETE Statement
+Consider the employee table in SQL, which stores employee details such as id, name, email and department, as shown below.
+Example 1: Deleting Single Record
+We can use the DELETE statement with a condition to delete one or more rows that match the given condition a table. The WHERE clause ensures only the intended record is removed. We can delete the records named Ethan by using the below query:
+Query:
+DELETE FROM employees 
+WHERE name = 'Ethan';
+SELECT * FROM employees;
+Output:
+Example 2: Deleting Multiple Records
+To delete multiple records, you can specify a condition that matches several rows. Let's delete the rows from the table employees where the department is "Development".
+Query:
+DELETE FROM employees 
+WHERE department = 'Development';
+SELECT * FROM employees;
+Output
+Example 3: Delete All Records from a Table
+To delete all records from a table, omit the WHERE clause in the DELETE statement. The use of an asterisk (*) with DELETE is invalid in SQL.
+Query:
+DELETE FROM employees;
+Output:
+- All of the records in the table will be deleted, there are no records left to display. The table employees will become empty.
+Rolling Back DELETE Operations
+Since the DELETE statement is a DML operation, it can be rolled back when executed in a statement. If you accidentally delete records or need to repeat the process, you can use the ROLLBACK command.
+Query:
+BEGIN TRANSACTION;
+DELETE FROM employees
+WHERE department = 'Development';
+ROLLBACK;
+- The ROLLBACK command will undo the changes made by the DELETE statement, effectively restoring the records that were deleted during the transaction.

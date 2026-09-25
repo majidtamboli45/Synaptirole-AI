@@ -1,0 +1,52 @@
+# DROP View in SQL
+
+> Source: https://www.geeksforgeeks.org/sql/drop-view-sql/
+
+Dropping a view removes only the view definition, not the actual data stored in the base tables. This makes it safe to delete views without affecting the original tables or their contents. The DROP VIEW command is commonly used when:
+- Remove unnecessary views to improve performance.
+- Delete unused views to prevent unwanted data exposure.
+- Maintain only required views for easier database management.
+Syntax
+DROP VIEW view_name ;
+- DROP VIEW: Removes an existing view from the database.
+- view_name : The name of the view that you want to delete.
+Example: Implementation of DROP VIEW
+This example shows creating a view first and then deleting it using the DROP VIEW command to remove the view definition from the database.
+Creating Views
+The employees table stores employee details. CREATE VIEW helps display specific data in a simplified format.
+View for High salary employees
+The high_salary_employees view filters the employees table to show only employees with a salary above 50,000, returning id, name , position, salary, and department.
+Query:
+CREATE VIEW high_salary_employees AS 
+SELECT * FROM employees WHERE salary > 50000;
+Output:
+View for Developers
+The developers view displays employees whose Position contains the word "Developer". It returns the name , position, and department of employees working in development-related roles.
+Query:
+CREATE VIEW developers AS
+SELECT name , position, department FROM employees WHERE Position LIKE '%Developer%';
+Output:
+View for employees in IT Department
+The IT employees view displays employees who belong to the IT department. It retrieves all employee details, making it easier to access and manage IT-related employee data.
+Query:
+CREATE VIEW it_employees AS
+SELECT * FROM employees WHERE department = 'IT';
+Output:
+Query: To check the Created Views
+SELECT table_schema,
+table_name AS available_views
+FROM information_schema.views
+WHERE table_schema = 'gfg';
+To confirm that our views are created we can use the query mentioned above it will show us so our the views that we have created in form of table something like this:
+Deleting a View
+When a view is no longer required, it can be removed using the DROP VIEW statement. For example, the high_salary_employees and it_employees views can be deleted using the DROP VIEW command.
+Query:
+DROP VIEW high_salary_employees;
+DROP VIEW it_employees;
+Verifying the Deletion
+To confirm the views have been successfully deleted, we can run the following query again. The high_salary_employees and it_employees views should no longer appear in the result.
+SELECT table_schema,
+table_name AS available_views
+FROM information_schema.views
+WHERE table_schema = 'gfg';
+Output:

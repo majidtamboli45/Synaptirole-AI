@@ -35,6 +35,24 @@ RESUME_NER_MODEL = os.getenv(
     "CP_RESUME_NER_MODEL",
     str(MODEL_DIR / "ner_resume_model"),
 )
+RAG_INDEX_ROOT = DATA_DIR / "rag" / "indexes"
+
+RAG_CHUNK_SIZE = int(os.getenv("CP_RAG_CHUNK_SIZE", "600"))
+RAG_CHUNK_OVERLAP = int(os.getenv("CP_RAG_CHUNK_OVERLAP", "100"))
+RAG_TOP_K = int(os.getenv("CP_RAG_TOP_K", "3"))
+
+ROLE_SKILLS = {
+    "software_developer": ["python", "java", "cpp", "oops", "dbms", "dsa", "mysql", "nodejs", "spring", "fastapi", "django", "git", "github_actions", "system_design"],
+    "data_scientist": ["python", "statistics", "machine_learning", "deep_learning", "data_science", "sql"],
+    "ml_engineer": ["python", "machine_learning", "deep_learning", "mlops", "docker", "git"],
+    "ai_engineer": ["python", "nlp", "llm", "machine_learning", "deep_learning", "docker", "git"],
+    "frontend_developer": ["javascript", "react", "html_css", "git"],
+    "backend_developer": ["java", "python", "mysql", "dbms", "docker", "oops", "nodejs", "spring", "fastapi", "django", "git", "system_design"],
+    "devops_engineer": ["docker", "kubernetes", "terraform", "linux", "ci_cd", "aws", "gcp", "jenkins", "git", "github_actions"],
+}
+
+RAG_INDEX_ROOT.mkdir(parents=True, exist_ok=True)
+
 FAISS_INDEX_PATH = MODEL_DIR / "faiss_index"
 WHISPER_MODEL = os.getenv("CP_WHISPER_MODEL", "base")
 XGBOOST_MODEL_PATH = MODEL_DIR / "xgboost" / "score_model.pkl"

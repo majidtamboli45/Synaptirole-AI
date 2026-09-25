@@ -1,0 +1,12 @@
+# Stack Data Structure
+
+> Source: https://www.geeksforgeeks.org/dsa/stack-data-structure
+
+A Stack is a linear data structure that follows a particular order in which the operations are performed. The order is LIFO(Last In First Out) which implies that the element that is inserted last, comes out first.
+It behaves like a stack of plates, where the last plate added is the first one to be removed. Pushing an element onto the stack is like adding a new plate on top. Popping an element removes the top plate from the stack.
+Basics
+Implementations in Different Languages
+Easy Problems
+Medium Problems
+Hard Problems
+Quick Links :

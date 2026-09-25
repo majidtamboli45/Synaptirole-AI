@@ -1,0 +1,480 @@
+# Diagonal Traversal of Binary Tree
+
+> Source: https://www.geeksforgeeks.org/dsa/diagonal-traversal-of-binary-tree
+
+Given a Binary Tree, return the diagonal traversal of the binary tree.
+- Consider imaginary lines passing between the nodes of the binary tree. All nodes lying on the same diagonal belong to the same diagonal group.
+- Return a single list containing all the nodes in diagonal order, starting from the topmost diagonal and moving to the next diagonals.
+- If nodes from the left and right subtrees belong to the same diagonal, the nodes from the left subtree must be included before the nodes from the right subtree.
+Examples:
+Input: root = [8, 3, 10, 1, 6, N, 14, N, N, 4, 7, 13]
+Output: [8, 10, 14, 3, 6, 7, 13, 1, 4]
+Explanation: 
+The nodes are visited diagonal by diagonal, moving from the root toward the bottom-right, giving [8, 10, 14, 3, 6, 7, 13, 1, 4].
+Input: root = [1, 2, N, 3, N]
+Output: [1, 2, 3]
+Explanation: Diagonal Traversal of binary tree: [1, 2, 3].
+Table of Content
+[Expected Approach] Queue-Based Diagonal Traversal - O(n) Time and O(n) Space
+The idea is to use a queue to process nodes diagonal by diagonal. For every node, the right child stays on the same diagonal, while the left child moves to the next diagonal.
+For every node, we traverse across right children and keep adding them to result and add left children to queue for later processing.
+Working of the Approach:
+- Create a queue and insert the root node with diagonal level 0.
+- Remove a node from the queue and add its value to the corresponding diagonal.
+- If the node has a left child, add it to the queue with diagonal level +1.
+- If the node has a right child, add it to the queue with the same diagonal level.
+- Continue until the queue becomes empty and combine all diagonal lists to get the final answer.
+#include <bits/stdc++.h>
+using namespace std;
+struct Node {
+    int data;
+    Node *left, *right;
+    Node(int x) {
+        data = x;
+        left = right = nullptr;
+    }
+};
+vector<int> diagonal(Node* root) {
+    vector<int> ans;
+    queue<Node*> q;
+    if (root == nullptr)
+        return ans;
+    q.push(root);
+    while (!q.empty()) {
+        Node* curr = q.front();
+        q.pop();
+        // Traverse the current diagonal through right children
+        while (curr != nullptr) {
+            ans.push_back(curr->data);
+            // Store left child for the next diagonal
+            if (curr->left != nullptr)
+                q.push(curr->left);
+            curr = curr->right;
+        }
+    }
+    return ans;
+}
+int main() {
+    Node* root = new Node(8);
+    root->left = new Node(3);
+    root->right = new Node(10);
+    root->left->left = new Node(1);
+    root->right->left = new Node(6);
+    root->right->right = new Node(14);
+    root->right->right->left = new Node(13);
+    root->right->left->left = new Node(4);
+    root->right->left->right = new Node(7);
+    vector<int> ans = diagonal(root);
+    cout << "[";
+    for (int i = 0; i < ans.size(); i++) {
+        cout << ans[i];
+        if (i + 1 < ans.size())
+            cout << ", ";
+    }
+    cout << "]";
+    return 0;
+}
+import java.util.ArratList;
+import java.util.Queue;
+import java.util.LinkedList;
+class Node {
+    int data;
+    Node left, right;
+    Node(int x) {
+        data = x;
+        left = right = null;
+    }
+}
+class GfG {
+    static ArrayList<Integer> diagonal(Node root) {
+        ArrayList<Integer> ans = new ArrayList<>();
+        Queue<Node> q = new LinkedList<>();
+        if (root == null)
+            return ans;
+        q.add(root);
+        while (!q.isEmpty()) {
+            Node curr = q.poll();
+            // Traverse the current diagonal through right children
+            while (curr != null) {
+                ans.add(curr.data);
+                // Store left child for the next diagonal
+                if (curr.left != null)
+                    q.add(curr.left);
+                curr = curr.right;
+            }
+        }
+        return ans;
+    }
+    static void printList(ArrayList<Integer> ans) {
+        System.out.print("[");
+        for (int i = 0; i < ans.size(); i++) {
+            System.out.print(ans.get(i));
+            if (i + 1 < ans.size())
+                System.out.print(", ");
+        }
+        System.out.println("]");
+    }
+    public static void main(String[] args) {
+        Node root = new Node(8);
+        root.left = new Node(3);
+        root.right = new Node(10);
+        root.left.left = new Node(1);
+        root.right.left = new Node(6);
+        root.right.right = new Node(14);
+        root.right.right.left = new Node(13);
+        root.right.left.left = new Node(4);
+        root.right.left.right = new Node(7);
+        ArrayList<Integer> ans = diagonal(root);
+        printList(ans);
+    }
+}
+from collections import deque
+class Node:
+    def __init__(self, x):
+        self.data = x
+        self.left = None
+        self.right = None
+def diagonal(root):
+    ans = []
+    q = deque()
+    if root is None:
+        return ans
+    q.append(root)
+    while q:
+        curr = q.popleft()
+        # Traverse the current diagonal through right children
+        while curr:
+            ans.append(curr.data)
+            # Store left child for the next diagonal
+            if curr.left:
+                q.append(curr.left)
+            curr = curr.right
+    return ans
+if __name__ == "__main__":
+    root = Node(8)
+    root.left = Node(3)
+    root.right = Node(10)
+    root.left.left = Node(1)
+    root.right.left = Node(6)
+    root.right.right = Node(14)
+    root.right.right.left = Node(13)
+    root.right.left.left = Node(4)
+    root.right.left.right = Node(7)
+    ans = diagonal(root)
+    print(ans)
+using System;
+using System.Collections.Generic;
+class Node {
+    public int data;
+    public Node left, right;
+    public Node(int x) {
+        data = x;
+        left = right = null;
+    }
+}
+class GFG {
+    static List<int> diagonal(Node root) {
+        List<int> ans = new List<int>();
+        Queue<Node> q = new Queue<Node>();
+        if (root == null)
+            return ans;
+        q.Enqueue(root);
+        while (q.Count > 0) {
+            Node curr = q.Dequeue();
+            // Traverse the current diagonal through right children
+            while (curr != null) {
+                ans.Add(curr.data);
+                // Store left child for the next diagonal
+                if (curr.left != null)
+                    q.Enqueue(curr.left);
+                curr = curr.right;
+            }
+        }
+        return ans;
+    }
+    static void Main() {
+        Node root = new Node(8);
+        root.left = new Node(3);
+        root.right = new Node(10);
+        root.left.left = new Node(1);
+        root.right.left = new Node(6);
+        root.right.right = new Node(14);
+        root.right.right.left = new Node(13);
+        root.right.left.left = new Node(4);
+        root.right.left.right = new Node(7);
+        List<int> ans = diagonal(root);
+        Console.WriteLine("[" + string.Join(", ", ans) + "]");
+    }
+}
+class Node {
+    constructor(x) {
+        this.data = x;
+        this.left = null;
+        this.right = null;
+    }
+}
+function diagonal(root) {
+    let ans = [];
+    let q = [];
+    if (root === null)
+        return ans;
+    q.push(root);
+    while (q.length > 0) {
+        let curr = q.shift();
+        // Traverse the current diagonal through right children
+        while (curr !== null) {
+            ans.push(curr.data);
+            // Store left child for the next diagonal
+            if (curr.left !== null)
+                q.push(curr.left);
+            curr = curr.right;
+        }
+    }
+    return ans;
+}
+// Driver Code
+let root = new Node(8);
+root.left = new Node(3);
+root.right = new Node(10);
+root.left.left = new Node(1);
+root.right.left = new Node(6);
+root.right.right = new Node(14);
+root.right.right.left = new Node(13);
+root.right.left.left = new Node(4);
+root.right.left.right = new Node(7);
+let ans = diagonal(root);
+console.log("[" + ans.join(", ") + "]");
+Output
+[8, 10, 14, 3, 6, 7, 13, 1, 4]
+[Alternate Approach] Recursive Diagonal Traversal - O(n) Time and O(n) Space
+The idea is to use recursion to traverse the tree while keeping track of the diagonal number of each node. The right child remains on the same diagonal, while the left child moves to the next diagonal.
+We use an array of arrays where we use diagonal number as row index and actual nodes as columns to group all same diagonal nodes together.
+Working of the Approach:
+- Start the traversal from the root with diagonal number 0.
+- Store the current node in the list corresponding to its diagonal.
+- Recursively traverse the left child with diagonal number diagonal + 1.
+- Recursively traverse the right child with the same diagonal number.
+- After the traversal, combine the stored diagonal lists from diagonal 0 onward to get the answer.
+#include <bits/stdc++.h>
+using namespace std;
+struct Node {
+    int data;
+    Node *left, *right;
+    Node(int x) {
+        data = x;
+        left = right = nullptr;
+    }
+};
+void diagonalRecur(Node* root, int diagonal,
+                   vector<vector<int>> &diagonals) {
+    if (root == nullptr)
+        return;
+    if (diagonal == diagonals.size())
+        diagonals.push_back({});
+    diagonals[diagonal].push_back(root->data);
+    // Left child moves to the next diagonal
+    diagonalRecur(root->left, diagonal + 1, diagonals);
+    // Right child stays on the same diagonal
+    diagonalRecur(root->right, diagonal, diagonals);
+}
+vector<int> diagonal(Node* root) {
+    vector<vector<int>> diagonals;
+    vector<int> ans;
+    diagonalRecur(root, 0, diagonals);
+    for (auto &d : diagonals)
+        for (int value : d)
+            ans.push_back(value);
+    return ans;
+}
+int main() {
+    Node* root = new Node(8);
+    root->left = new Node(3);
+    root->right = new Node(10);
+    root->left->left = new Node(1);
+    root->right->left = new Node(6);
+    root->right->right = new Node(14);
+    root->right->right->left = new Node(13);
+    root->right->left->left = new Node(4);
+    root->right->left->right = new Node(7);
+    vector<int> ans = diagonal(root);
+    cout << "[";
+    for (int i = 0; i < ans.size(); i++) {
+        cout << ans[i];
+        if (i + 1 < ans.size())
+            cout << ", ";
+    }
+    cout << "]";
+    return 0;
+}
+import java.util.ArrayList;
+class Node {
+    int data;
+    Node left, right;
+    Node(int x) {
+        data = x;
+        left = right = null;
+    }
+}
+class GfG {
+    static void diagonalRecur(Node root, int diagonal,
+                              ArrayList<ArrayList<Integer>> diagonals) {
+        if (root == null)
+            return;
+        if (diagonal == diagonals.size())
+            diagonals.add(new ArrayList<>());
+        diagonals.get(diagonal).add(root.data);
+        // Left child moves to the next diagonal
+        diagonalRecur(root.left, diagonal + 1, diagonals);
+        // Right child stays on the same diagonal
+        diagonalRecur(root.right, diagonal, diagonals);
+    }
+    static ArrayList<Integer> diagonal(Node root) {
+        ArrayList<ArrayList<Integer>> diagonals = new ArrayList<>();
+        ArrayList<Integer> ans = new ArrayList<>();
+        diagonalRecur(root, 0, diagonals);
+        for (ArrayList<Integer> d : diagonals)
+            ans.addAll(d);
+        return ans;
+    }
+    static void printList(ArrayList<Integer> ans) {
+        System.out.print("[");
+        for (int i = 0; i < ans.size(); i++) {
+            System.out.print(ans.get(i));
+            if (i + 1 < ans.size())
+                System.out.print(", ");
+        }
+        System.out.println("]");
+    }
+    public static void main(String[] args) {
+        Node root = new Node(8);
+        root.left = new Node(3);
+        root.right = new Node(10);
+        root.left.left = new Node(1);
+        root.right.left = new Node(6);
+        root.right.right = new Node(14);
+        root.right.right.left = new Node(13);
+        root.right.left.left = new Node(4);
+        root.right.left.right = new Node(7);
+        ArrayList<Integer> ans = diagonal(root);
+        printList(ans);
+    }
+}
+class Node:
+    def __init__(self, x):
+        self.data = x
+        self.left = None
+        self.right = None
+def diagonalRecur(root, diagonal, diagonals):
+    if root is None:
+        return
+    if diagonal == len(diagonals):
+        diagonals.append([])
+    diagonals[diagonal].append(root.data)
+    # Left child moves to the next diagonal
+    diagonalRecur(root.left, diagonal + 1, diagonals)
+    # Right child stays on the same diagonal
+    diagonalRecur(root.right, diagonal, diagonals)
+def diagonal(root):
+    diagonals = []
+    ans = []
+    diagonalRecur(root, 0, diagonals)
+    for d in diagonals:
+        ans.extend(d)
+    return ans
+if __name__ == "__main__":
+    root = Node(8)
+    root.left = Node(3)
+    root.right = Node(10)
+    root.left.left = Node(1)
+    root.right.left = Node(6)
+    root.right.right = Node(14)
+    root.right.right.left = Node(13)
+    root.right.left.left = Node(4)
+    root.right.left.right = Node(7)
+    ans = diagonal(root)
+    print(ans)
+using System;
+using System.Collections.Generic;
+class Node {
+    public int data;
+    public Node left, right;
+    public Node(int x) {
+        data = x;
+        left = right = null;
+    }
+}
+class GFG {
+    static void diagonalRecur(Node root, int diagonal,
+                              List<List<int>> diagonals) {
+        if (root == null)
+            return;
+        if (diagonal == diagonals.Count)
+            diagonals.Add(new List<int>());
+        diagonals[diagonal].Add(root.data);
+        // Left child moves to the next diagonal
+        diagonalRecur(root.left, diagonal + 1, diagonals);
+        // Right child stays on the same diagonal
+        diagonalRecur(root.right, diagonal, diagonals);
+    }
+    static List<int> diagonal(Node root) {
+        List<List<int>> diagonals = new List<List<int>>();
+        List<int> ans = new List<int>();
+        diagonalRecur(root, 0, diagonals);
+        foreach (List<int> d in diagonals)
+            ans.AddRange(d);
+        return ans;
+    }
+    static void Main() {
+        Node root = new Node(8);
+        root.left = new Node(3);
+        root.right = new Node(10);
+        root.left.left = new Node(1);
+        root.right.left = new Node(6);
+        root.right.right = new Node(14);
+        root.right.right.left = new Node(13);
+        root.right.left.left = new Node(4);
+        root.right.left.right = new Node(7);
+        List<int> ans = diagonal(root);
+        Console.WriteLine("[" + string.Join(", ", ans) + "]");
+    }
+}
+class Node {
+    constructor(x) {
+        this.data = x;
+        this.left = null;
+        this.right = null;
+    }
+}
+function diagonalRecur(root, diagonal, diagonals) {
+    if (root === null)
+        return;
+    if (diagonal === diagonals.length)
+        diagonals.push([]);
+    diagonals[diagonal].push(root.data);
+    // Left child moves to the next diagonal
+    diagonalRecur(root.left, diagonal + 1, diagonals);
+    // Right child stays on the same diagonal
+    diagonalRecur(root.right, diagonal, diagonals);
+}
+function diagonal(root) {
+    let diagonals = [];
+    let ans = [];
+    diagonalRecur(root, 0, diagonals);
+    for (let d of diagonals)
+        ans.push(...d);
+    return ans;
+}
+// Driver Code
+let root = new Node(8);
+root.left = new Node(3);
+root.right = new Node(10);
+root.left.left = new Node(1);
+root.right.left = new Node(6);
+root.right.right = new Node(14);
+root.right.right.left = new Node(13);
+root.right.left.left = new Node(4);
+root.right.left.right = new Node(7);
+let ans = diagonal(root);
+console.log("[" + ans.join(", ") + "]");
+Output
+[8, 10, 14, 3, 6, 7, 13, 1, 4]

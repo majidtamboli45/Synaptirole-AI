@@ -1,0 +1,20 @@
+{"id": 1, "question": "What is MySQL?", "answer": "MySQL is an open-source relational database management system that uses SQL to manage and manipulate structured data.", "ground_truth": "correct"}
+{"id": 2, "question": "What is a database in MySQL?", "answer": "A database is a collection of related data organized so that it can be stored, accessed, and managed efficiently.", "ground_truth": "correct"}
+{"id": 3, "question": "What is a table in MySQL?", "answer": "A table stores data in rows and columns, where rows represent records and columns represent attributes.", "ground_truth": "correct"}
+{"id": 4, "question": "What is a primary key?", "answer": "A primary key uniquely identifies each row in a table and cannot contain NULL values.", "ground_truth": "correct"}
+{"id": 5, "question": "What is a foreign key?", "answer": "A foreign key establishes a relationship between tables by referencing a key in another table.", "ground_truth": "correct"}
+{"id": 6, "question": "What does SELECT do?", "answer": "SELECT is used to retrieve data from one or more tables.", "ground_truth": "correct"}
+{"id": 7, "question": "What does WHERE do?", "answer": "WHERE filters rows based on a specified condition.", "ground_truth": "correct"}
+{"id": 8, "question": "What does INSERT do?", "answer": "INSERT is used to add new rows to a table.", "ground_truth": "correct"}
+{"id": 9, "question": "What does UPDATE do?", "answer": "UPDATE is used to modify existing records in a table.", "ground_truth": "correct"}
+{"id": 10, "question": "What does DELETE do?", "answer": "DELETE is used to remove rows from a table.", "ground_truth": "correct"}
+{"id": 11, "question": "What is ORDER BY used for?", "answer": "ORDER BY permanently changes the physical order in which rows are stored on disk.", "ground_truth": "wrong"}
+{"id": 12, "question": "What does DISTINCT do?", "answer": "DISTINCT creates duplicate copies of every row returned by a query.", "ground_truth": "wrong"}
+{"id": 13, "question": "What is a JOIN?", "answer": "A JOIN can only be used between columns within the same table and cannot combine data from different tables.", "ground_truth": "wrong"}
+{"id": 14, "question": "What is an INNER JOIN?", "answer": "An INNER JOIN always returns every row from both tables, including rows without matching values.", "ground_truth": "wrong"}
+{"id": 15, "question": "What is a LEFT JOIN?", "answer": "A LEFT JOIN returns only the rows that have matching values in both tables and removes all unmatched left-table rows.", "ground_truth": "wrong"}
+{"id": 16, "question": "What is GROUP BY used for?", "answer": "GROUP BY is used only to sort rows and cannot be combined with aggregate functions such as COUNT() or SUM().", "ground_truth": "wrong"}
+{"id": 17, "question": "What does COUNT() do?", "answer": "COUNT() calculates the average value of numeric rows in a column.", "ground_truth": "wrong"}
+{"id": 18, "question": "What is normalization?", "answer": "Normalization is the process of intentionally increasing duplicate data to make a database more redundant.", "ground_truth": "wrong"}
+{"id": 19, "question": "What is an index?", "answer": "A MySQL index guarantees that every SELECT, INSERT, UPDATE, and DELETE query will always become faster.", "ground_truth": "wrong"}
+{"id": 20, "question": "What does COMMIT do?", "answer": "COMMIT cancels the current transaction and permanently removes all changes made during it.", "ground_truth": "wrong"}

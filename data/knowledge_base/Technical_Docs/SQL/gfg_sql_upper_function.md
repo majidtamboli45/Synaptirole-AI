@@ -1,0 +1,48 @@
+# SQL UPPER() Function
+
+> Source: https://www.geeksforgeeks.org/sql/upper-function-in-sql/
+
+The UPPER() function is a commonly used SQL string function that converts all lowercase letters in a string to uppercase. It helps maintain consistent text formatting and is useful when performing case-insensitive string comparisons.
+- Converts all alphabetic characters in a string to CAPITAL letters.
+- Numbers and special characters (like @, -, /, &) remain unchanged.
+- UPPER() and UCASE() perform the same operation in most modern databases.
+- This function works across most SQL databases and is easy to use.
+Query:
+SELECT UPPER('geeksforgeeks') AS upper_case;
+Output:
+- Converts the string 'geeksforgeeks' into uppercase letters.
+- Displays the result with the column alias upper_case.
+Syntax
+UPPER(input_text);
+OR
+UPPER(column_name);
+Examples
+Let's look at the examples of UPPER() function in SQL. Check the SQL UPPER function with examples to understand it better. First, let's create a demo database and table on which we use the UPPER function.
+Example 1: Convert string to Uppercase using SQL UPPER Function
+In this example, the word "Microsoft" is displayed as it is in the first column and in the second column it is converted to uppercase using the UPPER() function.
+Query:
+SELECT
+'Microsoft' AS "before UPPER() Function",
+UPPER('Microsoft') AS "after UPPER() Function";
+Output:
+- Displays the original text value.
+- Converts the text to uppercase using UPPER().
+Example 2: Using UPPER Function on Mixed Character String
+In this example, the value "12@tEsla" is shown as it is in the first column and in the second column it is converted to uppercase using the UPPER() function. Only alphabetic characters are changed, while numbers and special characters remain unchanged.
+Query:
+SELECT
+'12@tEsla' AS "before UPPER() Function",
+UPPER('12@tEsla') AS "after UPPER() Function";
+Output:
+- Displays the original mixed string.
+- Converts only letters to uppercase while keeping numbers and symbols unchanged.
+Example 3: Using SQL UPPER function on a Column
+In this example, the UPPER() function is applied to the ID column. The first column displays the original values, while the second column shows the converted uppercase values. Only alphabetic characters are changed and numbers or special characters remain unchanged.
+Query:
+SELECT
+id AS "before UPPER() Function",
+UPPER(id) AS "after UPPER() Function"
+FROM company;
+Output:
+- Displays original values from the ID column.
+- Converts all alphabetic characters to uppercase using UPPER().

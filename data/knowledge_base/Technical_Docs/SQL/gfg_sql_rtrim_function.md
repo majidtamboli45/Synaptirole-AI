@@ -1,0 +1,54 @@
+# SQL RTRIM() Function
+
+> Source: https://www.geeksforgeeks.org/sql/rtrim-function-in-sql/
+
+The RTRIM() function is used in SQL to remove extra spaces from the right end of a string. It helps clean and standardize text data for better storage and comparison.
+- Does not remove leading (left-side) spaces.
+- Supported by major databases like MySQL, SQL Server, Oracle and Azure SQL.
+Query:
+SELECT RTRIM('Hello World     ') AS trimmed_text;
+Output:
+- Removes extra spaces from the right side of the text.
+- Returns the cleaned result as trimmed_text.
+Syntax
+RTRIM( input_text,[trim_characters]);
+OR
+RTRIM(column_name) AS trimmed_name
+FROM table_name;
+- RTRIM(input_text, [Trim_Characters]) removes specified characters from the right side of the text.
+- RTRIM(column_name) removes trailing spaces from a column and displays it as trimmed_name.
+Examples
+Let's see some examples of RTRIM function in SQL and understand it's working with examples of different use cases.
+Example 1: Using RTRIM Function to Remove Trailing Spaces from a String
+The RTRIM function in SQL is used to remove trailing spaces from a string. Here are a few examples to illustrate its usage:
+Query:
+SELECT '[' || '          Geeks for Geeks          ' || ']' AS before_rtrim,
+'[' || RTRIM(' Geeks for Geeks ') || ']' AS after_rtrim;
+Output:
+- Displays the original string with leading and trailing spaces as "before_rtrim".
+- Removes only the right-side (trailing) spaces and shows the result as "after_rtrim".
+Example 2: Using RTRIM Function on Table Column
+First, we create a table GFG, with following commands in which we add names with trailing whitespaces.
+SELECT
+id,
+'[' || name || ']' AS name,
+'[' || RTRIM(name) || ']' AS trimmed_name
+FROM GFG;
+Output:
+Example 3: Using RTRIM Function With a Variable
+This example demonstrates how the RTRIM() function is used with a variable to remove trailing spaces and return a cleaned result.
+Query:
+DELIMITER //
+CREATE PROCEDURE rtrim_example()
+BEGIN
+DECLARE input_string VARCHAR(15);
+SET input_string = 'Hello ';
+SELECT CONCAT(RTRIM(input_string), ' World') AS result;
+END //
+DELIMITER ;
+CALL rtrim_example();
+Output:
+- Creates a stored procedure that trims trailing spaces using RTRIM().
+- Uses CONCAT() to append "World" to the trimmed string.
+- Executes the procedure with CALL rtrim_example().
+- Changes the delimiter to // so the entire procedure is treated as a single statement.

@@ -1,0 +1,62 @@
+# SQL INTERSECT Clause
+
+> Source: https://www.geeksforgeeks.org/sql/sql-intersect-clause/
+
+The INTERSECT operator in SQL is used to return only the records that appear in both of two SELECT query results. It acts like the intersection of two sets, showing only the common rows shared between them.
+- Returns rows present in both SELECT statements
+- Automatically removes duplicates
+- Useful for finding overlapping or matching data across tables or queries.
+Example: First, we will create a demo SQL database and table, on which we will use the INTERSECT Clause command.
+emp_1 table:
+emp_2 table:
+Query:
+SELECT name FROM emp_1
+INTERSECT
+SELECT name FROM emp_2;
+Output:
+Syntax
+SELECT column1 , column2 ....
+FROM table1
+WHERE condition
+INTERSECT
+SELECT column1 , column2 ....
+FROM table2
+WHERE condition
+Working
+Let’s consider two tables: the customers table, which holds customer details, and the orders table, which contains information about customer purchases.
+customer table:
+order table:
+Example 1: Basic INTERSECT Query
+In this example, we retrieve customers who exist in both the customers and orders tables.
+Query:
+SELECT customers_id
+FROM customers
+INTERSECT
+SELECT customers_id
+FROM orders;
+Output:
+Example 2: Using INTERSECT with BETWEEN Operator
+The query retrieves customers whose customers_id falls between 3 and 8 and who have placed an order. The result contains only the common customers_id values that meet both conditions.
+Query:
+SELECT customers_id
+FROM customers
+WHERE customers_id BETWEEN 3 AND 8
+INTERSECT
+SELECT customers_id
+FROM orders;
+Output:
+Example 3: Using INTERSECT with LIKE Operator
+In this example, we use the INTERSECT operator along with the LIKE operator to find common customers whose first_name starts with the letter 'J' in both the customers and orders tables.
+Query:
+SELECT customers_id
+FROM customers
+WHERE first_name LIKE 'J%'
+INTERSECT
+SELECT customers_id
+FROM orders;
+Output:
+Note:
+- Both SELECT queries must return the same number of compatible columns.
+- Can be slower on large datasets; indexing helps.
+- Treats NULL values as equal.
+- In databases without INTERSECT, use INNER JOIN as an alternative.

@@ -1,0 +1,21 @@
+# SQL TRUNCATE TABLE
+
+> Source: https://www.geeksforgeeks.org/sql/sql-truncate/
+
+The TRUNCATE TABLE statement is used to remove all records from a table while preserving its structure. It is especially useful when working with large tables.
+- Executes faster than DELETE because it does not log individual row deletions.
+- In most databases, the operation cannot be rolled back once executed.
+Syntax
+TRUNCATE TABLE table_name;
+Example: First, we will create a demo SQL database and table, on which we will use the TRUNCATE TABLE command.
+Query:
+TRUNCATE TABLE students;
+Output:
+Working
+Here we will look at different examples of the SQL TRUNCATE TABLE command. Consider the employee table below for the following example:
+Query:
+TRUNCATE TABLE employee;SELECT * FROM employee;
+Output:
+- After truncating the table, all records are removed while the table structure remains intact.
+- Executing SELECT * FROM EMPLOYEE will return an empty result set since all data has been erased.
+To better understand when to use TRUNCATE, see our detailed explanation of the differences between TRUNCATE, DELETE and DROP commands.

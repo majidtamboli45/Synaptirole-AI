@@ -1,0 +1,64 @@
+# Microservices
+
+> Source: https://www.geeksforgeeks.org/system-design/microservices
+
+Microservices is an architecture where an application is divided into small, independent services that communicate over a network. Each service handles a specific function and can be developed and deployed separately.
+- Services can be built using different programming languages and frameworks.
+- Each microservice is loosely coupled and can be developed, deployed, and scaled independently.
+Example: An e-commerce platform uses separate microservices for product catalog, user authentication, cart, payments, and order management, which communicate through APIs.
+Real world Applications
+Microservices architecture is widely used in modern applications where scalability, flexibility, and independent service management are important.
+- Amazon: Initially a monolithic app, Amazon uses microservices early on, breaking its platform into smaller components. This shift allowed for individual feature updates, greatly enhancing functionality.
+- Banking & FinTech: Independent services for accounts, transactions, fraud detection, and customer support, ensuring high security, reliability, and compliance with financial regulations.
+- Healthcare systems: Patient records, appointment scheduling, billing, and reporting as separate services, improving data management, scalability, and system reliability.
+- Uber: By switching from a monolithic structure to microservices, Uber operations were become smoother, resulting in increased webpage views and search efficiency
+Working
+The working of microservices architecture focuses on dividing the application into small, independent services that collaborate to perform different business functions.
+- Business Function: Each microservice handles one specific feature, such as authentication or product management.
+- API Communication: Services exchange data with each other through APIs.
+- Independent Operation: Each service runs independently and communicates using HTTP or messaging.
+- Request Handling: User requests are routed to the required service for processing and response.
+Components
+Main components of microservices architecture include:
+- Microservices: Small, independent services that focus on a specific business capability and can be developed, deployed, and scaled independently.
+- API Gateway: A single entry point that routes client requests to the appropriate microservices and handles common concerns like authentication.
+- Service Registry and Discovery: Maintains information about available service instances and enables dynamic service-to-service communication.
+- Load Balancer: Distributes incoming traffic across multiple service instances to improve availability, performance, and reliability.
+- Deployment & Infrastructure: Docker containerization microservices, while Kubernetes manages their deployment, scaling, and orchestration.
+- Event Bus / Message Broker: Enables asynchronous communication between services through messaging while reducing direct dependencies.
+- Database per Microservice: Each microservice owns its dedicated database, ensuring data isolation, loose coupling, and independent scaling.
+- Caching: Stores frequently accessed data in memory to reduce database load and improve application response time.
+- Fault tolerance and resilience: Keeps the system stable during failures using mechanisms such as circuit breakers, retries, and fallbacks.
+Real-World Example of Microservices
+Understand the Microservices using the real-world example of Amazon E-Commerce Application:
+Amazon’s online store runs on many small, specialized microservices, each handling a specific task. Working together, they create a smooth shopping experience.
+The microservices involved in Amazon E-commerce Application:
+- User Service: Handles user accounts and preferences, making sure each person has a personalized experience.
+- Search Service: Helps users find products quickly by organizing and indexing product information.
+- Catalog Service: Manages the product listings, ensuring all details are accurate and easy to access.
+- Cart Service: Lets users add, remove, or change items in their shopping cart before checking out.
+- Wishlist Service: Allows users to save items for later, helping them keep track of products they want.
+- Order Taking Service: Processes customer orders, checking availability and validating details.
+- Order Processing Service: Oversees the entire fulfillment process, working with inventory and shipping to get orders delivered.
+- Payment Service: Manages secure transactions and keeps track of payment details.
+- Logistics Service: Coordinates everything related to delivery, including shipping costs and tracking.
+- Warehouse Service: Keeps an eye on inventory levels and helps with restocking when needed.
+- Notification Service: Sends updates to users about their orders and any special offers.
+- Recommendation Service: Suggests products to users based on their browsing and purchase history
+Migrating from Monolithic to Microservices Architecture
+Below are the main the key steps to migrate from a monolithic to microservices architecture:
+- Step 1 – Assess Monolith: Analyze the existing application and identify components suitable for microservices.
+- Step 2 – Define Services: Divide the application into separate business functions or capabilities.
+- Step 3 – Gradual Migration: Use the Strangler Pattern to replace monolith components step by step.
+- Step 4 – Define APIs: Create clear APIs for communication between microservices.
+- Step 5 – Set Up CI/CD: Automate testing and deployment for faster, reliable releases.
+- Step 6 – Service Discovery: Enable microservices to dynamically find and communicate with each other.
+- Step 7 – Logging & Monitoring: Track service performance and quickly identify issues.
+- Step 8 – Manage Security: Apply consistent security, authentication, and other shared concerns.
+- Step 9 – Improve Iteratively: Continuously refine microservices based on feedback and requirements.
+Challenges
+While microservices provide many benefits, they also introduce certain complexities that organizations must manage carefully.
+- Managing service communication, network latency, and data consistency can be difficult.
+- Decomposing an app into microservices adds complexity in development, testing and deployment.
+- Network communication can lead to higher latency and complicates error handling.
+Related Article: Microservices Vs Monolithic Architecture

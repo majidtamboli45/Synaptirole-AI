@@ -112,6 +112,51 @@ class AppController(QObject):
         self.skillAnalysisReady.connect(self._apply_skill_analysis)
         self.skillAnalysisFailed.connect(self._handle_skill_analysis_error)
 
+        self._start_background_warmup()
+
+    # ---------------------------------------------------------
+    # Background asset warm-up (latency fix)
+    # ---------------------------------------------------------
+
+    def _start_background_warmup(self):
+        """Pre-load shared NLP / ontology assets off the GUI thread.
+
+        spaCy (skill NER) and the ESCO/O*NET ontology index are needed as soon
+        as the first resume or JD is parsed. Warming them in daemon threads at
+        startup removes their load cost from the upload / analysis path. The
+        threads never touch the GUI and never block it.
+        """
+        def _warm():
+            try:
+                from app.nlp.pipeline import get_nlp
+                get_nlp()
+            except Exception as exc:
+                logger.warning("Background spaCy warm-up failed: %s", exc)
+            try:
+                from app.skills.ontology import load_ontology
+                load_ontology()
+            except Exception as exc:
+                logger.warning("Background ontology warm-up failed: %s", exc)
+
+        threading.Thread(target=_warm, daemon=True, name="asset-warmup").start()
+
+    def _warm_sbert(self):
+        """Pre-load the Sentence-BERT embedding model off the GUI thread.
+
+        Called once both documents are parsed so the skill-analysis worker does
+        not have to pay the multi-second model load when it starts.
+        ``sbert_model.get_model`` is idempotent, exception-safe and
+        lock-guarded, so overlapping with the worker thread is harmless.
+        """
+        def _warm():
+            try:
+                from app.skills import sbert_model
+                sbert_model.get_model()
+            except Exception as exc:
+                logger.warning("Background SBERT warm-up failed: %s", exc)
+
+        threading.Thread(target=_warm, daemon=True, name="sbert-warmup").start()
+
     # ---------------------------------------------------------
     # Remember Me
     # ---------------------------------------------------------
@@ -1138,6 +1183,7 @@ class AppController(QObject):
             self.documentsChanged.emit()
 
             if self.documentsReady:
+                self._warm_sbert()
                 self.refreshSkillAnalysis()
 
         except Exception as exc:
@@ -1212,6 +1258,7 @@ class AppController(QObject):
             self.documentsChanged.emit()
 
             if self.documentsReady:
+                self._warm_sbert()
                 self.refreshSkillAnalysis()
 
         except Exception as exc:

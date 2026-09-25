@@ -1,0 +1,209 @@
+# HTML Attributes
+
+> Source: https://www.geeksforgeeks.org/html/html-attributes
+
+HTML Attributes are special words used within the opening tag of an HTML element. They provide additional information about HTML elements. HTML attributes are used to configure and adjust the element's behaviour, appearance, or functionality in a variety of ways.
+- Each attribute has a name and a value, formatted as name="value".
+- Attributes tell the browser how to render the element or how it should behave during user interactions.
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <img src=
+"https://media.geeksforgeeks.org/wp-content/cdn-uploads/Geek_logi_-low_res.png" 
+ style="width:350px; height:auto;">
+</body>
+</html>
+- Tag :  <img> 
+- Attribute :  src 
+- Value of Attribute :  "https://media.geeksforgeeks.org/wp-content/cdn-uploads/Geek_logi_-low_res.png" 
+- Purpose : The  <img> tag is used for embedding images in an HTML page. The src attribute within the <img> tag specifies the path to the image file you wish to display. This attribute is crucial as it directs the browser to the image’s location on the internet or a local directory.
+Syntax:
+<tagname attribute_name = "attribute_value"> content... </tagname>
+Components of Attribute
+An HTML attribute consists of two primary components:
+1. attribute_name: This is the name of the attribute, which specifies what kind of additional information or property you are defining for the element. Common attribute names include href, src, class, id, etc.
+2. attribute_value: The value is assigned to the attribute to define the specific setting or behavior. It is always placed in quotes.
+Types of HTML Attributes
+HTML attributes can be broadly categorized based on their function and the type of elements they modify. For example -
+Global Attributes
+These attributes can be used with any HTML element (though their effects might vary based on the element):
+| Attribute | Description | 
+|---|---|
+| class | Groups elements and allows styling. | 
+| style | Inline CSS styles. | 
+| contenteditable | Determines whether the content within the element is editable. | 
+| role | Specifies the element’s accessibility role. | 
+| tabindex | Determines the order of focus during keyboard navigation. | 
+| id | Assigns a unique identifier to an element, allowing targeting with CSS or JavaScript. | 
+| title | Creates a tooltip that appears when a user hovers over the element. | 
+| lang | Specifies the language of the element’s content, aiding with translation and accessibility. | 
+Some other main types of HTML attributes are:
+- Event Attributes - These define the actions to be taken on specific browser events.
+- Input Attributes - Specific to input elements within <form> tags.
+- Image Attributes - Specific to the <img> element for handling images.
+- Link Attributes - Specific to linking elements like <a> and <link>.
+- Table Attributes - Used with table elements like <table> , <th> , <tr> , and <td>.
+- Style Attributes - Define styles directly on an element.
+- Media Attributes - Related to media elements like <audio> and <video>.
+- Accessibility Attributes - Help improve accessibility, such as alt for images and aria-* attributes.
+- Meta Attributes - Used with meta elements to specify metadata like  charset .
+Common HTML Attributes
+Let's take look at some of the most commonly used HTML attributes:
+1. HTML alt Attribute
+The alt attribute in HTML provides alternative text for an image if the image cannot be displayed. It improves accessibility and provides context for screen readers.
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <img src=
+"https://media.geeksforgeeks.org/wp-content/cdn-uploads/Geek_logi_-low_res.png"
+ style="width:350px; height:auto;" 
+         alt="The Logo"><br>
+</body>
+</html>
+2. HTML width and height Attribute
+The width and height Attribute is used to adjust the width and height of an image(in pixels).
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+</head>
+<body>
+    <img src=
+"https://media.geeksforgeeks.org/wp-content/cdn-uploads/Geek_logi_-low_res.png"
+         width="300px"
+         height="100px">
+</body>
+</html>
+3. HTML id Attribute
+The id attribute in HTML assigns a unique identifier to an element, allowing it to be targeted by CSS and JavaScript for styling and manipulation purposes.
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #geeks {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="geeks">Welcome to GeeksforGeeks</h1>
+</body>
+</html>
+4. HTML title Attribute
+The title attribute is used to explain an element by hovering the mouse over it. The behavior differs with various elements but generally, the value is displayed while loading or hovering the mouse pointer over it.
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <h3 title="Hello GeeksforGeeks">
+        Hover to see the effect
+    </h3>
+</body>
+</html>
+5. HTML href Attribute
+The href attribute in HTML, used with the <a> tag, specifies a link destination. Clicking the linked text navigates to this address. Adding `target="_blank"` opens it in a new tab.
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <a href="https://www.geeksforgeeks.org/">
+        Click to open in the same tab
+    </a><br>
+    <a href="https://www.geeksforgeeks.org/" 
+       target="_blank">
+        Click to open in a different tab
+    </a>
+</body>
+</html>
+6. HTML style Attribute
+The style attribute is used to provide various CSS effects to the HTML elements such as increasing font-size, changing font-family, coloring, etc.
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <h2 style="font-family:Chaparral Pro Light;">
+          Hello GeeksforGeeks.
+      </h2>
+    <h3 style="font-size:20px;">
+          Hello GeeksforGeeks.
+      </h3>
+    <h2 style="color:#8CCEF9;">
+          Hello GeeksforGeeks.
+      </h2>
+    <h2 style="text-align:center;">
+          Hello GeeksforGeeks.
+      </h2>
+</body>
+</html>
+7. HTML lang attribute
+The language is declared with the lang attribute. Declaring a language can be important for accessibility applications and search engines.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+    <style>
+        body {
+            text-align: center;
+        }
+        h1 {
+            color: green;
+        }
+        .lang-info {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>GeeksforGeeks</h1>
+    <h2>lang attribute</h2>
+    <p lang="en">
+        A computer science portal for geeks
+    </p>
+    <p lang="fr" class="lang-info">
+        A computer science portal for geeks
+    </p>
+    <p lang="es" class="lang-info">
+        A computer science portal for geeks
+    </p>
+</body>
+</html>
+Important Points About HTML Attributes
+1. Always Use Lowercase Attributes:
+- You can use either uppercase or lowercase letters for defining attributes.
+- For example, both alt and ALT in an <img> tag are valid. However, it is recommended to use lowercase attributes as per W3C guidelines for consistency and better readability.
+2. Always Quote Attribute Values:
+- The HTML standard does not require quotes around attribute values in certain situations.
+- However, W3C recommends always using quotes for attribute values, and quotes are mandatory for stricter document types like XHTML.
+- Using quotes helps avoid errors, especially when the attribute value contains spaces or special characters.
+3. Declare Quote as an Attribute Value:
+- You can use either single (') or double (") quotes for attribute values in HTML, but it is essential to be consistent throughout your document.
+- If the attribute value contains a double quote, then use single quotes to enclose it, and vice versa.For simplicity, it is a good practice to consistently use double quotes, as it aligns with the convention used in many HTML examples and tutorials.
+<input type="text" placeholder='Enter your "username" here'>
+In this example, the attribute value itself contains double quotes ("username"), so the entire value is enclosed within single quotes to avoid confusion.
+4. Boolean Attributes Should Be Written Without Values:
+- Boolean attributes do not require a value. If the attribute is present, it is considered true.
+- For example, the checked attribute of an <input> element is correctly written as:
+Example:
+<input type="checkbox" checked>
+Writing checked="checked" also works, but it is redundant. Simply including the attribute is enough to represent a true state.
+5. Proper Attribute Order for Readability:
+- Although HTML does not enforce an order for attributes, following a consistent order improves readability and maintainability.
+- It is common practice to order attributes like this: id ,class , other global attributes, specific attributes, and finally, event attributes.
+<button id="btn1" class="button-class" type="submit" onclick="handleClick()">Submit</button>
+6. Avoid Deprecated Attributes:
+- Certain HTML attributes, such as align ,bgcolor , andborder , are considered deprecated.
+- It is better to use CSS for styling instead of outdated attributes.
+<p style="text-align: center;">This text is centered.</p>
+Instead of using the align attribute, use the style attribute or a CSS class to achieve the same effect.

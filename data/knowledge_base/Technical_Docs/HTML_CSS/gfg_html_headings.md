@@ -1,0 +1,62 @@
+# HTML Headings
+
+> Source: https://www.geeksforgeeks.org/html/html-heading
+
+HTML headings are used to define the titles and subtitles of sections on a webpage. They help organize the content and create a structure that is easy to navigate.
+- Proper use of headings enhances readability by organizing content into clear sections.
+- Search engines use headings to understand page structure, which helps with SEO.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+</head>
+<body>
+    <h1>This is the Main Heading</h1>
+	<h2>This is a Subheading</h2>
+	<h3>This is a Smaller Subheading</h3>
+	<h4>This is a Sub-Subheading</h4>
+	<h5>This is a Minor Subheading</h5>
+	<h6>This is the Smallest Heading</h6>
+</body>
+</html>
+- This code uses HTML heading tags (<h1> to <h6>) to create headings that range from the main heading to the smallest subheading.
+- Each tag shoes the hierarchy of the content, helping organize the structure of the webpage.
+Note: HTML tags are not case-sensitive, but lowercase is recommended for consistency.
+Levels of HTML Heading Tags
+HTML offers six levels of heading tags, each serving a different purpose in structuring your content:
+<h1> – Main Heading (Largest)
+<h1> defines the main heading of a page, highlighting its primary topic and improving clarity for users and SEO.
+- Represents the primary focus of the page, usually used for the main title.
+- Use only one <h1> tag per page for the best SEO practices.
+- Makes it clear to both users and search engines what the main topic is.
+<h2> – Subheadings
+<h2> defines subheadings to organize major sections, with <h3> used for further subsections to maintain a logical content structure.
+- Ideal for dividing the content into major sections.
+- If the content has further subsections, use <h3> to create a logical flow.
+<h3> to <h6> – Smaller Headings
+<h3> to <h6> are used for smaller headings, creating a clear hierarchy and structure for subsections within the content.
+- These heading levels are used for finer subdivisions, gradually decreasing in size and importance.
+- <h3> is used for subsections under <h2>, while <h4> to <h6> are used for additional, less important subdivisions.
+- <h6> defines the least important heading.
+Customization in HTML Heading Tags
+Customization in HTML heading tags allows you to change their style, color, font, and alignment using CSS.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+</head>
+<body>
+    <h1>H1 Heading</h1>
+    <!-- With the help of Style attribute you can customize
+           the size of the heading, As done below-->
+    <h1 style="font-size: 50px">H1 with new size.</h1>
+    <!-- Here font-size is the property by which  we can 
+           modify the heading. Here we kept it 50px i.e. 50 pixels -->
+</body>
+</html>
+Best Practices for Using HTML Headings
+Use a single <h1> per page, maintain a logical heading hierarchy, keep headings descriptive, and avoid using them solely for styling.
+- Use Only One <h1> per Page: The <h1> tag should be reserved for the main title of the page. Too many <h1> tags can confuse both users and search engines about the content’s priority.
+- Maintain a Logical Structure: Follow a logical hierarchy of headings (<h1> → <h2> → <h3>) to ensure content is organized. Don't jump directly from <h1> to <h4>, as it can make the content harder to navigate.
+- Keep Headings Descriptive: Headings should clearly describe the content that follows. This makes it easier for readers to understand what each section is about.
+- Avoid Overusing Heading Tags: Headings are for organizing content, not for styling text. Use them where appropriate and avoid using heading tags for emphasis or styling alone.

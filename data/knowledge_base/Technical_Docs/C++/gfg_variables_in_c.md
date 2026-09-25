@@ -1,0 +1,105 @@
+# Variables in C++
+
+> Source: https://www.geeksforgeeks.org/cpp/cpp-variables/
+
+In C++, variables are containers used to store data in memory. Variables define how data is stored, accessed, and manipulated. A variable has three components:
+- Data Type: Defines the kind of data stored (e.g., int, string, float).
+- Variable Name: A unique identifier following C++ naming rules.
+- Value: The actual data assigned to the variable.
+#include <iostream>
+using namespace std;
+int main() {
+    
+    // Creating an integer variable
+    int num = 3;
+    
+    // Accessing and printing above variable
+    cout << num << endl;
+    
+    // Update the value
+    num = 7;
+    
+    // Printing the updated value
+    cout << num;
+    
+    return 0;
+}
+Output
+3
+7
+Declaration
+Creating a variable and giving it a name is called variable definition (sometimes called variable declaration). The syntax of variable definition is:
+type name;
+where, type is the type of data that a variable can store, and name is the name assigned to the variable. Multiple variables of the same type can be defined as:
+type name1, name2, name3 ...;
+The data type of a variable is selected from the list of data types supported by C++.
+Initializing
+A variable that is just defined may not contain some valid value. We have to initialize it to some valid initial value. It is done by using an assignment operator '=' as shown:
+int num;
+num = 3;
+Definition and initialization can also be done in a single step as shown:
+int num = 3;
+The integer variable num is initialized with the value 3. Values are generally the literals of the same type.
+Note: The value we assign should be of the same type as the variable, i.e. a decimal value (e.g. 3.14) can be assigned to an integer variable, but it will be implicitly converted (truncated) to an integer value (e.g. 3).
+Accessing and Updating
+The main objective of a variable is to store the data so that it can be retrieved or update any time. Accessing can be done by simply using its assigned name and updating the value using '=' (assignment operator).
+#include <iostream>
+using namespace std;
+int main(){
+    int num = 3;
+    cout << num << endl;
+    // Updating the value
+    num = 7;
+    cout << num;
+    return 0;
+}
+Output
+3
+7
+Rules For Naming Variable
+The names given to a variable are called identifiers. There are some rules for creating these identifiers (names):
+- A name can only contain letters (A-Z or a-z), digits (0-9), and underscores (_).
+- It should start with a letter or an underscore only.
+- It is case sensitive.
+- The name of the variable should not contain any whitespace and special characters (i.e. #, $, %, *, etc).
+- We cannot use C++ keyword (e.g. float, double, class) as a variable name.
+How are variables used?
+Variables are the names given to the memory location which stores some value. These names can be used in any place where the value it stores can be used. For example, we assign values of the same type to variables. But instead of these values, we can also use variables that store these values.
+#include <iostream>
+using namespace std;
+int main() {
+    int num1 = 10, num2;
+    
+    // Assigning num1's value to num2
+    num2 = num1;
+    cout << num1 << " " << num2;
+    return 0;
+}
+Output
+10 10
+Addition of two integers can be done in C++ using '+' operator as shown:
+#include <iostream>
+using namespace std;
+int main() {
+    cout << 10 + 20;
+    return 0;
+}
+Output
+30
+We can do the above operation using the variables that store these two values.
+#include <iostream>
+using namespace std;
+int main() {
+    int num1 = 10, num2 = 20;
+    cout << num1 + num2;
+    return 0;
+}
+Output
+30
+Memory Management of Variables
+When a variable is declared, a fixed-size memory block is allocated to it, and the variable name is used to access that memory location.
+- Local (automatic) variables may contain garbage (indeterminate) values if not initialized.
+- Global and static variables are automatically initialized to zero.
+- Initialization assigns a meaningful value using the assignment operator.
+- Variables represent specific memory locations, accessed via their names.
+- Different variables may be stored in different memory segments based on their storage class.

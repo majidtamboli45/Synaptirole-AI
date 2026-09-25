@@ -1,0 +1,43 @@
+# SQL DROP TABLE
+
+> Source: https://www.geeksforgeeks.org/sql/sql-drop-table-statement/
+
+The DROP TABLE command permanently removes a table from the database.
+- Deletes all rows and dependent objects, including indexes, constraints and triggers.
+- Recovery is possible only through a backup or database recovery mechanism.
+Syntax
+DROP TABLE table_name;
+The following example demonstrates how to use the DROP TABLE command.
+Step 1: Create a Database and Table
+First, we will create a database and table on which the SQL queries will be run.
+CREATE DATABASE new_cafe;
+USE new_cafe;
+CREATE TABLE categories (
+category_id INT NOT NULL PRIMARY KEY,
+category_name NVARCHAR(50) NOT NULL,
+item_description NVARCHAR(50) NOT NULL
+);
+INSERT INTO categories (category_id, category_name, item_description)
+VALUES
+(1, 'Beverages', 'Soft Drinks'),
+(2, 'Condiments', 'Sweet and Savory Sauces'),
+(3, 'Confections', 'Sweet Breads');
+SELECT * FROM categories;
+Output:
+At this point, the categories table has been created with three rows of sample data.
+Step 2: Drop the Table
+Now, let’s use the DROP TABLE statement to delete the categories table permanently
+Query:
+DROP TABLE categories;
+Output:
+Working of SQL DROP TABLE
+The DROP TABLE statement permanently removes a table from the database along with all its associated data and objects.
+- Deletes the table, including its data, indexes, triggers, constraints and permissions.
+- Once a table is dropped, it cannot be recovered, so this command should be used with caution.
+- Using DROP TABLE IF EXISTS prevents errors by ensuring the table is dropped only if it exists.
+DROP TABLE IF EXISTS categories;
+- When a partitioned table is dropped, the table definition, all partitions, their data and partition metadata are removed. The partitioning scheme is also deleted if it is not used by other tables.
+- Temporary tables can be dropped using the TEMPORARY keyword.
+DROP TEMPORARY TABLE temp_table_name;
+- To verify whether a table has been dropped, use commands like SHOW TABLES (MySQL) or query INFORMATION_SCHEMA.TABLES. If the table no longer exists, DESCRIBE or DESC will return an error.
+SHOW TABLES;

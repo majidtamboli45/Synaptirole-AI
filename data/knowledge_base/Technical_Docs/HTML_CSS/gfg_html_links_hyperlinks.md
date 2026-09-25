@@ -1,0 +1,76 @@
+# HTML Links Hyperlinks
+
+> Source: https://www.geeksforgeeks.org/html/html-links
+
+HTML Links, also known as Hyperlinks, are used to connect one web page to another, allowing users to navigate easily between different pages, websites, or sections within the same page.
+- The <a> (anchor) tag creates hyperlinks, using the href attribute to specify the destination URL.
+- It can link text, images, or buttons for navigation.
+- Links can open in the same tab or a new tab using the target attribute, and other common attributes include title for additional information.
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <p>Click on the following link</p>
+    <a href="https://www.geeksforgeeks.org/">GeeksforGeeks</a>
+</body>
+</html>
+Output:
+By default, links will appear as follows in all browsers:
+- An unvisited link is underlined and blue.
+- A visited link is underlined and purple.
+- An active link is underlined and red.
+HTML Links - Target Attribute
+The target attribute in the <a> tag specifies where to open the linked document. It controls whether the link opens in the same window, a new window, or a specific frame.
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <h3> Various options available in the Target Attribute </h3>
+    <p>
+        If you set the target attribute to
+        "_blank", the link will open in a new
+        browser window or tab.
+    </p>
+    <a href="https://www.geeksforgeeks.org/" target="_blank"> GeeksforGeeks </a>
+    <p>
+        If you set the target attribute to
+        "_self", the link will open in the
+        same window or tab.
+    </p>
+    <a href="https://www.geeksforgeeks.org/" target="_self"> GeeksforGeeks </a>
+    <p>
+        If you set the target attribute to
+        "_top", the link will open in the full
+        body of the window.
+    </p>
+    <a href="https://www.geeksforgeeks.org/" target="_top"> GeeksforGeeks </a>
+    <p>
+        If you set the target attribute to
+        "_parent", the link will open in the
+        parent frame.
+    </p>
+    <a href="https://www.geeksforgeeks.org/" target="_parent"> GeeksforGeeks </a>
+</body>
+</html>
+Output
+| Attribute | Description | 
+|---|---|
+| _blank | Opens the linked document in a new window or tab. | 
+| _self | Opens the linked document in the same frame or window as the link. (Default behavior) | 
+| _parent | Opens the linked document in the parent frame. | 
+| _top | Opens the linked document in the full body of the window. | 
+| framename | Opens the linked document in a specified frame. The frame’s name is specified in the attribute. | 
+Linking Different HTML Elements
+Below are examples of how to link different HTML elements with their respective code snippets
+| Element to Interlink | Specific Code | 
+|---|---|
+| Linking to an image | <a href="image.jpg"><img src="image.jpg" alt="Image"></a> | 
+| Link to an Email Address | <a href="mailto:someone@example.com">Send Email</a> | 
+| Phone Number | <a href="tel:+1234567890">Call Now</a> | 
+| Button | <a href="https://www.example.com/"> <button>Visit Example</button> </a> | 
+| Link to Download File | <a href="file.pdf" download>Download File</a> | 
+| Link Title | <a href="https://www.example.com/" title="Visit Example">Link Text</a> |

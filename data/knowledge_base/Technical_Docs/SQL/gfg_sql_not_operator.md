@@ -1,0 +1,54 @@
+# SQL NOT Operator
+
+> Source: https://www.geeksforgeeks.org/sql/sql-not-operator/
+
+The SQL NOT operator is used to reverse the boolean result of a condition in SQL. It helps in retrieving records that do not match a specific condition. It is mostly used to specify what should not be included in the results table.
+Example: First, we create a demo SQL database and table, on which we will use the NOT Operator command.
+Query:
+SELECT customer_name, last_name
+FROM customer
+WHERE NOT last_name = 'Tanaka';
+Output:
+Syntax
+SELECT column1, column2, … 
+FROM table_name WHERE NOT condition; Examples
+Let's understand NOT in SQL with examples. First, we will create a demo SQL database and table, on which we will use the NOT command.
+Example 1: Using SQL NOT to Exclude a Specific Value
+The following SQL statement selects all fields from customers table where the country is not UK.
+Query:
+SELECT * 
+FROM customers
+WHERE NOT country = 'UK';
+Output:
+Example 2: Using SQL NOT with IN Operator
+The NOT operator can also be used with the IN condition to exclude multiple values from the result set.
+Query:
+SELECT * 
+FROM customers
+WHERE NOT country IN ('USA', 'UK');
+Output:
+- Here, the NOT with IN condition filters out customers from both the USA and UK and returns only customers from other countries.
+Example 3: Using SQL NOT with LIKE Operator
+We can also combine NOT with the LIKE operator to exclude records that match a certain pattern.
+Query:
+SELECT * 
+FROM customers
+WHERE NOT customer_name LIKE 'M%';
+Output:
+- In this query, the NOT LIKE condition filters out customers whose name starts with the letter 'M', returning all others.
+Example 4: Using SQL NOT with NULL Values
+To exclude records where a column has a NULL value, combine NOT with the IS NULL condition.
+Query:
+SELECT * 
+FROM customers
+WHERE NOT postal_code IS NULL;
+Output:
+- This query excludes customers who have a NULL value for postal_code.
+Example 5: Using NOT with AND Operator
+This query retrieves customers who are not from the USA and are also not from the UK.
+Query:
+SELECT * 
+FROM customers
+WHERE NOT country = 'USA' AND NOT country = 'UK';
+Output:
+Note:

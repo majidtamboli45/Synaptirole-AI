@@ -1,0 +1,25 @@
+{"id": 1, "question": "What is Linux?", "answer": "Linux is an open-source operating system kernel that is used as the core of many operating systems, commonly called Linux distributions.", "ground_truth": "correct"}
+{"id": 2, "question": "What is a Linux distribution?", "answer": "A Linux distribution is a complete operating system built around the Linux kernel and typically includes system utilities, libraries, package managers, and applications.", "ground_truth": "correct"}
+{"id": 3, "question": "What does the pwd command do?", "answer": "The pwd command prints the absolute path of the current working directory.", "ground_truth": "correct"}
+{"id": 4, "question": "What does the ls command do?", "answer": "The ls command lists files and directories in a specified directory or in the current working directory by default.", "ground_truth": "correct"}
+{"id": 5, "question": "What does the cd command do?", "answer": "The cd command changes the current working directory of the shell.", "ground_truth": "correct"}
+{"id": 6, "question": "What is the purpose of the mkdir command?", "answer": "The mkdir command is used to create one or more directories.", "ground_truth": "correct"}
+{"id": 7, "question": "What does the rm command do?", "answer": "The rm command is used to remove files and, with appropriate options such as -r, directories and their contents.", "ground_truth": "correct"}
+{"id": 8, "question": "What is the purpose of chmod?", "answer": "chmod changes the permission bits of files and directories, such as read, write, and execute permissions.", "ground_truth": "correct"}
+{"id": 9, "question": "What does chown do?", "answer": "The chown command changes the owner and optionally the group ownership of files or directories.", "ground_truth": "correct"}
+{"id": 10, "question": "What is a process in Linux?", "answer": "A process is a running instance of a program with its own execution context and associated system resources.", "ground_truth": "correct"}
+{"id": 11, "question": "What does the ps command do?", "answer": "The ps command displays information about currently running processes.", "ground_truth": "correct"}
+{"id": 12, "question": "What does the kill command do?", "answer": "The kill command sends a signal to a process, which can be used to request termination or perform other signal-based actions.", "ground_truth": "correct"}
+{"id": 13, "question": "What is the root user in Linux?", "answer": "The root user is a privileged user account with extensive permissions to perform administrative operations on a Linux system.", "ground_truth": "correct"}
+{"id": 14, "question": "What does sudo do?", "answer": "sudo allows an authorized user to execute a command with the privileges of another user, commonly the root user.", "ground_truth": "correct"}
+{"id": 15, "question": "What is the purpose of the grep command?", "answer": "grep searches text for lines matching a specified pattern and can be used to filter or find relevant text in files or command output.", "ground_truth": "correct"}
+{"id": 16, "question": "What does the cat command do?", "answer": "The cat command reads and displays file contents and can also concatenate multiple files.", "ground_truth": "correct"}
+{"id": 17, "question": "What is a shell in Linux?", "answer": "A shell is a command interpreter that provides an interface for users to execute commands and interact with the operating system.", "ground_truth": "correct"}
+{"id": 18, "question": "What is the purpose of the PATH environment variable?", "answer": "PATH contains a list of directories that the shell searches when looking for executable commands entered without an explicit path.", "ground_truth": "correct"}
+{"id": 19, "question": "What is SSH?", "answer": "SSH (Secure Shell) is a protocol used to securely access and administer remote systems over an encrypted connection.", "ground_truth": "correct"}
+{"id": 20, "question": "What does the pwd command do?", "answer": "The pwd command permanently changes the current working directory to the user's home directory.", "ground_truth": "wrong"}
+{"id": 21, "question": "What does chmod do?", "answer": "chmod changes the owner of a file or directory, while chown is used to modify its read, write, and execute permissions.", "ground_truth": "wrong"}
+{"id": 22, "question": "What does the ps command do?", "answer": "The ps command permanently terminates all running processes on the Linux system.", "ground_truth": "wrong"}
+{"id": 23, "question": "What is sudo?", "answer": "sudo is a Linux package manager used to install, update, and remove software packages.", "ground_truth": "wrong"}
+{"id": 24, "question": "What is SSH?", "answer": "SSH is an unencrypted file-transfer protocol used only for copying files between two Linux machines.", "ground_truth": "wrong"}
+{"id": 25, "question": "What is the root user?", "answer": "The root user is an ordinary Linux account that has the same permissions as every other standard user.", "ground_truth": "wrong"}

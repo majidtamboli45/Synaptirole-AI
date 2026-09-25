@@ -1,0 +1,12 @@
+# Leading Online Coding Platform
+
+> Source: https://www.geeksforgeeks.org/dsa/geeksforgeeks-practice-best-online-coding-platform
+
+GeeksforGeeks Practice is an online coding platform designed to help developers and students practice coding online and sharpen their programming skills with the following features.
+- GfG 160: This consists of most popular interview problems organized topic wise and difficulty with well written editorials and videos.
+- Topic Wise and Company Wise: You may browse coding practice problems by applying different filters, like topics and company name.
+- POTD: POTD is Problem of the Day to build your daily coding habits.
+Language Specific Coding Practice
+Data Structure & Algorithms
+Company Specific Questions
+Explore more company specific coding problems with additional filters like difficulty level and topic.

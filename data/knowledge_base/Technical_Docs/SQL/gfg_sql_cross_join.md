@@ -1,0 +1,21 @@
+# SQL CROSS JOIN
+
+> Source: https://www.geeksforgeeks.org/sql/sql-cross-join/
+
+SQL CROSS JOIN combines every row from one table with every row from another table. It produces a Cartesian product, meaning each row of the first table is paired with every row of the second table.
+- Does not require a join condition.
+- If one table has m rows and the other has n rows, the result contains m × n rows.
+Syntax
+SELECT * FROM table1
+CROSS JOIN table2;
+Examples
+Before diving into queries, let’s create two sample tables: Customer and Orders. These tables will help us understand how CROSS JOIN combines data into multiple combinations.
+customer table:
+orders table:
+Query:
+SELECT * 
+FROM customer
+CROSS JOIN orders;
+Output:
+- Combines every row from both tables.
+- With 2 rows in each table, it returns 2 × 2 = 4 rows.

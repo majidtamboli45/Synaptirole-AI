@@ -1,0 +1,208 @@
+# Vector in C++ STL
+
+> Source: https://www.geeksforgeeks.org/cpp/vector-in-cpp-stl/
+
+A vector in C++ is a dynamic sequence container provided by the Standard Template Library (STL). It stores elements in contiguous memory and automatically manages its storage as elements are added or removed.
+- Vectors can dynamically grow or shrink during program execution.
+- They provide constant-time random access and support efficient insertion and deletion at the end.
+#include <iostream>
+#include <vector>
+using namespace std;
+int main()
+{
+    vector<int> v = {10, 20, 30, 40};
+    for (int x : v) {
+        cout << x << " ";
+    }
+    return 0;
+}  
+Output
+10 20 30 40 
+Declaration and Initialization
+The vector class template is defined in the <vector> header file.
+Syntax
+vector<T> v;
+where:
+- T is the data type of the elements.
+- v is the name of the vector.
+Operations on a Vector
+C++ vectors provide several functions to insert, access, modify, and remove elements.
+Insert Elements
+The push_back() function adds an element at the end of a vector, while insert() adds an element at a specified position.
+- push_back(value): Inserts element at the end of the vector efficiently. Takes constant time O(1) on average, so it's very fast.
+- insert(position, value): Inserts element at any position (beginning, middle, or end). Takes linear time O(n), as it shifts elements to make space.
+#include <iostream>
+#include <vector>
+using namespace std;
+int main() {
+    vector<char> v = {'a', 'f', 'd'};
+  
+  	// Inserting 'z' at the back
+  	v.push_back('z');
+  
+  	// Inserting 'c' at index 1
+  	v.insert(v.begin() + 1, 'c');
+  	for (char i : v)
+        cout << i << " ";
+    return 0;
+}
+Output
+a c f d z 
+Access elements
+Vector elements can be accessed using the subscript operator [] or the at() function.
+- v[i] provides direct access without bounds checking.
+- v.at(i) performs bounds checking and throws std::out_of_range if the index is invalid.
+- Both provide constant-time O(1) access.
+#include <iostream>
+#include <vector>
+using namespace std;
+int main()
+{
+    vector<int> v = {10, 20, 30, 40};
+    
+    // Accessing using operator[]
+    cout << "Element at index 2 using []: " << v[2] << endl;
+    
+    // Accessing using at()
+    cout << "Element at index 3 using at(): " << v.at(3) << endl;
+    
+    // Uncommenting the next line will throw an 
+    // out_of_range exception 
+    // cout v.at(10)<<endl;
+    return 0;
+}
+Output
+Element at index 2 using []: 30
+Element at index 3 using at(): 40
+Update elements
+An existing element can be modified using its index and the assignment operator.
+- To update an element, you simply use its index with the assignment operator, for example v[i]=newValue;
+- This replaces the old element at index i with the new value you want.
+#include <iostream>
+#include <vector>
+using namespace std;
+int main()
+{
+    vector<int> v = {10, 20, 30};
+    cout << "Original value at index 1: " << v[1] << endl;
+    // Updating the element at index i
+    v[1] = 50;
+    cout << "Updated value at index 1: " << v[1] << endl;
+    return 0;
+}
+Output
+Original value at index 1: 20
+Updated value at index 1: 50
+Find Vector Size
+The size() function returns the number of elements currently stored in a vector.
+#include <iostream>
+#include <vector>
+using namespace std;
+int main() {
+    vector<char> v = {'a', 'c', 'f', 'd', 'z'};
+    // Finding size
+    cout << v.size();
+  
+    return 0;
+}
+Output
+5
+Traverse Vector
+Traversing a vector means visiting its elements one by one. A vector can be traversed using an index-based loop, a range-based loop, or iterators.
+- Traversing a vector means going through each element one by one, usually using a loop.
+- We can use a for loop with an index (v[i]), a range-based for loop (for(int x: v)), or iterators.
+- It takes linear time O(n) .
+#include <iostream>
+#include <vector>
+using namespace std;
+int main() {
+    vector<char> v = {'a', 'c', 'f', 'd', 'z'};
+    // Range-based loop
+  	for (char i : v)
+        cout << i << " ";
+    return 0;
+}
+Output
+a c f d z 
+Note:
+- Use "for (char &x : v)" when you want to modify the elements of the vector.
+- Use "for (const char &x : v)" for read-only access, as it avoids copying and improves efficiency.
+Delete Elements
+The erase() function removes an element or a range of elements, while pop_back() removes the last element.
+- erase() generally takes O(n) time because elements after the erased position may need to be shifted.
+- pop_back() removes the last element in O(1) time.
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int main() {
+    vector<char> v = {'a', 'c', 'f', 'd', 'z'};
+    // Deleting last element 'z'
+  	v.pop_back();
+  
+  	// Deleting element 'f'
+  	v.erase(find(v.begin(), v.end(), 'f'));
+  	
+  	for (int i = 0; i < v.size(); i++) {
+        cout << v[i] << " ";
+    }
+    return 0;
+}
+Output
+a c d 
+Check Whether a Vector is Empty
+The empty() function checks whether a vector contains any elements. It returns true if the vector is empty and false otherwise.
+#include <iostream>
+#include <vector>
+using namespace std;
+int main() {
+    vector<int>v;
+    
+    // Check if the vector is empty
+    if(v.empty()){
+        cout<<"Vector is empty."<<endl;
+    }
+    
+    // Add an element
+    v.push_back(100);
+    if(!v.empty()){
+        cout<<"Vector is not empty. First element "<<v[0]<<endl;
+    }
+    return 0;
+}
+Output
+Vector is empty.
+Vector is not empty. First element 100
+Multidimensional Vectors
+Multidimensional vectors are dynamic arrays that can store data in more than one dimension, like tables or grids. They are implemented using vector inside another vector, allowing flexible row-column (2D), or even higher-dimensional structures.
+Syntax to declare a 2D vector:
+vector<vector<int>> matrix;
+#include <iostream>
+#include <vector>
+using namespace std;
+int main() {
+    // Declaring and Initializing a 2D vector
+    vector<vector<int>> matrix = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+    // Traversing using range-based loop with auto
+    for (const auto &row : matrix) {
+        for (const auto &val : row) {
+            cout << val << " ";
+        }
+        cout<<endl;
+    }
+    return 0;
+}
+Output
+1 2 3 
+4 5 6 
+7 8 9 
+Advantages of Vector
+Vectors provide several advantages:
+- Dynamic Size: The size can change during program execution.
+- Random Access: Elements can be accessed directly using an index in O(1) time.
+- Automatic Storage Management: The vector automatically manages its underlying storage.
+- STL Compatibility: Vectors work with STL algorithms, iterators, and other containers.

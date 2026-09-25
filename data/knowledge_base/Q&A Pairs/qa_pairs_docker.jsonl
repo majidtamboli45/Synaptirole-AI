@@ -1,0 +1,20 @@
+{"id": 1, "question": "What is Docker?", "answer": "Docker is a platform used to build, package, and run applications in isolated containers.", "ground_truth": "correct"}
+{"id": 2, "question": "What is a Docker container?", "answer": "A Docker container is a lightweight, isolated environment that contains an application and its required dependencies.", "ground_truth": "correct"}
+{"id": 3, "question": "What is a Docker image?", "answer": "A Docker image is a read-only template used to create Docker containers.", "ground_truth": "correct"}
+{"id": 4, "question": "What is a Dockerfile?", "answer": "A Dockerfile is a text file containing instructions used to build a Docker image.", "ground_truth": "correct"}
+{"id": 5, "question": "What does the FROM instruction do in a Dockerfile?", "answer": "FROM specifies the base image used to build a new Docker image.", "ground_truth": "correct"}
+{"id": 6, "question": "What does the RUN instruction do?", "answer": "RUN executes commands during the image-building process.", "ground_truth": "correct"}
+{"id": 7, "question": "What does the CMD instruction do?", "answer": "CMD specifies the default command or arguments that are executed when a container starts.", "ground_truth": "correct"}
+{"id": 8, "question": "What does docker ps do?", "answer": "docker ps displays the Docker images stored on the local machine.", "ground_truth": "wrong"}
+{"id": 9, "question": "What is Docker Hub?", "answer": "Docker Hub is a registry where Docker images can be stored, shared, and downloaded.", "ground_truth": "correct"}
+{"id": 10, "question": "What does docker pull do?", "answer": "docker pull only lists the Docker images available in a registry; it does not download any image.", "ground_truth": "wrong"}
+{"id": 11, "question": "What does docker run do?", "answer": "docker run can only start containers that have already been stopped and cannot create a new container from an image.", "ground_truth": "wrong"}
+{"id": 12, "question": "What is a Docker volume?", "answer": "A Docker volume is temporary storage that is automatically deleted when the container stops.", "ground_truth": "wrong"}
+{"id": 13, "question": "What is Docker Compose?", "answer": "Docker Compose is a tool used only to compile Docker images and cannot define or manage multiple containers.", "ground_truth": "wrong"}
+{"id": 14, "question": "What is a Docker network?", "answer": "A Docker network prevents containers from communicating with each other.", "ground_truth": "wrong"}
+{"id": 15, "question": "What is port mapping in Docker?", "answer": "Docker port mapping is used only for communication between containers and cannot expose a container service through the host machine.", "ground_truth": "wrong"}
+{"id": 16, "question": "What does docker stop do?", "answer": "docker stop permanently deletes the container and its associated Docker image.", "ground_truth": "wrong"}
+{"id": 17, "question": "What does docker rm do?", "answer": "docker rm removes a Docker image from the local image repository.", "ground_truth": "wrong"}
+{"id": 18, "question": "What is .dockerignore used for?", "answer": ".dockerignore is an extension of the Dockerfile that contains instructions for building the Docker image.", "ground_truth": "wrong"}
+{"id": 19, "question": "What is the difference between COPY and ADD?", "answer": "COPY can only copy files from the internet, while ADD can only copy files from the local host.", "ground_truth": "wrong"}
+{"id": 20, "question": "Can a Docker container be restarted after it has been stopped?", "answer": "No. Once a Docker container is stopped, it can never be started again and must always be recreated.", "ground_truth": "wrong"}

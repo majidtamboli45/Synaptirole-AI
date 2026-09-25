@@ -1,0 +1,34 @@
+# SQL ORDER BY
+
+> Source: https://www.geeksforgeeks.org/sql/sql-order-by/
+
+SQL ORDER BY is used to sort the result set of a query in either ascending (ASC) or descending (DESC) order. By default, ORDER BY sorts in ascending order. Sorting can be applied to one or more columns, which helps organize and analyze data effectively.
+Syntax
+SELECT *FROM table_nameORDER BY column_name ASC | DESC;
+- table_name: Name of the table.
+- column_name: Column used to sort the data.
+- ASC: Sorts the data in ascending order.
+- DESC: Sorts the data in descending order.
+Examples
+We will use the following products table to demonstrate the SQL ORDER BY clause.
+Example 1: Sort by a Single Column
+In this example, we will sort products by price in descending order.
+Query:
+SELECT *FROM productsORDER BY price DESC;
+Output:
+To sort the data in ascending order, use ASC instead of DESC.
+Example 2: Sort by Multiple Columns
+In this example, we first sort products by category in ascending order and then by price in descending order.
+Query:
+SELECT *FROM productsORDER BY category ASC, price DESC;
+Output:
+- The result is first sorted by category. For products in the same category, they are further sorted by price in descending order.
+Sorting by Column Number
+Instead of using column names, we can sort the result using the position of a column in the SELECT list.
+Syntax
+ORDER BY column_number ASC | DESC;
+In this example, 1 refers to the first column in the SELECT list, which is product_id.
+Query:
+SELECT product_id, product_name, category, priceFROM productsORDER BY 1;
+Output:
+- Here, ORDER BY 1 sorts the result based on the first selected column, product_id, in ascending order.

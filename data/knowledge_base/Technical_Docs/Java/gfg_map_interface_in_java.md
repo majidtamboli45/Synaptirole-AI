@@ -1,0 +1,157 @@
+# Map Interface in Java
+
+> Source: https://www.geeksforgeeks.org/java/map-interface-in-java/
+
+In Java, the Map Interface is part of the java.util package and represents a collection of key-value pairs, where Keys should be unique, but values can be duplicated.
+- It provides efficient retrieval, insertion, and deletion operations based on keys.
+- HashMap and LinkedHashMap allow one null key, and TreeMap does NOT allow null keys (if natural ordering is used).
+- Use ConcurrentHashMap for thread-safe operations, or Collections.synchronizedMap() to make an existing map synchronized.
+import java.util.HashMap;
+import java.util.Map;
+public class Geeks{
+    
+    public static void main(String[] args){
+        
+        // Create a Map using HashMap
+        Map<String, Integer> m = new HashMap<>();
+        // Adding key-value pairs to the map
+        m.put("Geek1", 1);
+        m.put("Geek2", 2);
+        m.put("Geek3", 3);
+        System.out.println("Map elements: " + m);
+    }
+}
+Output
+Map elements: {Geek3=3, Geek2=2, Geek1=1}
+Explanation: This code creates a HashMap to store key-value pairs, where each key is a String and each value is an Integer. The put() method adds three key-value pairs to the map, and System.out.println() displays the stored mappings.
+Declaration of the Map interface
+public interface Map<K, V>
+- K -> Type of keys maintained by the map
+- V -> Type of mapped values
+Creating Map Objects
+Since a Map is an interface, we cannot create its object directly. We must use a class that implements it (e.g., HashMap).
+Map<String, Integer> hm = new HashMap<>();
+Hierarchy of Map
+It is part of the Java Collections Framework, and its key implementation classes include HashMap, LinkedHashMap, TreeMap, and Hashtable.
+Note: Map does not extend the Collection interface and is used to efficiently store and retrieve data using keys.
+Implemented Classes of Map Interface
+- HashMap: Stores key-value pairs using hashing for fast access, insertion, and deletion.
+- LinkedHashMap: Similar to HashMap but maintains the insertion order of key-value pairs.
+- TreeMap: Stores key-value pairs in sorted order using natural ordering or a custom comparator.
+- Hashtable: A synchronized Map implementation that doesn’t allow null keys or values.
+Operations on Map using HashMap
+Now, let’s see how to perform a few frequently used operations on a Map using the widely used HashMap class.
+1. Adding Elements
+Use the put() method to add elements to a Map. In HashMap, insertion order isn’t preserved, each element is stored based on its hash for faster access.
+import java.util.*;
+class Geeks {
+    public static void main(String[] args) {
+        // Default initialization of a Map using generics
+        Map<Integer, String> hm1 = new HashMap<>();
+        // Initialization of a Map (redundant type on right side unnecessary)
+        Map<Integer, String> hm2 = new HashMap<>();
+        // Inserting elements
+        hm1.put(1, "Geeks");
+        hm1.put(2, "For");
+        hm1.put(3, "Geeks");
+        // Inserting elements — no need to use new Integer()
+        hm2.put(1, "Geeks");
+        hm2.put(2, "For");
+        hm2.put(3, "Geeks");
+        System.out.println(hm1);
+        System.out.println(hm2);
+    }
+}
+Output
+{1=Geeks, 2=For, 3=Geeks}
+{1=Geeks, 2=For, 3=Geeks}
+Explanation: The put() method adds key-value pairs to the HashMap. Each key is associated with a value, and the map stores these mappings.
+2. Changing Element
+To update a value, use the put() method with the same key. The new value replaces the old one for that key.
+import java.util.*;
+class Geeks {
+    public static void main(String args[])
+    {
+        // Initialization of a Map using Generics
+        Map<Integer, String> hm1
+            = new HashMap<Integer, String>();
+        // Inserting the Elements
+        hm1.put(new Integer(1), "Geeks");
+        hm1.put(new Integer(2), "Geeks");
+        hm1.put(new Integer(3), "Geeks");
+        System.out.println("Initial Map: " + hm1);
+        hm1.put(new Integer(2), "For");
+        System.out.println("Updated Map: " + hm1);
+    }
+}
+Output
+Initial Map: {1=Geeks, 2=Geeks, 3=Geeks}
+Updated Map: {1=Geeks, 2=For, 3=Geeks}
+Explanation: The put() method is used with an existing key to update its value. Here, the value of key 2 changes from "Geeks" to "For".
+3. Removing Elements
+To remove an element from the Map, we can use the remove() method. This method takes the key value and removes the mapping for a key from this map if it is present in the map.
+import java.util.*;
+class Geeks{
+    public static void main(String args[]){
+        // Initialization of a Map using Generics
+        Map<Integer, String> hm1
+            = new HashMap<Integer, String>();
+        // Inserting the Elements
+        hm1.put(new Integer(1), "Geeks");
+        hm1.put(new Integer(2), "For");
+        hm1.put(new Integer(3), "Geeks");
+        hm1.put(new Integer(4), "For");
+        System.out.println(hm1);
+        hm1.remove(new Integer(4));
+        System.out.println(hm1);
+    }
+}
+Output
+{1=Geeks, 2=For, 3=Geeks, 4=For}
+{1=Geeks, 2=For, 3=Geeks}
+Explanation: The remove() method removes the mapping associated with the specified key. Here, the entry with key 4 is removed from the map.
+4. Iterating through the Map
+There are multiple ways to iterate through the Map. The most famous way is to use a for-each loop and get the keys. The value of the key is found by using the getValue() method.
+import java.util.*;
+class Geeks{
+    public static void main(String args[]){
+        // Initialization of a Map using Generics
+        Map<Integer, String> hm1
+            = new HashMap<Integer, String>();
+        // Inserting the Elements
+        hm1.put(new Integer(1), "Geeks");
+        hm1.put(new Integer(2), "For");
+        hm1.put(new Integer(3), "Geeks");
+        for (Map.Entry mapElement : hm1.entrySet()) {
+            int key = (int)mapElement.getKey();
+            // Finding the value
+            String value = (String)mapElement.getValue();
+            System.out.println(key + " : " + value);
+        }
+    }
+}
+Output
+1 : Geeks
+2 : For
+3 : Geeks
+Explanation: The entrySet() method returns all key-value pairs. The for-each loop iterates over these entries, and getKey() and getValue() retrieve the key and value.
+Methods in Java Map Interface
+| Methods | Action Performed | 
+|---|---|
+| clear() | This method is used in Java Map Interface to clear and remove all of the elements or mappings from a specified Map collection. | 
+| containsKey(Object) | Checks if a key exists in the map. | 
+| containsValue(Object) | Checks if a value exists in the map. | 
+| entrySet() | Returns a set view of the map’s key-value pairs. | 
+| equals(Object) | Compares two maps for equality. | 
+| get(Object) | Returns the value for the given key, or null if not found. | 
+| hashCode() | This method is used in Map Interface to generate a hashCode for the given map containing keys and values. | 
+| isEmpty() | This method is used to check if a map is having any entry for key and value pairs. If no mapping exists, then this returns true. | 
+| keySet() | Returns a set view of the keys in the map. | 
+| put(Object, Object) | This method is used in Java Map Interface to associate the specified value with the specified key in this map. | 
+| putAll(Map) | This method is used in Map Interface in Java to copy all of the mappings from the specified map to this map. | 
+| remove(Object) | This method is used in Map Interface to remove the mapping for a key from this map if it is present in the map. | 
+| size() | This method is used to return the number of key/value pairs available in the map. | 
+| values() | Returns a collection view of the map’s values. | 
+| getOrDefault(Object key, V defaultValue) | Returns the value to which the specified key is mapped, or defaultValue if this map contains no mapping for the key. | 
+| merge(K key, V value, BiFunction<? super V,? super V,? extends V> remappingFunction) | If the specified key is not already associated with a value or is associated with null, associate it with the given non-null value. | 
+| putIfAbsent(K key, V value) | Adds a mapping only if the key is not already mapped. |

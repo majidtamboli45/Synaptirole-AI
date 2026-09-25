@@ -1,0 +1,17 @@
+# NLP vs NLU vs NLG
+
+> Source: https://www.geeksforgeeks.org/nlp/nlp-vs-nlu-vs-nlg/
+
+Natural Language Processing(NLP) is a subset of Artificial intelligence which involves communication between a human and a machine using a natural language than a coded or byte language. It provides the ability to give instructions to machines in a more easy and efficient manner.
+Natural Language Understanding(NLU) is an area of artificial intelligence to process input data provided by the user in natural language say text data or speech data. It is a way that enables interaction between a computer and a human in a way like humans do using natural languages like English, French, Hindi etc.
+Natural Language Generation(NLG) is a sub-component of Natural language processing that helps in generating the output in a natural language based on the input provided by the user. This component responds to the user in the same language in which the input was provided say the user asks something in English then the system will return the output in English.
+Following is a table of differences between NLP and NLU and NLG:
+|  | Natural Language Processing (NLP) | Natural Language Understanding (NLU) | Natural Language Generation (NLG) | 
+| 1 | It was first started by Alan Turing to make the machine understand the context of any document rather than treating it as simple words. | This explores the ways which enable the computers to grasp instructions provided by users in human languages like English, Hindi etc. | This enables the computers to produce the output after understanding the input given by the user in natural languages like English, Hindi etc. | 
+| 2 | It came into existence around 1950. | This concept began around 1866. | It came into existence around 1960. | 
+| 3 | It has 5 phases which are lexical analysis, syntax analysis, semantic analysis, disclosure integration and pragmatic analysis. | It has 3 phases, first paraphrasing the input information, second text conversion to other languages and third drawing inferences from the given information. | It also has 3 phases, first understanding the information, second formulating ways to provide output and third achieving the realization of giving output in natural languages. | 
+| 4 | Applications of NLP are Smart assistance, language translation, text analysis etc. | Applications of NLU are Speech recognition, sentiment analysis, spam filtering etc | Applications of NLG are Chatbots, Voice assistants etc. | 
+| 5 | It makes use of sensors for input and uses different layers for processing data and then provides output. | Sensors and processors are used to take input and process the information. | After understanding and processing, actuators are used to provide output. | 
+| 6 | It converts instructions from natural language to computer language and then the computer returns the information again in natural language after processing. | Converts the unstructured data provided by the user to structured or meaningful information. | It generates structured data for the user. | 
+| 7 | It utilizes different strategies to understand the natural language and give feedback accordingly. | It involves different analysis phases. | It has different generation phases. | 
+| 8 | It utilizes a learning mechanism to provide efficient results. | It first converts the natural language to machine language for understanding. | It formulates the plan for text utterance. |

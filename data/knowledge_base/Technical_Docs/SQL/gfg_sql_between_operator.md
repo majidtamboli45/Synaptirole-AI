@@ -1,0 +1,58 @@
+# SQL BETWEEN Operator
+
+> Source: https://www.geeksforgeeks.org/sql/sql-between/
+
+The SQL BETWEEN operator is used to retrieve values that fall within a specified range. It works with numbers, dates and text and makes range-based filtering simple and readable.
+- Filters results between two values, including both boundaries.
+- Works on numeric, date and string columns.
+- Useful for filtering data within defined ranges.
+Example: First, we create a demo SQL database and table, on which we will use the BETWEEN Operator command.
+Query:
+SELECT * FROM employees
+WHERE age BETWEEN 26 AND 35;
+Output:
+Syntax
+SELECT column_name(s)
+FROM table_name
+WHERE column_name BETWEEN value1 AND value2;
+Examples
+To understand the SQL BETWEEN Operator we use the below employees table with the various examples and their output.
+Example 1: NOT BETWEEN Text Values
+Find employees whose last names are not alphabetically between 'B' and 'S'.
+Query:
+SELECT first_name, last_name 
+FROM employees 
+WHERE last_name NOT BETWEEN 'B' AND 'S';
+Output:
+- The query selects employees whose last names are lexicographically outside the range 'B' to 'S', based on full string comparison.
+- Smith and Wilson are greater than 'S' in string order, so Jane Smith and Sue Wilson appear in the result.
+Example 2: BETWEEN Dates
+Find employees hired between January 1, 2020 and December 31, 2021.
+Query:
+SELECT first_name, last_name, HireDate 
+FROM employees 
+WHERE hire_date BETWEEN '2020-01-01' AND '2021-12-31';
+Output:
+- This query returns employees who were hired during the years 2020 and 2021.
+- The BETWEEN operator is used to filter the hire_date field, returning records within the specified date range.
+Example 3: NOT BETWEEN
+Find employees whose age is not between 30 and 40.
+Query:
+SELECT first_name, last_name, age 
+FROM employees 
+WHERE age NOT BETWEEN 30 AND 40;
+Output:
+- This query retrieves employees whose age does not fall between 30 and 40.
+- The NOT BETWEEN operator is used here to exclude employees within that age range.
+- John, Sam and Sue meet this condition, as their ages are outside the 30-40 range.
+Example 4: BETWEEN with IN
+Find employees whose salaries are between 50,000 and 70,000 and whose first names are either 'John', 'Sue' or 'Tom'.
+Query:
+SELECT first_name, last_name, salary 
+FROM employees 
+WHERE salary BETWEEN 50000 AND 70000 
+  AND first_name IN ('John', 'Sue', 'Tom');
+Output:
+- Filters employees whose salary is between 50,000 and 70,000.
+- Checks whether the first name is John, Sue or Tom.
+- Only John or Tom satisfy both conditions and appear in the result

@@ -1,0 +1,72 @@
+# SQL Database Tuning
+
+> Source: https://www.geeksforgeeks.org/sql/sql-database-tuning/
+
+SQL Database Tuning is the process of improving database performance by optimizing queries, indexing, database design and system resources to ensure faster query execution and efficient data management.
+- Reduces data redundancy through normalization
+- Improves overall database and system performance
+Database Tuning Techniques
+Database tuning techniques improve database performance by optimizing queries, indexes and resource usage to enable faster and more efficient data access.
+1. Database Normalization
+Normalization removes duplicate data by splitting large tables into smaller, related tables. This improves data consistency, reduces redundancy and makes queries faster. We will normalize the customers table step by step.
+Step 1: Denormalized customers Table
+Step 2: Normalization (First Normal Form)
+To eliminate redundancy, the data is split into two related tables: the customers table and the orders table. 
+customers Table: stores unique customer details such as customer_id, name and city, ensuring that each customer appears only once.
+orders table: on the other hand, stores information about orders and includes a reference to the corresponding customer through the customer_id column.
+This structure not only removes duplicate data but also establishes a relationship between customers and their orders, making the database more efficient and easier to manage.
+2. Proper Indexing
+Indexes are database structures that help quickly locate data in a table. They reduce query execution time and improve data retrieval, especially for large databases.
+Example: Create an index on the name column in a customers table:
+CREATE INDEX idx_name ON customers(name);
+Querying indexed columns:
+SELECT * FROM customers WHERE name = 'Alice';
+- idx_name helps find name = 'Alice' quickly
+- Avoids scanning the entire table
+3. Avoid Improper Queries
+Writing efficient SQL queries helps improve database performance by reducing execution time and resource usage. Below are some common query optimization techniques.
+1. Use specific columns in SELECT statements: Instead of retrieving all columns using SELECT *, specify only the columns you need. Retrieving unnecessary columns increases data transfer and processing time.
+Efficient Query:
+SELECT id, name FROM customers;
+Avoid
+SELECT * FROM customers;
+- Selecting only id and name reduces data and improves query speed
+2. Use wildcards only with indexed columns: Wildcards are useful for searching patterns, but they should be used on indexed columns to ensure quick lookups.
+Efficient Query:
+SELECT name FROM customers WHERE name LIKE 'A%';
+- 'A%' finds names starting with A and an index on name makes the search faster.
+3. Use Explicit JOINs Instead of Implicit JOINs: Explicit JOINs improve query readability and maintainability in complex queries.
+Efficient Query:
+SELECT c.name, o.order_idFROM customers cJOIN orders o ON c.customer_id = o.customer_id;
+Avoid (Implicit Join):
+SELECT c.name, o.order_id
+FROM customers c, orders o
+WHERE c.customer_id = o.customer_id;
+- Explicit JOIN makes queries easier to understand and manage.
+4. Avoid Using SELECT DISTINCT: DISTINCT removes duplicate rows from a query result.
+Inefficient Query (Using DISTINCT):
+SELECT DISTINCT name FROM customers;
+Optimized Query (Using GROUP BY):
+SELECT name FROM customers GROUP BY name;
+- DISTINCT removes duplicate rows and may increase processing time on large datasets.
+- GROUP BY can be used to achieve the same result.
+5. Avoid Multiple OR Conditions: In some cases, replacing multiple OR conditions with UNION can improve performance because each query can use indexes separately.
+Inefficient Query (Using OR):
+SELECT * FROM customers WHERE age > 30 OR salary > 5000;
+Optimized Query (Using UNION):
+SELECT * FROM customers WHERE age > 30
+UNION
+SELECT * FROM customers WHERE salary > 5000;
+- OR checks both conditions for every row, which can slow the query.
+- UNION runs each condition separately and then combines the results.
+Use WHERE Instead of HAVING: The WHERE clause is more efficient than HAVING as it filters data before grouping.
+Inefficient Query (Using HAVING):
+SELECT department, AVG(salary)
+FROM employees
+GROUP BY department
+HAVING AVG(salary) > 5000;
+Optimized Query (Using WHERE):
+SELECT department, AVG(salary)
+FROM employees
+WHERE salary > 5000
+GROUP BY department;

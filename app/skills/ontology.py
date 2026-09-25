@@ -22,11 +22,12 @@ from __future__ import annotations
 
 import csv
 import json
+import pickle
 import re
 import threading
 from pathlib import Path
 
-from app.config import ONET_DIR, ESCO_DIR
+from app.config import DATA_DIR, ONET_DIR, ESCO_DIR
 from app.utils import get_logger
 
 logger = get_logger("ontology")
@@ -86,6 +87,96 @@ def lookup_keys(skill: str) -> list[str]:
 
 _lock = threading.Lock()
 _built = False
+
+# ---------------------------------------------------------------------------
+# On-disk index cache
+#
+# Building the alias index requires parsing ~19 MB of official O*NET CSV rows
+# (8,753 technologies + essential/transferable/knowledge elements) on every
+# launch. Doing this lazily inside the first skill-analysis run is what made the
+# analysis page stall for many seconds. The finished index is persisted to a
+# pickle under ``data/`` so later launches restore it in well under a second.
+# The cache is keyed by a signature of the source files (name + size + mtime),
+# so installing/updating any dataset automatically invalidates it and rebuilds.
+# ---------------------------------------------------------------------------
+
+_ONTOLOGY_CACHE_VERSION = 1
+_ONTOLOGY_CACHE_PATH = DATA_DIR / "ontology_index_cache.pkl"
+
+
+def _source_signature() -> str:
+    """Signature of every file the index is built from (name+size+mtime)."""
+    parts: list[str] = [str(_ONTOLOGY_CACHE_VERSION)]
+    for folder in (ONET_DIR, ESCO_DIR):
+        if not folder.is_dir():
+            continue
+        try:
+            for f in sorted(folder.iterdir()):
+                if not f.is_file():
+                    continue
+                if f.name.endswith("_state.json"):
+                    continue
+                stat = f.stat()
+                parts.append(f"{f.name}:{stat.st_size}:{stat.st_mtime_ns}")
+        except OSError:
+            continue
+    return "|".join(parts)
+
+
+def _save_onn_disk_cache():
+    try:
+        payload = {
+            "version": _ONTOLOGY_CACHE_VERSION,
+            "signature": _source_signature(),
+            "alias_index": _alias_index,
+            "concepts": _concepts,
+            "occupation_skills": _occupation_skills,
+            "skill_occupations": {
+                k: sorted(v) for k, v in _skill_occupations.items()
+            },
+            "occupation_titles": _occupation_titles,
+            "count_esco": _count_esco,
+            "count_onet": _count_onet,
+        }
+        tmp = _ONTOLOGY_CACHE_PATH.with_suffix(".tmp")
+        with tmp.open("wb") as fh:
+            pickle.dump(payload, fh, protocol=pickle.HIGHEST_PROTOCOL)
+        tmp.replace(_ONTOLOGY_CACHE_PATH)
+        logger.info("Ontology index cached to %s", _ONTOLOGY_CACHE_PATH)
+    except Exception as e:
+        logger.warning("Failed to cache ontology index (%s); using in-memory only", e)
+
+
+def _load_onn_disk_cache() -> bool:
+    """Restore the persisted index. Returns True when the cache was valid."""
+    if not _ONTOLOGY_CACHE_PATH.is_file():
+        return False
+    try:
+        with _ONTOLOGY_CACHE_PATH.open("rb") as fh:
+            payload = pickle.load(fh)
+        if payload.get("version") != _ONTOLOGY_CACHE_VERSION:
+            return False
+        if payload.get("signature") != _source_signature():
+            return False
+        global _alias_index, _concepts, _occupation_skills
+        global _skill_occupations, _occupation_titles, _count_esco, _count_onet
+        _alias_index = payload["alias_index"]
+        _concepts = payload["concepts"]
+        _occupation_skills = payload["occupation_skills"]
+        _skill_occupations = {
+            k: set(v) for k, v in payload["skill_occupations"].items()
+        }
+        _occupation_titles = payload["occupation_titles"]
+        _count_esco = payload["count_esco"]
+        _count_onet = payload["count_onet"]
+        logger.info(
+            "Ontology loaded from cache: %d alias keys, %d ESCO + %d O*NET concepts",
+            len(_alias_index), _count_esco, _count_onet)
+        return True
+    except Exception as e:
+        logger.warning("Failed to load cached ontology index (%s); rebuilding", e)
+        return False
+
 
 # normalized alias key -> list of concept records
 _alias_index: dict[str, list[dict]] = {}
@@ -369,11 +460,15 @@ def load_ontology():
     with _lock:
         if _built:
             return
+        if _load_onn_disk_cache():
+            _built = True
+            return
         _load_legacy_json()
         _load_onet()
         _load_esco()
         _built = True
         n = len(_alias_index)
+        _save_onn_disk_cache()
         logger.info(
             "Ontology ready: %d alias keys, %d ESCO + %d O*NET concepts",
             n, _count_esco, _count_onet)

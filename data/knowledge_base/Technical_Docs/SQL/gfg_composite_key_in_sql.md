@@ -1,0 +1,50 @@
+# Composite Key in SQL
+
+> Source: https://www.geeksforgeeks.org/sql/composite-key-in-sql/
+
+A composite key is a primary key made from two or more columns that together uniquely identify each record in a table. Individually, these columns may not be unique, but their combined values ensure uniqueness.
+Query:
+CREATE TABLE orders (
+order_id INT,
+product_id INT,
+quantity INT,
+price DECIMAL(10,2),
+PRIMARY KEY (order_id, product_id)
+);
+INSERT INTO orders (order_id, product_id, quantity, price)
+VALUES (101, 1, 2, 150.00),
+(101, 2, 1, 250.00),
+(102, 1, 3, 150.00);
+Output:
+- order_id + product_id together form the composite key to uniquely identify each row.
+- The INSERT adds multiple records where each combined pair remains unique.
+Syntax
+CREATE TABLE table_name (
+column1 datatype,
+column2 datatype,
+column3 datatype,
+...,
+PRIMARY KEY (column1, column2)
+);
+- Use PRIMARY KEY (column1, column2) to define a composite key using multiple columns.
+- The listed columns together must form a unique combination for every row.
+Examples
+Creating a table with a composite key:
+Query:
+CREATE TABLE student(
+roll_number INT,
+name VARCHAR(30),
+class VARCHAR(30),
+section VARCHAR(1),
+mobile VARCHAR(10),
+PRIMARY KEY (rollNumber, mobile)
+);
+Inserting records in the table:
+INSERT INTO student (roll_number, name, class, section, mobile) VALUES
+(1, "ADAM","FOURTH", "B", "9988774455"),
+(2, "JAMES","FIRST", "A", "9988112233"),
+(3, "TOM","FOURTH", "B", "998877775"),
+(4, "RICHARD","SECOND", "C", "9955663322");
+Output:
+- roll_number + mobile together act as the composite key, ensuring each student record is uniquely identified.
+- The INSERT command adds multiple rows where each combined pair of roll_number and mobile must be unique.

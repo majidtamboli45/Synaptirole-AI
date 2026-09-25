@@ -1,0 +1,323 @@
+# Generating All Subarrays
+
+> Source: https://www.geeksforgeeks.org/dsa/generating-subarrays-using-recursion
+
+Given an array arr[], generate and return all possible subarrays. The subarrays must be returned in the following order:
+- Subarrays starting from the first element, followed by those starting from the second element, and so on.
+- For each starting index, subarrays should be arranged in increasing order of length.
+Examples:
+Input: arr[] = [1, 2, 3]
+Output: [[1], [1, 2], [1, 2, 3], [2], [2, 3], [3]]
+Explanation: Starting with the first element, we generate subarrays [1], [1, 2], and [1, 2, 3]. Then, starting from the second element, we get [2] and [2, 3].  Finally, starting from the third element, we only get [3].
+Input: arr[] = [1, 2]
+Output: [[1], [1, 2], [2]]
+Explanation: Starting with the first element, we generate subarrays [1] and [1, 2]. Then, starting from the second element, we get [2].
+Input: arr[] = [1, 1]
+Output: [[1], [1, 1], [1]]
+Explanation: Starting with the first element, we generate subarrays [1] and [1, 1] (including both elements). Starting from the second element, we only get the subarray [1].
+Table of Content
+Generate All Subarrays Iteratively - O(n^3) Time and O(n) Space
+The idea is to use two nested loops to fix the starting and ending indices of each subarray.
+For every pair of indices, generate the elements between them and add the resulting subarray to the answer.
+Working of the Approach:
+- Initialize an empty list to store all subarrays.
+- Fix the starting index i from 0 to n - 1.
+- For each i, extend the ending index j from i to n - 1.
+- For every j, create the subarray from index i to j.
+- Add the generated subarray to the answer.
+- Return the list containing all subarrays.
+#include <bits/stdc++.h>
+using namespace std;
+vector<vector<int>> getSubArrays(vector<int>& arr) {
+    vector<vector<int>> ans;
+    int n = arr.size();
+    for (int i = 0; i < n; i++) {
+        for (int j = i; j < n; j++) {
+            vector<int> subarray;
+            for (int k = i; k <= j; k++)
+                subarray.push_back(arr[k]);
+            ans.push_back(subarray);
+        }
+    }
+    return ans;
+}
+int main() {
+    vector<int> arr = {1, 2, 3};
+    vector<vector<int>> ans = getSubArrays(arr);
+    cout << "[";
+    for (int i = 0; i < ans.size(); i++) {
+        cout << "[";
+        for (int j = 0; j < ans[i].size(); j++) {
+            cout << ans[i][j];
+            if (j + 1 < ans[i].size())
+                cout << ", ";
+        }
+        cout << "]";
+        if (i + 1 < ans.size())
+            cout << ", ";
+    }
+    cout << "]";
+    return 0;
+}
+import java.util.List;
+import java.util.ArrayList;
+class GFG {
+    static List<List<Integer>> getSubArrays(int[] arr) {
+        List<List<Integer>> ans = new ArrayList<>();
+        int n = arr.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = i; j < n; j++) {
+                ArrayList<Integer> subarray = new ArrayList<>();
+                for (int k = i; k <= j; k++)
+                    subarray.add(arr[k]);
+                ans.add(subarray);
+            }
+        }
+        return ans;
+    }
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3};
+        List<List<Integer>> ans = getSubArrays(arr);
+        System.out.println(ans);
+    }
+}
+def getSubArrays(arr):
+    ans = []
+    n = len(arr)
+    for i in range(n):
+        for j in range(i, n):
+            subarray = []
+            for k in range(i, j + 1):
+                subarray.append(arr[k])
+            ans.append(subarray)
+    return ans
+if __name__ == "__main__":
+    arr = [1, 2, 3]
+    print(getSubArrays(arr))
+using System;
+using System.Collections.Generic;
+class GFG
+{
+    static List<List<int>> getSubArrays(int[] arr)
+    {
+        List<List<int>> ans = new List<List<int>>();
+        int n = arr.Length;
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = i; j < n; j++)
+            {
+                List<int> subarray = new List<int>();
+                for (int k = i; k <= j; k++)
+                    subarray.Add(arr[k]);
+                ans.Add(subarray);
+            }
+        }
+        return ans;
+    }
+    static void Main()
+    {
+        int[] arr = { 1, 2, 3 };
+        List<List<int>> ans = getSubArrays(arr);
+        Console.Write("[");
+        for (int i = 0; i < ans.Count; i++)
+        {
+            Console.Write("[");
+            Console.Write(string.Join(", ", ans[i]));
+            Console.Write("]");
+            if (i + 1 < ans.Count)
+                Console.Write(", ");
+        }
+        Console.Write("]");
+    }
+}
+function getSubArrays(arr) {
+    let ans = [];
+    let n = arr.length;
+    for (let i = 0; i < n; i++) {
+        for (let j = i; j < n; j++) {
+            let subarray = [];
+            for (let k = i; k <= j; k++)
+                subarray.push(arr[k]);
+            ans.push(subarray);
+        }
+    }
+    return ans;
+}
+// Driver Code
+let arr = [1, 2, 3];
+console.log(JSON.stringify(getSubArrays(arr)));
+Output
+[[1], [1, 2], [1, 2, 3], [2], [2, 3], [3]]
+Generate All Subarrays Recursively - O(n^3) Time and O(n) Space
+The idea is to use recursion to fix the starting index and generate subarrays by recursively extending the ending index.
+For each starting index, add the current subarray to the answer and recursively include the next element.
+Working of the Approach:
+- Initialize an empty list to store all subarrays.
+- Start recursion from index 0.
+- For each starting index, maintain the current subarray.
+- Add the current subarray to the answer.
+- Recursively add the next element and generate longer subarrays.
+- Once all subarrays for the current starting index are generated, move to the next starting index.
+- Return the list containing all subarrays.
+#include <bits/stdc++.h>
+using namespace std;
+void generate(int start, int end, vector<int>& arr,
+              vector<int>& curr, vector<vector<int>>& ans) {
+    if (end == arr.size())
+        return;
+    curr.push_back(arr[end]);
+    ans.push_back(curr);
+    generate(start, end + 1, arr, curr, ans);
+    curr.pop_back();
+}
+void generateSubarrays(int start, vector<int>& arr,
+                       vector<vector<int>>& ans) {
+    if (start == arr.size())
+        return;
+    vector<int> curr;
+    generate(start, start, arr, curr, ans);
+    generateSubarrays(start + 1, arr, ans);
+}
+vector<vector<int>> getSubArrays(vector<int>& arr) {
+    vector<vector<int>> ans;
+    generateSubarrays(0, arr, ans);
+    return ans;
+}
+int main() {
+    vector<int> arr = {1, 2, 3};
+    vector<vector<int>> ans = getSubArrays(arr);
+    cout << "[";
+    for (int i = 0; i < ans.size(); i++) {
+        cout << "[";
+        for (int j = 0; j < ans[i].size(); j++) {
+            cout << ans[i][j];
+            if (j + 1 < ans[i].size())
+                cout << ", ";
+        }
+        cout << "]";
+        if (i + 1 < ans.size())
+            cout << ", ";
+    }
+    cout << "]";
+    return 0;
+}
+import java.util.ArrayList;
+import java.util.List;
+class GFG {
+    static void generate(int start, int end, int[] arr,
+                         List<Integer> curr,
+                         List<List<Integer>> ans) {
+        if (end == arr.length)
+            return;
+        curr.add(arr[end]);
+        ans.add(new ArrayList<>(curr));
+        generate(start, end + 1, arr, curr, ans);
+        curr.remove(curr.size() - 1);
+    }
+    static void generateSubarrays(int start, int[] arr,
+                                  List<List<Integer>> ans) {
+        if (start == arr.length)
+            return;
+        List<Integer> curr = new ArrayList<>();
+        generate(start, start, arr, curr, ans);
+        generateSubarrays(start + 1, arr, ans);
+    }
+    static List<List<Integer>> getSubArrays(int[] arr) {
+        List<List<Integer>> ans = new ArrayList<>();
+        generateSubarrays(0, arr, ans);
+        return ans;
+    }
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3};
+        System.out.println(getSubArrays(arr));
+    }
+}
+def generate(start, end, arr, curr, ans):
+    if end == len(arr):
+        return
+    curr.append(arr[end])
+    ans.append(curr.copy())
+    generate(start, end + 1, arr, curr, ans)
+    curr.pop()
+def generateSubarrays(start, arr, ans):
+    if start == len(arr):
+        return
+    curr = []
+    generate(start, start, arr, curr, ans)
+    generateSubarrays(start + 1, arr, ans)
+def getSubArrays(arr):
+    ans = []
+    generateSubarrays(0, arr, ans)
+    return ans
+if __name__ == "__main__":
+    arr = [1, 2, 3]
+    print(getSubArrays(arr))
+using System;
+using System.Collections.Generic;
+class GFG
+{
+    static void generate(int start, int end, int[] arr,
+                         List<int> curr,
+                         List<List<int>> ans)
+    {
+        if (end == arr.Length)
+            return;
+        curr.Add(arr[end]);
+        ans.Add(new List<int>(curr));
+        generate(start, end + 1, arr, curr, ans);
+        curr.RemoveAt(curr.Count - 1);
+    }
+    static void generateSubarrays(int start, int[] arr,
+                                  List<List<int>> ans)
+    {
+        if (start == arr.Length)
+            return;
+        List<int> curr = new List<int>();
+        generate(start, start, arr, curr, ans);
+        generateSubarrays(start + 1, arr, ans);
+    }
+    static List<List<int>> getSubArrays(int[] arr)
+    {
+        List<List<int>> ans = new List<List<int>>();
+        generateSubarrays(0, arr, ans);
+        return ans;
+    }
+    static void Main()
+    {
+        int[] arr = { 1, 2, 3 };
+        List<List<int>> ans = getSubArrays(arr);
+        Console.Write("[");
+        for (int i = 0; i < ans.Count; i++)
+        {
+            Console.Write("[" + string.Join(", ", ans[i]) + "]");
+            if (i + 1 < ans.Count)
+                Console.Write(", ");
+        }
+        Console.Write("]");
+    }
+}
+function generate(start, end, arr, curr, ans) {
+    if (end === arr.length)
+        return;
+    curr.push(arr[end]);
+    ans.push([...curr]);
+    generate(start, end + 1, arr, curr, ans);
+    curr.pop();
+}
+function generateSubarrays(start, arr, ans) {
+    if (start === arr.length)
+        return;
+    let curr = [];
+    generate(start, start, arr, curr, ans);
+    generateSubarrays(start + 1, arr, ans);
+}
+function getSubArrays(arr) {
+    let ans = [];
+    generateSubarrays(0, arr, ans);
+    return ans;
+}
+// Driver Code
+let arr = [1, 2, 3];
+console.log(JSON.stringify(getSubArrays(arr)));
+Output
+[[1], [1, 2], [1, 2, 3], [2], [2, 3], [3]]

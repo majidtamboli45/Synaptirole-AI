@@ -1,0 +1,63 @@
+# SQL CREATE TABLE
+
+> Source: https://www.geeksforgeeks.org/sql/sql-create-table/
+
+The CREATE TABLE statement in SQL is used to define a new table in a database. It specifies the table structure including column names and their data types.
+- Used to create a new table in a database.
+- Defines column names and their data types.
+- Helps in organizing and storing data systematically
+Syntax
+CREATE TABLE table_name
+(
+column1 datatype (size),
+column2 datatype (size),
+.
+.
+columnN datatype(size)
+);
+- table_name: The name you assign to the new table.
+- column1, column2, ... : The names of the columns in the table.
+- datatype(size): Defines the data type and size of each column.
+Working
+Query
+CREATE TABLE customer(
+    customer_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    country VARCHAR(50),
+    age INT CHECK (age >= 0 AND age <= 99),
+    phone INT(10)
+);
+Output:
+Inserting Data into the Table
+After creating the table, you can use INSERT INTO command to add data into it. Here is how to add some sample records into the customer table:
+INSERT INTO customer (customer_id, first_name, last_name, country, age, phone)
+VALUES
+(1, 'Luca', 'Bianchi', 'Italy', 23, 'xxxxxxxxxx'),
+(2, 'Aiko', 'Tanaka', 'Japan', 21, 'xxxxxxxxxx'),
+(3, 'Carlos', 'Gomez', 'Spain', 24, 'xxxxxxxxxx'),
+(4, 'Sofia', 'Müller', 'Germany', 22, 'xxxxxxxxxx'),
+(5, 'Ethan', 'Johnson', 'USA', 25, 'xxxxxxxxxx');
+Output:
+Note: If you are working with a large amount of data, consider using bulk inserts or importing data from external files to optimize performance.
+Create Table from Existing Table
+The CREATE TABLE AS SELECT statement creates a new table using selected columns and data from an existing table.
+Syntax
+CREATE TABLE new_table_name AS
+SELECT column1, column2, ...
+FROM existing_table_name;
+Example
+CREATE TABLE customer_subset AS
+SELECT customer_id, first_name
+FROM customer;
+Output:
+Note: We can use * instead of column name to copy whole table to another table.
+Tips for Using CREATE TABLE
+To ensure the smooth creation and management of your tables, keep these points in mind:
+1. The CREATE TABLE statement can also define constraints like NOT NULL, UNIQUE and DEFAULT.
+2. If you attempt to create a table that already exists, SQL will throw an error. To avoid this, you can use the IF NOT EXISTS clause.
+CREATE TABLE IF NOT EXISTS customer (...);
+3. Always define appropriate data types for each column (e.g., VARCHAR(50) for names and INT for IDs) to optimize performance and storage.
+4. After creating a table, use the following command to view the structure of your table:
+DESC table_name;
+5. If you need to change the table’s structure after creation (e.g., renaming a column, adding a new column), use the ALTER TABLE statement.

@@ -1,0 +1,80 @@
+# SQL INSERT INTO Statement
+
+> Source: https://www.geeksforgeeks.org/sql/sql-insert-statement/
+
+The SQL INSERT INTO statement is used to add new records into a table. It allows inserting data into all columns or specific ones, depending on the requirement.
+- Can insert a single row or multiple rows at once.
+- Supports inserting data directly or from another table using a subquery.
+Working
+The INSERT INTO statement is used to add new records to a table. It can insert single rows, multiple rows, selected columns or data from another table.
+Inserting Data into All Columns
+This method inserts values into all columns of a table by providing values in the same order as the columns are defined.
+Syntax:
+INSERT INTO table_name 
+VALUES (value1, value2, value3, ...);
+- table_name: name of the table where data will be inserted
+- value1, value2... : values that correspond to each column in order.
+Example
+First, create a table named student.
+Query:
+INSERT INTO student
+VALUES (5, 'Isabella', 'Rome', 'xxxxxxxxxx', 19);
+Output:
+Inserting Data into Specific Columns
+In some cases, you might want to insert data into only certain columns, leaving the others empty or with default values. In such cases, we can specify the column names explicitly.
+Syntax:
+INSERT INTO table_name (column1, column2, column3, ...)
+VALUES (value1, value2, value3, ...);
+- table_name: name of the table.
+- column1, column2..: name of first column, second column.
+- value1, value2, value3..: the values for each specified column of the new record.
+Example: If we want to insert the roll_no, name and age into the student table and leave the address and phone number as NULL (the default value).
+INSERT INTO student(roll_no, name,age) 
+VALUES (6, 'Hiroshi', 19);
+Output:
+Inserting Multiple Rows at Once
+Instead of running multiple INSERT INTO commands, you can insert multiple rows into a table in a single query. This is more efficient and reduces the number of database operations.
+Syntax:
+INSERT INTO table_name (column1, column2, ...)
+VALUES (value1, value2, ...), (value1, value2, ...), (value1, value2, ...);
+Example: If we want to add multiple students to student table in one go, query would look like this:
+INSERT INTO student (roll_no, name, address, phone, age)
+VALUES
+(7, 'Mateo Garcia', 'Madrid', 'xxxxxxxxxx', 15),
+(8, 'Hana Suzuki', 'Osaka', 'xxxxxxxxxx', 18),
+(9, 'Oliver Jensen', 'Copenhagen', 'xxxxxxxxxx', 17),
+(10, 'Amelia Brown', 'London', 'xxxxxxxxxx', 17);
+Output:
+Inserting Data from One Table into Another Table
+We can copy records from old_student to student using the INSERT INTO SELECT statement.
+Method 1: Insert All Columns from Another Table
+Inserts every column from source table into destination table.
+Syntax:
+INSERT INTO target_table
+SELECT * FROM source_table;
+Example: If you want to copy all data from the old_student table into the student table, use this query:
+INSERT INTO student
+SELECT * FROM old_student;
+Output:
+Method 2: Insert Specific Columns from Another Table
+Allows inserting only selected columns from the source table.
+Syntax:
+INSERT INTO target_table (col1, col2, ...)
+SELECT col1, col2, ...
+FROM source_table;
+Example: If we want to copy only the Name and Age columns from old_student into student:
+INSERT INTO student (name, age)
+SELECT name, age
+FROM old_student;
+Output:
+Method 3: Insert Specific Rows Based on Condition
+We can also insert specific rows based on a condition by using the WHERE clause with the SELECT statement.
+Syntax:
+INSERT INTO target_table
+SELECT * FROM source_table
+WHERE condition;
+Example: If we want to copy only students older than 20 years from old_student to student, we would write:
+INSERT INTO student
+SELECT * FROM old_student
+WHERE age > 20;
+Output:

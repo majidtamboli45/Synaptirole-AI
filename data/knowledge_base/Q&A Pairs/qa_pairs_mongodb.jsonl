@@ -1,0 +1,20 @@
+{"id": 1, "question": "What is MongoDB?", "answer": "MongoDB is a NoSQL, document-oriented database that stores data in flexible, JSON-like BSON documents.", "ground_truth": "correct"}
+{"id": 2, "question": "What is a document in MongoDB?", "answer": "A document is a record stored in BSON format and consists of field-value pairs.", "ground_truth": "correct"}
+{"id": 3, "question": "What is a collection in MongoDB?", "answer": "A collection is a group of MongoDB documents and is roughly comparable to a table in a relational database.", "ground_truth": "correct"}
+{"id": 4, "question": "What is BSON?", "answer": "BSON is a binary-encoded serialization format used by MongoDB to store documents.", "ground_truth": "correct"}
+{"id": 5, "question": "What is the _id field?", "answer": "The _id field uniquely identifies a document within a collection.", "ground_truth": "correct"}
+{"id": 6, "question": "What does insertOne() do?", "answer": "insertOne() inserts a single document into a collection.", "ground_truth": "correct"}
+{"id": 7, "question": "What does find() do?", "answer": "find() retrieves documents that match a specified query condition.", "ground_truth": "correct"}
+{"id": 8, "question": "Does MongoDB support embedded documents?", "answer": "Yes. MongoDB documents can contain other documents as field values.", "ground_truth": "correct"}
+{"id": 9, "question": "Does MongoDB support arrays?", "answer": "Yes. Arrays can be stored as field values inside MongoDB documents.", "ground_truth": "correct"}
+{"id": 10, "question": "What is sharding?", "answer": "Sharding distributes data across multiple machines to support horizontal scaling.", "ground_truth": "correct"}
+{"id": 11, "question": "Does every MongoDB document require an _id field?", "answer": "No. MongoDB never creates or requires an _id field for documents.", "ground_truth": "wrong"}
+{"id": 12, "question": "What does updateOne() do?", "answer": "updateOne() modifies every document in the collection regardless of the specified filter.", "ground_truth": "wrong"}
+{"id": 13, "question": "What does deleteMany() do?", "answer": "deleteMany() deletes exactly one document and ignores all other matching documents.", "ground_truth": "wrong"}
+{"id": 14, "question": "What is an index in MongoDB?", "answer": "An index is used only to increase the size of documents and has no effect on query performance.", "ground_truth": "wrong"}
+{"id": 15, "question": "What is MongoDB aggregation?", "answer": "Aggregation is used only to insert new documents and cannot filter, group, or transform existing documents.", "ground_truth": "wrong"}
+{"id": 16, "question": "What does $match do?", "answer": "$match permanently deletes documents that do not satisfy the specified condition.", "ground_truth": "wrong"}
+{"id": 17, "question": "What does $group do?", "answer": "$group sorts all documents alphabetically and cannot perform calculations such as $sum or $avg.", "ground_truth": "wrong"}
+{"id": 18, "question": "What is replication in MongoDB?", "answer": "Replication stores exactly one copy of the data on a single server and is mainly used to reduce database availability.", "ground_truth": "wrong"}
+{"id": 19, "question": "What is a replica set?", "answer": "A replica set is a group of unrelated MongoDB databases that intentionally contain different datasets.", "ground_truth": "wrong"}
+{"id": 20, "question": "What is sharding?", "answer": "Sharding requires all MongoDB data to be stored on one server and prevents horizontal scaling.", "ground_truth": "wrong"}

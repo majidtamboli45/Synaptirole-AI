@@ -1,0 +1,79 @@
+# Differences Between JDK, JRE and JVM
+
+> Source: https://www.geeksforgeeks.org/java/differences-jdk-jre-jvm/
+
+JDK (Java Development Kit) provides tools and libraries to develop Java applications, working with JRE and JVM. JRE (Java Runtime Environment) offers the libraries and JVM needed to run Java programs. JVM (Java Virtual Machine) executes the compiled Java bytecode on the system.
+- JDK is mainly used by developers, while JRE is required by end-users to run applications.
+- The JVM executes bytecode, making programs platform-independent across systems.
+- The JDK contains the tools required for development, while the runtime environment contains the components required for execution.
+JDK (Java Development Kit)
+The Java Development Kit (JDK) is a software development kit used to develop Java applications. It provides the Java compiler and other tools required to write, compile, test, package, document, and debug Java programs.
+- Includes compiler (javac), debugger, and utilities like jar and javadoc.
+- Provides the JRE, so it also allows running Java programs.
+Main Components of JDK
+- Java compiler (javac ): Compiles.java source files into.class bytecode files.
+- Java launcher (java ): Starts a Java application using the JVM.
+- jar: Creates and manages JAR files.
+- javadoc: Generates documentation from Java source code.
+- Debugging and other development tools: Help developers test and troubleshoot applications.
+- JVM and runtime libraries: Required to run Java applications.
+Working of JDK
+The basic development process is:
+- Write source code: The developer creates a .java file.
+- Compile: javac compiles the source code.
+- Generate bytecode: The compiler produces .class files containing Java bytecode.
+- Run: The java launcher starts the JVM, which loads and executes the bytecode.
+class Hello {
+    public static void main(String[] args) {
+        System.out.println("Hello Java");
+    }
+}
+Compile: javac Hello.java
+Run:
+java Hello
+JRE (Java Runtime Environment)
+The Java Runtime Environment (JRE) traditionally refers to the components required to run a Java application. It consists primarily of the JVM and the Java runtime libraries.
+Main Components of JRE
+- JVM: Executes Java bytecode.
+- Java class libraries: Provide commonly used Java APIs required by applications.
+- Supporting runtime files: Help the JVM and libraries operate.
+Working of JRE
+When a Java application is started:
+- The JVM is launched.
+- The Class Loader loads the required .class files.
+- The JVM performs linking and initialization.
+- The bytecode is interpreted and/or compiled into native machine code by the JVM.
+- The application executes using the Java runtime libraries.
+Important: For current Java versions, avoid describing JRE as a separately installed package for every modern JDK distribution. The concept remains useful for understanding Java's runtime environment, but modern JDK installations are generally used directly.
+JVM (Java Virtual Machine)
+The Java Virtual Machine (JVM) is the runtime engine that executes Java bytecode. When Java source code is compiled, the compiler generates bytecode in .class files. The JVM loads this bytecode and executes it on the underlying operating system and hardware.
+Main Responsibilities of JVM
+- Loads Java classes using the Class Loader.
+- Verifies and links loaded classes.
+- Executes Java bytecode.
+- Uses the JIT compiler to compile frequently executed bytecode into native machine code.
+- Manages runtime memory.
+- Performs garbage collection.
+- Provides runtime security and other execution services.
+Working of JVM
+The major stages are:
+1. Loading: The Class Loader loads required classes into JVM memory.
+2. Linking: Linking consists of:
+- Verification: Checks that the bytecode is structurally and semantically valid.
+- Preparation: Allocates memory for static fields and assigns default values.
+- Resolution: Resolves symbolic references when required.
+3. Initialization: The JVM initializes classes and executes their static initialization code.
+4. Execution: The JVM executes the bytecode. It may interpret bytecode and use the JIT compiler to compile frequently executed code into native machine code for better performance.
+JDK vs JRE vs JVM
+| Aspect | JDK | JRE | JVM | 
+|---|---|---|---|
+| Full Form | Java Development Kit | Java Runtime Environment | Java Virtual Machine | 
+| Purpose | Develop and run Java applications | Provide the runtime environment | Execute Java bytecode | 
+| Main Users | Developers | Application users/runtime environments | Runtime engine | 
+| Contains | Development tools + runtime components | JVM + runtime libraries | Execution engine and runtime subsystems | 
+| Compiler | Includes javac | Does not provide the compiler | Does not compile .java source code | 
+| Runs Java programs | Yes | Yes, conceptually | Yes | 
+| Platform | JDK builds are platform-specific | Runtime implementation is platform-specific | JVM implementation is platform-specific | 
+| Bytecode | Produces bytecode using javac | Provides environment to run bytecode | Executes bytecode | 
+| Memory Management | Through its JVM/runtime | Through its JVM | Directly manages runtime memory | 
+| Garbage Collection | Through its JVM | Through its JVM | Performs garbage collection |

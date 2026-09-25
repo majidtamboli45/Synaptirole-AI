@@ -1,0 +1,76 @@
+# Positional Encoding in Transformers
+
+> Source: https://www.geeksforgeeks.org/nlp/positional-encoding-in-transformers/
+
+Positional encoding is a technique that adds information about the position of each token in the sequence to the input embeddings. This helps transformers to understand the relative or absolute position of tokens which is important for differentiating between words in different positions and capturing the structure of a sentence. Without positional encoding, transformers would struggle to process sequential data effectively.
+Unlike traditional models which can struggle with long-term dependencies and varying sequence lengths, transformers with positional encoding can handle longer sequences effectively.
+Example of Positional Encoding
+Suppose we have a Transformer model which translates English sentences into French.
+"The cat sat on the mat."
+Before the sentence is fed into the Transformer model it gets tokenized where each word is converted into a token. Let's assume the tokens for this sentence are:
+["The", "cat" , "sat", "on", "the" ,"mat"]
+After that each token is mapped to a high-dimensional vector representation through an embedding layer. These embeddings encode semantic information about the words in the sentence. However they lack information about the order of the words.
+Embeddings ={
+E1,E2,E3,E4,E5,E6 }
+where each 
+How Does Positional Encoding Work?
+The most common method for calculating positional encodings is based on sinusoidal functions. The intuition behind using sine and cosine functions is that they provide a smooth, periodic encoding of positions that allows for easy interpolation and generalization across sequences of varying lengths.
+Sinusoidal Positional Encoding Formula
+For each position (
+- Even-indexed dimensions: PE_{pos, 2i} = \sin\left(\frac{pos}{10000^{\frac{2i}{d_{\text{model}}}}}\right)
+- Odd-indexed dimensions: PE_{pos, 2i+1} = \cos\left(\frac{pos}{10000^{\frac{2i}{d_{\text{model}}}}}\right)
+Where:
+- PE_{pos, 2i} : The positional encoding at positionpos for the2i^{th} dimension.
+- pos : The position of the token in the sequence (starting from 0).
+- i : The index of the dimension within the positional encoding vector (for eachi , we have two formulas: one for2i (sine) and another for2i+1 (cosine)).
+- d_{\text{model}} : The dimensionality of the model (the embedding size e.g 512, 1024, etc).
+- The exponential term 10000^{\frac{2i}{d_{\text{model}}}} : This controls how the sine wave's frequency changes with the dimension.
+These formulas use sine and cosine functions to create wave-like patterns that changes across the sequence positions. Using sine for even indices and cosine for odd indices helps in getting a combination of features that can effectively represent positional information across different sequence lengths.
+Example with Dimensionality
+We will now calculate the positional encodings for the positions 1, 2 till 6 in a sequence. For simplicity, let's assume that we are working with a 4-dimensional embedding.
+1. Positional Encoding for Token at Position 1: For 
+Here the first pair of values is generated using the sine and cosine functions for the first dimension and the second pair is for the second dimension.
+2. Positional Encoding for Token at Position 2: Similarly for 
+These values provide positional information for the second token in the sequence. In the same way we will do till 5th position.
+3. Positional Encoding for Token at Position 6: For 
+Once these positional encodings are calculated for each token at its corresponding position, they are added element-wise to the word embeddings. This process ensures that the final token embedding contains both semantic information (from the word embedding) and positional information (from the positional encoding).
+Implementation of Positional Encoding in Transformers
+Here we will be using Numpy and Tensorflow libraries for its implementations.
+- angle_rads = np.arange(position)[:, np.newaxis] / np.power(10000, (2 * (np.arange(d_model)[np.newaxis, :] // 2)) / np.float32(d_model)) : Calculate angle values based on position and model dimension.
+- position = 50, d_model = 512 : Set the sequence length (number of positions) and dimensionality of the model respectively.
+import numpy as np
+import tensorflow as tf
+def positional_encoding(position, d_model):
+    angle_rads = np.arange(position)[:, np.newaxis] / np.power(10000, (2 * (np.arange(d_model)[np.newaxis, :] // 2)) / np.float32(d_model))
+    
+    angle_rads[:, 0::2] = np.sin(angle_rads[:, 0::2])
+    
+    angle_rads[:, 1::2] = np.cos(angle_rads[:, 1::2])
+    
+    pos_encoding = angle_rads[np.newaxis, ...]
+    
+    return tf.cast(pos_encoding, dtype=tf.float32)
+position = 50  
+d_model = 512 
+pos_encoding = positional_encoding(position, d_model)
+print("Positional Encodings Shape:", positional_encodings.shape)
+print("Positional Encodings Example:\n", positional_encodings)
+Output:
+Array provided is the positional encodings generated by the positional_encoding function for a sequence of length 10 and a model dimensionality of 512. Each row in the array corresponds to a position in the sequence and each column represents a dimension in the model.
+Applications of Positional Encoding
+Positional encoding plays an important role in various transformer-based models particularly in tasks that involve sequential data. Some common applications include:
+- Machine Translation: Understanding the order of words is important in translating one language to another. For example, the sentence “She loves reading books” in English would need to be translated to its correct word order in another language.
+- Text Generation: In language models like GPT, maintaining proper word order allows the model to generate coherent text that follows grammatical and semantic rules.
+- Time Series Forecasting: For sequential data like stock prices or weather predictions, it allows the transformer to learn patterns over time.
+- Speech Recognition: It helps capture the temporal aspect of speech, ensuring the model understands the order of phonemes or words.
+- Computer Vision (Vision Transformers): In image processing tasks, it can be used to capture spatial relationships between patches in an image.
+Importance of Positional Encoding
+Positional encodings are important in Transformer models for various reasons:
+- Contextual Understanding: In natural language meaning of a word depends on its position hence helping model to understand these differences.
+- Better Generalization: It allows transformer models to handle input sequences of different lengths which makes them more flexible for tasks like document summarization or question answering.
+- Preventing Symmetry Issues: Without positional encoding it considers token as same which causes issues but by using positional encoding tokens at different positions are treated differently which improves model’s ability to capture long-range dependencies.
+Limitations of Positional Encoding
+Despite positional encoding has various advantages, it has a few limitations:
+- Fixed Length: In the original transformer model, positional encodings were fixed in length, means that the model is limited to handling sequences up to a certain length (e.g 512 tokens). There are variations like relative positional encoding that attempt to address this.
+- Inability to Handle Absolute Position Shifts Dynamically: In certain applications like machine translation or language modeling, the transformer might need more dynamic or relative position encoding to better handle certain structures or patterns.
+By adding important positional information, positional encodings allow Transformer models to understand the relationships and order of tokens which ensures it processes sequential data while parallel processing.

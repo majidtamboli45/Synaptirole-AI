@@ -8,6 +8,7 @@ The model falls back through a list of installed models so the rest of the
 code never has to know which one is actually available.
 """
 
+import hashlib
 import re
 import threading
 import os
@@ -21,6 +22,22 @@ _nlp = None
 _lock = threading.Lock()
 
 SKILL_LABEL_PREFIX = "SKILL_"
+
+# Content-addressed cache of parsed ``Doc`` objects. Skill extraction,
+# structured-entity extraction, person/role NER fallbacks and re-analysis
+# all call ``process_text()`` with the SAME cleaned document text, which used
+# to re-run the full spaCy pipeline (4-6 times per upload). The cache reuses a
+# single parse per distinct document, cutting upload/analysis latency
+# drastically. Keyed by content hash so a cached Doc can never go stale.
+_doc_cache: dict[str, object] = {}
+_doc_cache_lock = threading.Lock()
+_DOC_CACHE_MAX = 8
+
+
+def clear_doc_cache():
+    """Drop cached parsed documents (safe at any time, re-parse on demand)."""
+    with _doc_cache_lock:
+        _doc_cache.clear()
 
 
 def _term_to_patterns(term: str) -> list[dict]:
@@ -146,8 +163,24 @@ def get_nlp():
 
 
 def process_text(text: str):
-    """Run text through the shared pipeline and return the spacy Doc."""
-    return get_nlp()(text or "")
+    """Run text through the shared pipeline and return the spacy Doc.
+
+    Parsed ``Doc`` objects are cached by content so repeated requests for the
+    same text (skill spans, entities, people, current-role fallback, analysis
+    re-runs) reuse a single parse instead of re-running the full pipeline.
+    """
+    text = text or ""
+    key = hashlib.sha1(text.encode("utf-8", "ignore")).hexdigest()
+    with _doc_cache_lock:
+        cached = _doc_cache.get(key)
+        if cached is not None:
+            return cached
+    doc = get_nlp()(text)
+    with _doc_cache_lock:
+        if len(_doc_cache) >= _DOC_CACHE_MAX:
+            _doc_cache.pop(next(iter(_doc_cache)))
+        _doc_cache[key] = doc
+    return doc
 
 
 def extract_skill_spans(text: str):

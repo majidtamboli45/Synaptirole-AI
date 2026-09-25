@@ -1,0 +1,25 @@
+{"id": 1, "question": "What is JavaScript?", "answer": "JavaScript is a high-level programming language commonly used to add interactivity and dynamic behavior to web pages and applications.", "ground_truth": "correct"}
+{"id": 2, "question": "What is the difference between let and var?", "answer": "let is block-scoped, while var is function-scoped.", "ground_truth": "correct"}
+{"id": 3, "question": "Can a variable declared with const be reassigned?", "answer": "No. A variable declared with const cannot be reassigned after initialization.", "ground_truth": "correct"}
+{"id": 4, "question": "What are the primitive data types in JavaScript?", "answer": "The primitive data types include String, Number, BigInt, Boolean, Undefined, Symbol, and Null.", "ground_truth": "correct"}
+{"id": 5, "question": "What is the purpose of the typeof operator?", "answer": "The typeof operator returns the name of the variable passed to it.", "ground_truth": "wrong"}
+{"id": 6, "question": "What is an array in JavaScript?", "answer": "An array is an object that can store multiple values and can contain elements of different types.", "ground_truth": "correct"}
+{"id": 7, "question": "Does JavaScript array indexing start from 0?", "answer": "Yes. JavaScript arrays use zero-based indexing.", "ground_truth": "correct"}
+{"id": 8, "question": "What is a function in JavaScript?", "answer": "A function is a reusable block of code designed to perform a particular task.", "ground_truth": "correct"}
+{"id": 9, "question": "What is an arrow function?", "answer": "An arrow function provides a shorter syntax for writing function expressions and does not have its own this binding.", "ground_truth": "correct"}
+{"id": 10, "question": "What is hoisting in JavaScript?", "answer": "Hoisting means that JavaScript physically moves every declaration to the top of the source file before execution, including the actual values assigned to variables.", "ground_truth": "wrong"}
+{"id": 11, "question": "What is the difference between == and ===?", "answer": "== performs loose equality comparison and may perform type coercion, while === performs strict equality comparison without type coercion.", "ground_truth": "correct"}
+{"id": 12, "question": "Does === perform type coercion?", "answer": "Yes. The === operator converts both operands to the same type before comparing them.", "ground_truth": "wrong"}
+{"id": 13, "question": "What is an object in JavaScript?", "answer": "An object is a collection of properties, where properties can contain values of different types.", "ground_truth": "correct"}
+{"id": 14, "question": "Can a JavaScript object have a function as a property?", "answer": "No. JavaScript objects can store only primitive values as properties, not functions.", "ground_truth": "wrong"}
+{"id": 15, "question": "What is the DOM?", "answer": "The DOM is a database system built into JavaScript that stores all website data in tables.", "ground_truth": "wrong"}
+{"id": 16, "question": "What does document.getElementById() do?", "answer": "It returns the element whose id matches the specified value.", "ground_truth": "correct"}
+{"id": 17, "question": "What is a callback function?", "answer": "A callback is a function passed as an argument to another function so that it can be invoked later.", "ground_truth": "correct"}
+{"id": 18, "question": "What is a Promise in JavaScript?", "answer": "A Promise is an object representing the eventual completion or failure of an asynchronous operation and its resulting value.", "ground_truth": "correct"}
+{"id": 19, "question": "What are the three states of a Promise?", "answer": "The three states are pending, fulfilled, and rejected.", "ground_truth": "correct"}
+{"id": 20, "question": "What does async do when used before a function?", "answer": "An async function always returns a Promise.", "ground_truth": "correct"}
+{"id": 21, "question": "What does await do inside an async function?", "answer": "await pauses the execution of the surrounding async function until the awaited Promise settles and then produces its result or throws its rejection reason.", "ground_truth": "correct"}
+{"id": 22, "question": "What is a closure in JavaScript?", "answer": "A closure allows a function to retain access to variables from its surrounding lexical scope even after the outer function has finished executing.", "ground_truth": "correct"}
+{"id": 23, "question": "What is the spread syntax (...) used for?", "answer": "Spread syntax can expand an iterable or object into individual elements or properties in appropriate contexts.", "ground_truth": "correct"}
+{"id": 24, "question": "What does Array.prototype.map() return?", "answer": "map() creates and returns a new array containing the results of calling the callback on each element.", "ground_truth": "correct"}
+{"id": 25, "question": "What does Array.prototype.push() return?", "answer": "push() returns the modified array itself after adding the new elements.", "ground_truth": "wrong"}

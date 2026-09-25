@@ -1,0 +1,40 @@
+# Standard Template Library (STL) in C++
+
+> Source: https://www.geeksforgeeks.org/cpp/the-c-standard-template-library-stl/
+
+STL (Standard Template Library) is a collection of pre-built classes and functions in C++ used for efficient data handling and programming. It provides ready-to-use data structures and algorithms that simplify development.
+- Includes containers like vectors, stacks, queues, and maps.
+- Saves time and improves performance using reusable components.
+Components of STL
+The components of STL are the features provided by STL in C++ that can be classified into 3 types:
+Containers
+Containers are the data structures used to store objects and data according to the requirement. Each container is implemented as a template class that also contains the methods to perform basic operations on it. Every STL container is defined inside its own header file.
+Containers can be further classified into 4 types:
+- Sequence Containers : Vector, Deque, List, Forward List, Array
+- Container Adaptors : Stack, Queue, Priority Queue
+- Associative Containers : Set, Multiset, Map, Multimap
+- Unordered Associative Containers : Unordered Set, Unordered Multiset, Unordered Map, Unordered Multimap
+Algorithms
+STL algorithms offer a wide range of functions to perform common operations on data (mainly containers). These functions implement the most efficient version of the algorithm for tasks such as sorting, searching, modifying and manipulating data in containers, etc. Most STL algorithms are defined in <algorithm> and <numeric>, while some specialized algorithms and utilities are available in other headers like <memory>, <functional>, and <iterator>. Some of the most frequently used algorithms are:
+- Sort : Arranges elements in ascending order (default).
+- Binary Search : Checks whether a value exists in a sorted range.
+- Find : Searches for the first occurrence of a given value.
+- Count : Counts how many times a value appears in the given range.
+- Reverse : Reverses the order of elements in the given range.
+- Accumulate : Computes the sum of all elements in the range.
+- Unique : Removes consecutive duplicate elements.
+- Lower bound : Returns iterator to the first element ≥ value in a sorted range.
+- Upper bound : Returns iterator to the first element > value in a sorted range.
+- Replace : Replaces all occurrences of old value with new value in the given range.
+Iterators
+Iterators provide a common way to access and traverse elements stored in STL containers.
+- Act as pointer-like objects for accessing container elements.
+- Connect STL containers with generic algorithms.
+- Support operations such as traversing, accessing, and modifying elements.
+- Different containers provide different types of iterators based on their capabilities.
+Benefits STL
+STL provides reusable and efficient components that simplify C++ programming.
+- Reliable and Tested: Provides well-established implementations of common data structures and algorithms.
+- Fast and Efficient: Offers optimized implementations with well-defined complexity guarantees.
+- Reusable: Generic components can be used with different data types.
+- Type-Safe: Templates provide compile-time type checking while supporting different data types.

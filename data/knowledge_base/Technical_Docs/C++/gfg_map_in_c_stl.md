@@ -1,0 +1,170 @@
+# Map in C++ STL
+
+> Source: https://www.geeksforgeeks.org/cpp/map-associative-containers-the-c-standard-template-library-stl/
+
+Maps are associative containers that store key–value pairs in sorted order using a self-balancing Red-Black Tree. They provide efficient O(log n) time complexity for insertion, deletion, and searching operations.
+- Maps do not allow duplicate keys.
+- They support ordered traversal and functions like upper_bound() and lower_bound().
+#include <iostream>
+#include <map>
+using namespace std;
+int main() {
+    
+    // Creating an empty map
+    map<int, string> m1;
+    // Initialize map with list
+    map<int, string> m2 = {{1, "Geeks"},
+              {2, "For"}, {3, "Geeks"}};
+    for (auto& p : m2)
+        cout << p.first << " " <<
+        p.second << endl;
+    return 0;
+}
+Output
+1 Geeks
+2 For
+3 Geeks
+Explanation: Above program demonstrates how to create and initialize a map in C++ using key–value pairs. It then iterates through the map using a range-based loop and prints each key along with its corresponding value.
+Syntax
+The map container is defined as std::map class templateinside the <map> header file.
+map<key_type, value_type> m;
+where,
+- key_type: Data type of key.
+- value_type: Data type of value.
+- m: Name assigned to map.
+Basic Operations
+Basic operations on map containers are shown below:
+1. Inserting Elements
+The insert() function adds a key-value pair to the map. If the key already exists, the new pair is not inserted.
+- insert() does not overwrite the value associated with an existing key.
+- Elements are placed according to the sorted order of their keys.
+- Time complexity to insert is O(log n).
+#include <iostream>
+#include <map>
+using namespace std;
+int main() {
+    map<int, string> m = {{2, "For"}, {3, "Geeks"}};
+    // Inserting a key value pair
+    m.insert({1, "Geeks"});
+    for (auto x: m)
+        cout << x.first << " " << x.second
+        << endl;
+    return 0;
+}
+Output
+1 Geeks
+2 For
+3 Geeks
+Explanation: This code creates a map with integer keys and string values, then inserts a new key-value pair {1, "Geeks"} using insert(). The range-based for loop traverses the map and prints all key-value pairs in ascending order of their keys.
+2. Accessing Elements
+Elements can be accessed using the [] operator or the at() function.
+- The [] operator returns the value associated with a key and inserts the key with a default value if it does not exist.
+- The at() function accesses an existing key and throws an exception if the key is not present.
+- Time complexity to access elements by key is O(log n).
+#include <iostream>
+#include <map>
+using namespace std;
+int main() {
+    map<int, string> m = {{1, "Geeks"},
+             {2, "For"}, {3, "Geeks"}};
+    // Accessing elements
+    cout << m[1] << endl;
+    cout << m.at(2);
+    return 0;
+}
+Output
+Geeks
+For
+Explanation: This code creates a map with integer keys and string values, then accesses the values associated with keys 1 and 2 using the [] operator and at() function, respectively.
+3. Updating Elements
+The value associated with an existing key can be updated using the [] operator or at().
+- Assigning a new value to an existing key replaces its current value.
+- Using [] with a key that does not exist inserts a new key-value pair.
+- Time complexity to update element by key O(log n).
+#include <iostream>
+#include <map>
+using namespace std;
+int main() {
+    map<int, string> m = {{1, "Geeks"},
+             {2, "For"}, {3, "Geeks"}};
+    // Updating value
+    m[0] = "Tweaks";
+    m.at(1) = "By";
+    
+    cout << m[0] << endl;
+    cout << m.at(1);
+    return 0;
+}
+Output
+Tweaks
+By
+Explanation: This code updates the values in the map using the [] operator and at() function. It changes the value of key 1 to "By" and adds a new key 0 with the value "Tweaks", then prints both updated entries.
+4. Finding Elements
+The find() function searches for a key in the map and returns an iterator to the corresponding element if found.
+- If the key is found, find() returns an iterator pointing to the key-value pair.
+- If the key is not present, it returns end().
+- Time complexity to find element by key is O(log n).
+#include <iostream>
+#include <map>
+using namespace std;
+int main() {
+    map<int, string> m = {{1, "Geeks"},
+             {2, "For"}, {3, "Geeks"}};
+    // Finding element with key 2
+    auto it = m.find(2);
+    
+    if (it != m.end())
+        cout << it->first << " " << it->second;
+    else cout << "Key not Found!";
+    return 0;
+}
+Output
+2 For
+Explanation: This code uses the find() function to search for the key 2 in the map. If the key is found, it prints the corresponding key-value pair; otherwise, it prints "Key not Found!".
+5. Traversing
+A map can be traversed using iterators or a range-based for loop. The elements are visited in ascending order of their keys.
+- Each key-value pair is visited exactly once.
+- Traversing all elements takes O(n) time.
+#include <iostream>
+#include <map>
+using namespace std;
+int main() {
+    map<int, string> m = {{1, "Geeks"},
+             {2, "For"}, {3, "Geeks"}};
+    
+    // Traversing using iterators
+    for (auto it = m.begin(); it != m.end(); ++it) 
+        cout << it->first << " " << it->second
+        << endl;
+    return 0;
+}
+Output
+1 Geeks
+2 For
+3 Geeks
+Explanation: This code traverses the map using an iterator from begin() to end() and prints each key-value pair in ascending order of their keys.
+6. Deleting Elements
+The erase() function removes elements from a map using a key or an iterator.
+- erase(key) removes the key-value pair associated with the specified key.
+- erase(iterator) removes the element pointed to by the iterator.
+- Erasing an element by key takes O(log n) time.
+#include <iostream>
+#include <map>
+using namespace std;
+int main() {
+    map<int, string> m = {{1, "Geeks"},
+             {2, "For"}, {3, "Geeks"}};
+    // Deleting by key
+    m.erase(2);
+    
+    // Deleting by iterator
+    m.erase(m.begin());
+    
+    for(auto i : m)
+        cout << i.first << " " << i.second
+        << endl;
+    return 0;
+}
+Output
+3 Geeks
+Explanation: This code removes elements from the map using erase(). It first deletes the element with key 2 and then removes the first element using an iterator returned by begin(). Finally, it traverses the map and prints the remaining key-value pairs.

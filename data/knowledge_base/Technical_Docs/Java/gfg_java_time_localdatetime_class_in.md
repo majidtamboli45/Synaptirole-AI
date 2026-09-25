@@ -1,0 +1,149 @@
+# java.time.LocalDateTime Class in Java
+
+> Source: https://www.geeksforgeeks.org/java/java-time-localdatetime-class-in-java/
+
+The LocalDateTime class, available in the java.time package, represents a date and time without timezone information. Introduced in Java 8, it combines the features of LocalDate and LocalTime into a single immutable and thread-safe class.
+- Does not store timezone or UTC offset.
+- Immutable and thread-safe.
+- Supports date and time arithmetic.
+Syntax
+public final class LocalDateTime extends Object
+      implements Temporal,
+       TemporalAdjuster,
+        ChronoLocalDateTime<LocalDate>,
+         Serializable
+Commonly Used Methods of LocalDateTime
+| Method | Description | 
+|---|---|
+| format() | It is used to format this date-time using the specified formatter. | 
+| get() | It is used to get the value of the specified field from this date-time as an int. | 
+| minusMinutes() | Returns a copy of this LocalDateTime with the specified number of minutes subtracted. | 
+| minusYears() | Returns a copy of this LocalDateTime with the specified number of years subtracted. | 
+| minusDays() | Returns a copy of this LocalDateTime with the specified number of days subtracted. | 
+| now() | It is used to obtain the current date-time from the system clock in the default time zone. | 
+| plusHours() | Returns a copy of this LocalDateTime with the specified number of hours added. | 
+| plusYears() | Returns a copy of this LocalDateTime with the specified number of years added. | 
+| plusDays() | Returns a copy of this LocalDateTime with the specified number of days added. | 
+Approach
+- Import the required classes from the java.time package.
+- Create a LocalDateTime object using methods such as now() or of().
+- Perform operations such as adding, subtracting, formatting, or parsing date-time values.
+- Display the result using System.out.println().
+Examples: Program to illustrate LocalDateTime Class of java.time package
+  // Importing LocalDateTime class from java.time package
+import java.time.LocalDateTime;
+// Main class for LocalDateTime
+public class GFG {
+    // Main driver method
+    public static void main(String[] args)
+    {
+        // Creating an object of LocalDateTime class
+        // in the main() method
+        LocalDateTime now = LocalDateTime.now();
+        // Print statement
+        System.out.println(now);
+        // Adding 1 year, 1 month, 1 week and 1 day
+        LocalDateTime localDateTime1 = now.plusYears(1)
+                                           .plusMonths(1)
+                                           .plusWeeks(1)
+                                           .plusDays(1);
+        // Print statement
+        System.out.println(localDateTime1);
+        // Subtracting 1 year, 1 month, 1 week and 1 day
+        LocalDateTime localDateTime2
+            = localDateTime1.minusYears(1)
+                  .minusMonths(1)
+                  .minusWeeks(1)
+                  .minusDays(1);
+        // Print statement
+        System.out.println(localDateTime2);
+        // Adding 1 hour, 1 minute, 1 second and 100
+        // nanoseconds
+        LocalDateTime localDateTime3
+            = localDateTime2.plusHours(1)
+                  .plusMinutes(1)
+                  .plusSeconds(1)
+                  .plusNanos(100);
+        // Print statement
+        System.out.println(localDateTime3);
+        // Subtracting 1 hour, 1 minute, 1 second and 100
+        // nanoseconds
+        LocalDateTime localDateTime4
+            = localDateTime3.minusHours(1)
+                  .minusMinutes(1)
+                  .minusSeconds(1)
+                  .minusNanos(100);
+        // Print statement
+        System.out.println(localDateTime4);
+    }
+}
+Explanation: This example demonstrates how to get the current date and time using now() and modify it using the plus() and minus() methods.
+Output:
+Example: Creating a specified time
+import java.time.*;
+import java.time.format.*;
+// main class 
+class GFG {
+    // Main driver method
+    public static void main(String[] args)
+    {
+        // Milliseconds
+        LocalDateTime localDateTime1 = LocalDateTime.of(
+            2021, 04, 24, 14, 33, 48, 123456789);
+        // Print statement
+        System.out.println(localDateTime1);
+        // Month
+        LocalDateTime localDateTime2 = LocalDateTime.of(
+            2021, Month.APRIL, 24, 14, 33, 48, 123456789);
+        // Print statement
+        System.out.println(localDateTime2);
+        // Seconds
+        LocalDateTime localDateTime3 = LocalDateTime.of(
+            2021, Month.APRIL, 24, 14, 33, 48);
+        // Print statement
+        System.out.println(localDateTime3);
+        // Minutes
+        LocalDateTime localDateTime4 = LocalDateTime.of(
+            2021, Month.APRIL, 24, 14, 33);
+        // Print statement
+        System.out.println(localDateTime4);
+        // Local date + Local time
+        LocalDate date = LocalDate.of(2021, 04, 24);
+        LocalTime time = LocalTime.of(10, 34);
+        LocalDateTime localDateTime5
+            = LocalDateTime.of(date, time);
+        // Print statement
+        System.out.println(localDateTime5);
+    }
+}
+Explanation: This example demonstrates different ways to create a LocalDateTime object using the of() method with specific date and time values.
+Output:
+Example 3: Format LocalDateTime to string
+To format a local time to the desired string representation, use the LocalDateTime.format(DateTimeFormatter) method.
+import java.time.LocalDateTime;
+import java.time.format.*;
+import java.util.*;
+// Main class
+class GFG {
+    // Main driver method
+    public static void main(String[] args)
+    {
+        // Creating an object of DateTimeFormatter class
+        DateTimeFormatter formatter
+            = DateTimeFormatter.ofPattern(
+                "yyyy-MM-dd HH:mm:ss a");
+        // Creating an object of LocalDateTime class
+        // and getting local date and time using now()
+        // method
+        LocalDateTime now = LocalDateTime.now();
+        // Formatting LocalDateTime to string
+        String dateTimeString = now.format(formatter);
+        // Print and Display
+        System.out.println(dateTimeString);
+    }
+}
+Explanation: This example demonstrates how to format a LocalDateTime object into a custom string using the DateTimeFormatter class.
+Output:
+Note: In order to parse a string to LocalDateTime, convert time in a string to a local time instance, the LocalDateTime class has two overloaded parse() methods.
+- parse(CharSequence text)
+- parse(CharSequence text, DateTimeFormatter formatter)

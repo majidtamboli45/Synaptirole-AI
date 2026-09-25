@@ -1,0 +1,19 @@
+# Automatic Vs User-Managed Replication Policy
+
+> Source: https://www.geeksforgeeks.org/devops/google-cloud-platform-automatic-vs-user-managed-replication-policy/
+
+In this article, we will look into the GCP Secret Manager’s global secret names and regional replication policies. This article will help you to choose between the user-managed and the automatic process.
+In Secret Manager, secret names are project global resources. This is because secrets rarely differ across cloud regions. For example, your Twitter API key doesn't change when you move your application from one cloud region to another. This is different from other Google Cloud resources, which have a tighter coupling to a particular region or geography. For example, in Google Compute Engine, Virtual machine instances are bound and referenced by the zone in which they're created. Even though the secret's name is a project global resource, the secret's payload is still stored regionally. This means that a secret is globally addressable by a single name, but the underlying secret material is still stored in particular regions. Payload storage may be an important concern for regulated customers or for customers that have strict requirements over where their data is stored-- like banking, fintech, or health care. Other customers may prefer to have their data stored closer to where they plan to access it which further minimizes the latency. But how do you choose the regions in which the secret payloads are stored? Google Secret Manager features replication policies, which give you the freedom to choose how and where your secret payload is stored.
+Concept of Replication Policies:
+Replication policies offer control over where your secret payloads are stored. Some enterprises want full control over the regions in which their secrets are stored, while others don't have a preference. Secret Manager addresses both of these customer requirements and preferences with the replication policies. If you don't care about where your payload is stored, you should choose an automatic replication policy. With automatic replication, Google Cloud chooses the best regions to replicate your secret payload. This strategy also offers the highest availability guarantees for accessing and creating secrets. With user-managed replication, you choose one or more regions to which to replicate your secret payloads.
+While replicating a secret payload to every region improves the reliability of accessing a secret, it may decrease the reliability of adding a secret version.
+In order to add a secret version, all of the regions you select must be operational. If you choose a lot of regions and any single one of those regions is down, you can no longer add a new secret version. So depending on your application, you can choose to balance your read availability and your write availability accordingly. As a general recommendation, you should choose at least two but no more than five regions.
+Implementing Replication Policy:
+Let's look at how we set a secret's replication policy from the Google Cloud console.
+First, we choose the secret's name, initial payload, and then, we have the option of selecting regionalization. Notice that the default behavior is automatic, since that's what most customers will choose. If I want to select specific regions, you can check the box and pick the replicated regions from the menu.
+You can also set replication policies using the below-mentioned ways:
+- Using Command Line
+- Using the gcloud tool
+- Using API
+- Using any of the Secret Manager SDKs for .NET, Go, Java, PHP, Node, Python, and Ruby.
+Google Secret Manager's flexible replication policies give you choice over where your secrets are stored. If you don't have specific regionalization requirements, choose the automatic replication policy. But if you do have specific regionalization requirements, pick the user-managed replication policy with specific regions.

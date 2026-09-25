@@ -1,0 +1,116 @@
+# SQL Auto Increment
+
+> Source: https://www.geeksforgeeks.org/sql/sql-auto-increment/
+
+Auto Increment is used to automatically generate unique values for a column, usually a primary key, so that each record can be identified easily without manual input.It is useful when we need to:
+- Maintain data consistency across different SQL databases.
+- Support databases like SQL Server, MySQL, PostgreSQL, MS Access and Oracle.
+SQL Server Auto Increment
+In SQL Server, the Auto Increment feature is implemented using the IDENTITY property, which automatically generates unique values for new records.
+- starting_value: The value from which numbering begins (e.g., 101).
+- increment_value: The amount by which the value increases for each new record (e.g., 1).
+Example
+Create a students table with student_id as an auto-increment primary key starting from 101.
+CREATE TABLE students (
+student_id INT IDENTITY(101,1) PRIMARY KEY,
+first_name VARCHAR(50),
+last_name VARCHAR(50)
+);
+Inserting Data with Auto Increment
+To insert a new record into students table, we will not specify the value of student_id as it will be added automatically.
+INSERT INTO students (first_name, last_name)
+VALUES ('James', 'Smith');
+INSERT INTO students (first_name, last_name)
+VALUES ('Michael', 'Johnson');
+INSERT INTO students (first_name, last_name)
+VALUES ('William', 'Brown');
+Output:
+MySQL Auto Increment
+In MySQL, the AUTO_INCREMENT keyword is used to set a column as Auto Increment. By default, the counter starts at 1 and increases by 1 for each new row inserted.
+Example
+Create a students table with student_id as an auto-increment primary key, along with first_name and last_name fields.
+CREATE TABLE students (
+student_id INT AUTO_INCREMENT PRIMARY KEY,
+first_name VARCHAR(50),
+last_name VARCHAR(50)
+);
+Inserting Data with Auto Increment
+To insert a new record, we do not specify student_id because it is generated automatically for each new row.
+INSERT INTO students (first_name, last_name)
+VALUES ('James', 'Smith');
+INSERT INTO students (first_name, last_name)
+VALUES ('Michael', 'Johnson');
+INSERT INTO students (first_name, last_name)
+VALUES ('William', 'Brown');
+Output:
+Changing Auto Increment Start Value
+To change the default starting value we can use ALTER TABLE command as follows:
+ALTER TABLE students AUTO_INCREMENT = new_value; Adjusting the Increment Interval
+In MySQL, the AUTO_INCREMENT value increases by 1 by default, but the increment interval can be changed using the auto_increment_increment system variable.
+SET @@auto_increment_increment = new_interval_value;
+PostgreSQL Auto Increment
+In PostgreSQL, the SERIAL keyword is used for auto-incrementing a column. This is a shorthand for creating an integer column that automatically increments.
+Example
+Create a students table with student_id, first_name and last_name, where student_id is an auto-increment primary key.
+CREATE TABLE students (
+student_id SERIAL PRIMARY KEY,
+first_name VARCHAR(50),
+last_name VARCHAR(50)
+);
+Inserting Data with Auto Increment
+To insert a new record into students table, we will not specify the value of student_id as it will be added automatically.
+INSERT INTO students (first_name, last_name)
+VALUES ('James', 'Smith');
+INSERT INTO students (first_name, last_name)
+VALUES ('Michael', 'Johnson');
+INSERT INTO students (first_name, last_name)
+VALUES ('William', 'Brown');
+Output:
+MS Access Auto Increment
+In MS Access, the AUTOINCREMENT keyword is used to define a column that automatically generates unique numeric values. Like MySQL and SQL Server, the default value starts at 1 and increments by 1.
+Example
+Create a students table with student_id as an auto-increment primary key, along with first_name and last_name fields.
+CREATE TABLE students (
+student_id AUTOINCREMENT PRIMARY KEY,
+first_name VARCHAR(50),
+last_name VARCHAR(50)
+);
+Inserting Data with Auto Increment
+To insert a record, student_id is not specified because it is generated automatically and increases by 1 for each new record.
+INSERT INTO students (first_name, last_name)
+VALUES ('James', 'Smith');
+INSERT INTO students (first_name, last_name)
+VALUES ('Michael', 'Johnson');
+INSERT INTO students (first_name, last_name)
+VALUES ('William', 'Brown');
+Output:
+Changing Auto Increment Starting Value
+In MS Access, the starting value and increment value of an AutoNumber field can be customized using:
+AUTOINCREMENT(starting_value, increment_value)
+where starting_value is the initial value and increment_value is the step size for subsequent records.
+Oracle Auto Increment
+In Oracle, auto-increment is implemented using a SEQUENCE object, which generates a series of unique numbers for primary key values.
+Syntax
+CREATE SEQUENCE sequence_name
+MINVALUE 1
+START WITH 1
+INCREMENT BY 1
+CACHE 10;
+- START WITH 101: Begins the sequence from 101.
+- INCREMENT BY 1: Increments the value by 1 for each new record.
+Example
+The following code creates a sequence seq_students starting at 101 and incrementing by 1.
+CREATE SEQUENCE seq_students
+MINVALUE 1
+START WITH 101
+INCREMENT BY 1
+CACHE 20;
+Inserting Data with Auto Increment
+To insert a new record into the students table, use the NEXTVAL function to get the next value from the seq_students sequence.
+INSERT INTO students (student_id, first_name, last_name)
+VALUES (seq_students.NEXTVAL, 'James', 'Smith');
+INSERT INTO students (student_id, first_name, last_name)
+VALUES (seq_students.NEXTVAL, 'Michael', 'Johnson');
+INSERT INTO students (student_id, first_name, last_name)
+VALUES (seq_students.NEXTVAL, 'William', 'Brown');
+Output:

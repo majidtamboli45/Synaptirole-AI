@@ -1,0 +1,38 @@
+# Introduction to Data Science
+
+> Source: https://www.geeksforgeeks.org/data-science/introduction-data-science-skills-required/
+
+Data science is an interdisciplinary field of scientific methods, processes, algorithms, and systems to extract knowledge or insights from data in various forms, either structured or unstructured, similar to data mining. Big Data Analytics or Data Science is a very common term in the IT industry because everyone knows this is some fancy term that is gonna help us to deal with the huge amount of data we are generating these days. Let's find out what the skills required are:
+Data science is a multidisciplinary field that combines statistics, computer science, and domain expertise to extract insights and knowledge from data. The skills required for data science can be broadly classified into technical skills, domain expertise, and soft skills.
+- Technical skills:
+Data science requires proficiency in programming languages such as Python or R, data visualization tools like Tableau or Power BI, databases such as SQL, and machine learning algorithms. Data scientists should have a solid understanding of data manipulation and analysis techniques, including data cleaning, transformation, and feature engineering.
+- Domain expertise:
+Data scientists should have an understanding of the business domain in which they work. For example, a data scientist in healthcare should have knowledge of medical terminologies and healthcare workflows. Similarly, a data scientist in finance should have an understanding of financial instruments and markets.
+- Soft skills:
+Soft skills like communication, collaboration, and problem-solving are essential for a successful data scientist. Data scientists should be able to communicate complex technical concepts to non-technical stakeholders in a clear and concise manner. They should also be able to work collaboratively in a team environment, and have strong problem-solving skills to identify and solve complex problems.
+In summary, data science requires technical proficiency in programming languages, data analysis, and machine learning algorithms, domain expertise in the relevant field, and strong soft skills such as communication, collaboration, and problem-solving. A well-rounded data scientist with expertise in these areas can extract insights and knowledge from data and drive business value.
+Data science is an interdisciplinary field that involves using statistical and computational techniques to extract insights from data. Some of the key skills required for a career in data science include:
+- Programming skills: proficiency in one or more programming languages such as Python, R, or SQL is essential for working with data.
+- Statistics and probability: understanding of statistical concepts such as probability distributions, hypothesis testing, and regression analysis is necessary for data analysis and modeling.
+- Machine learning: knowledge of machine learning algorithms and techniques for building predictive models is crucial for data science.
+- Data wrangling: the ability to clean, organize, and manipulate large datasets is an important skill for data preparation.
+- Data visualization: the ability to create clear and effective visualizations of data is important for communicating insights and findings to others.
+- Communication skills: being able to explain complex data concepts to non-technical stakeholders is critical for data science.
+Domain knowledge: understanding the specific industry or business context in which data is being analyzed is important for interpreting and applying the insights generated.
+- Math Skills: 
+  - Multivariable Calculus & Linear Algebra: These two things are very important as they help us in understanding various machine learning algorithms which play an important role in Data Science.
+  - Probability & Statistics: Understanding Statistics is very important as this is the branch of Data analysis. Probability theory is also important to statistics and it is mentioned as a prerequisite for learning machine learning.
+- Programming Skills: 
+  - Programming Knowledge: You need to have a good grasp of programming concepts such as Data structures and algorithms. Languages used are python, R, Java, and Scala. C++ is also used in some places where performance is extremely important.
+  - Relational Databases: You need to know databases such as SQL or Oracle so that you can fetch the required data from them whenever needed.
+  - Non Relational Databases: These are of many types but mostly used types are: i) Column: Cassandra, HBase ii) Document: MongoDB, CouchDB iii) Key-value: Redis, Dynamo
+  - Distributed Computing: It is one of the most important skills to handle a large amount of data because we cannot process this much data on a single system. Tools which mainly used are Apache Hadoop and Spark. It has two main parts: HDFS i.e Hadoop Distributed File System which is used for storing data over a distributed file system. The other part is map-reduce by which we process data. We can write map-reduce in programs in java or python. There are many other tools also such as PIG, and HIVE.
+  - Machine Learning: It is one of the most important parts of data science and the hot topic of research among researchers so every year new developments are made in this. You at least need to know common algorithms of supervised and unsupervised learning. There are many libraries available in python and R. List of Python Libraries: i) Basic Libraries: NumPy, SciPy, Pandas, Ipython, matplotlib ii) Libraries for Machine Learning: sci-kit-learn, Theano, TensorFlow iii) Libraries for Data Mining & Natural Language Processing: Scrapy, NLTK, Pattern
+- Domain Knowledge Mostly people ignore this thinking it's not important but it is very very important. The whole purpose of data science is to extract useful insights from that data so that it can be beneficial to a company’s business. If you don’t understand the business side of your company like how your company’s business model works, and how you can make it better, then you are of no use to the company. You need to understand how to ask the right questions to the right person so that you can get the valuable information you need to extract the information you need. There are some visualization tools used on this business end such as Tableau which helps you display your useful results in a proper non-technical format such as graphs or pie charts which business people can understand.Domain knowledge refers to the specific knowledge and expertise that is required to understand and work within a particular field or industry. For example, a data scientist working in the healthcare industry would need to have a strong understanding of medical terminology, regulations, and the specific challenges and opportunities within the healthcare industry.
+- To develop domain knowledge, a data scientist can take a variety of steps such as:
+- Reading industry publications and staying up-to-date with the latest developments in the field.
+- Attending industry conferences and networking with other professionals in the field.
+- Taking online courses or earning certifications in the specific domain.
+- Talking to domain experts and learning from their experiences.
+- Gaining practical experience through internships or working on projects related to the domain.
+- Having domain knowledge is important for data scientists because it allows them to better understand the specific problems and challenges that their organization or clients are facing, and to develop more effective and relevant solutions.
