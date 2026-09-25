@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.LocalStorage 2.0
 import "components"
 
 Item {
@@ -26,11 +27,124 @@ Item {
 
 
     // ============================================================
+    // SETTINGS PERSISTENCE (QML LocalStorage)
+    // ============================================================
+
+    function db() {
+        return LocalStorage.openDatabaseSync(
+            "SynaptiRole_App",
+            "1.0",
+            "SynaptiRole settings storage",
+            1000000
+        )
+    }
+
+    function initStorage() {
+        try {
+            var d = db()
+            d.transaction(function(tx) {
+                tx.executeSql(
+                    "CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT)"
+                )
+            })
+        } catch (e) {
+            console.warn("Settings storage unavailable:", e)
+        }
+    }
+
+    function storedValue(key, fallback) {
+        var out = fallback
+        try {
+            var d = db()
+            d.readTransaction(function(tx) {
+                tx.executeSql(
+                    "CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT)"
+                )
+                var res = tx.executeSql(
+                    "SELECT value FROM settings WHERE key=?", [key]
+                )
+                if (res.rows.length > 0)
+                    out = res.rows.item(0).value
+            })
+        } catch (e) {
+            console.warn("Settings read failed:", e)
+        }
+        return out
+    }
+
+    function storedBool(key, fallback) {
+        var v = storedValue(key, null)
+        if (v === null || v === undefined || v === "")
+            return fallback
+        return String(v) === "true"
+    }
+
+    function persistSetting(key, val) {
+        try {
+            var d = db()
+            d.transaction(function(tx) {
+                tx.executeSql(
+                    "CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT)"
+                )
+                tx.executeSql(
+                    "INSERT OR REPLACE INTO settings(key, value) VALUES(?, ?)",
+                    [key, String(val)]
+                )
+            })
+        } catch (e) {
+            console.warn("Settings write failed:", e)
+        }
+    }
+
+    function clearSettings() {
+        try {
+            var d = db()
+            d.transaction(function(tx) {
+                tx.executeSql(
+                    "CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT)"
+                )
+                tx.executeSql("DELETE FROM settings")
+            })
+        } catch (e) {
+            console.warn("Settings clear failed:", e)
+        }
+    }
+
+    function indexOfValue(model, val) {
+        if (model === null || model === undefined)
+            return 0
+        for (var i = 0; i < model.length; i++) {
+            if (String(model[i]) === String(val))
+                return i
+        }
+        return 0
+    }
+
+    function doReset() {
+        clearSettings()
+        notifRecommendations.value = true
+        notifFeedback.value = true
+        notifWeekly.value = false
+        privacyTracking.value = true
+        privacyData.value = true
+        privacyVisibility.currentIndex = 0
+        appearanceTheme.currentIndex = 0
+        appearanceLanguage.currentIndex = 0
+        appearanceDate.currentIndex = 0
+        appearanceTime.currentIndex = 0
+        App?.notify("Settings reset to defaults.")
+    }
+
+    Component.onCompleted: {
+        root.initStorage()
+    }
+
+    // ============================================================
     // SWITCH
     // ============================================================
 
     component SwitchCtl : Switch {
-        id: switchControl
+        id: sw
 
         implicitWidth: 46
         implicitHeight: 26
@@ -42,9 +156,12 @@ Item {
             height: 26
             radius: 13
 
-            color: switchControl.checked
+            color: sw.checked
                    ? Theme.primary
                    : "#CBD5E1"
+
+            border.width: sw.checked ? 0 : 1
+            border.color: "#B6BFCE"
 
             Behavior on color {
                 ColorAnimation {
@@ -58,7 +175,7 @@ Item {
                 radius: 10
 
                 y: 3
-                x: switchControl.checked
+                x: sw.checked
                    ? parent.width - width - 3
                    : 3
 
@@ -94,11 +211,11 @@ Item {
 
         implicitHeight: sectionBody.implicitHeight + 48
 
-        radius: 12
+        radius: 14
 
         color: "#FFFFFF"
 
-        border.color: "#E8ECF3"
+        border.color: "#E7EAF2"
         border.width: 1
 
         ColumnLayout {
@@ -112,7 +229,7 @@ Item {
             anchors.rightMargin: 20
             anchors.topMargin: 20
 
-            spacing: 20
+            spacing: 16
 
             // ----------------------------------------------------
             // SECTION HEADER
@@ -120,12 +237,12 @@ Item {
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 14
+                spacing: 13
 
                 Rectangle {
-                    width: 42
-                    height: 42
-                    radius: 8
+                    width: 40
+                    height: 40
+                    radius: 11
 
                     color: sectionCard.iconBg
 
@@ -137,7 +254,7 @@ Item {
                         text: sectionCard.sectionIcon
 
                         font.family: Theme.fontName
-                        font.pixelSize: 21
+                        font.pixelSize: 19
 
                         color: sectionCard.iconColor
                     }
@@ -145,6 +262,7 @@ Item {
 
                 ColumnLayout {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignVCenter
                     spacing: 3
 
                     Text {
@@ -173,6 +291,15 @@ Item {
                     }
                 }
             }
+
+            // Section header divider
+            Rectangle {
+                Layout.fillWidth: true
+
+                height: 1
+
+                color: "#EFF1F7"
+            }
         }
     }
 
@@ -196,7 +323,7 @@ Item {
         Layout.fillWidth: true
         Layout.fillHeight: true
 
-        implicitHeight: 105
+        implicitHeight: 96
 
         Rectangle {
             visible: settingTile.showDivider
@@ -213,20 +340,20 @@ Item {
         RowLayout {
             anchors.fill: parent
 
-            anchors.leftMargin: 8
-            anchors.rightMargin: 16
+            anchors.leftMargin: 4
+            anchors.rightMargin: 8
 
             spacing: 14
 
             Rectangle {
-                width: 42
-                height: 42
+                width: 40
+                height: 40
 
-                radius: 8
+                radius: 11
 
                 color: settingTile.iconBg
 
-                Layout.alignment: Qt.AlignTop
+                Layout.alignment: Qt.AlignVCenter
 
                 Text {
                     anchors.centerIn: parent
@@ -234,7 +361,7 @@ Item {
                     text: settingTile.icon
 
                     font.family: Theme.fontName
-                    font.pixelSize: 20
+                    font.pixelSize: 18
 
                     color: settingTile.iconColor
                 }
@@ -242,9 +369,9 @@ Item {
 
             ColumnLayout {
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
+                Layout.alignment: Qt.AlignVCenter
 
-                spacing: 4
+                spacing: 3
 
                 Text {
                     text: settingTile.title
@@ -268,7 +395,7 @@ Item {
 
                     color: Theme.muted
 
-                    lineHeight: 1.25
+                    lineHeight: 1.2
 
                     wrapMode: Text.WordWrap
 
@@ -292,6 +419,8 @@ Item {
 
         property bool value: true
 
+        property string settingKey: ""
+
         property string iconBg: "#F3E8FF"
         property string iconColor: "#6D28D9"
 
@@ -299,10 +428,18 @@ Item {
 
         signal toggled(bool checked)
 
+        Component.onCompleted: {
+            if (toggleSetting.settingKey !== "")
+                toggleSetting.value = root.storedBool(
+                    toggleSetting.settingKey,
+                    toggleSetting.value
+                )
+        }
+
         Layout.fillWidth: true
         Layout.fillHeight: true
 
-        implicitHeight: 112
+        implicitHeight: 96
 
         Rectangle {
             visible: toggleSetting.showDivider
@@ -319,20 +456,23 @@ Item {
         RowLayout {
             anchors.fill: parent
 
-            anchors.leftMargin: 8
-            anchors.rightMargin: 12
+            anchors.leftMargin: 4
+            anchors.rightMargin: 8
+
+            anchors.topMargin: 12
+            anchors.bottomMargin: 12
 
             spacing: 14
 
             Rectangle {
-                width: 42
-                height: 42
+                width: 40
+                height: 40
 
-                radius: 8
+                radius: 11
 
                 color: toggleSetting.iconBg
 
-                Layout.alignment: Qt.AlignTop
+                Layout.alignment: Qt.AlignVCenter
 
                 Text {
                     anchors.centerIn: parent
@@ -340,7 +480,7 @@ Item {
                     text: toggleSetting.icon
 
                     font.family: Theme.fontName
-                    font.pixelSize: 20
+                    font.pixelSize: 18
 
                     color: toggleSetting.iconColor
                 }
@@ -348,9 +488,9 @@ Item {
 
             ColumnLayout {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignVCenter
 
-                spacing: 4
+                spacing: 3
 
                 Text {
                     text: toggleSetting.title
@@ -374,25 +514,55 @@ Item {
 
                     color: Theme.muted
 
-                    lineHeight: 1.25
+                    lineHeight: 1.2
 
                     wrapMode: Text.WordWrap
 
                     Layout.fillWidth: true
-
-                    Layout.maximumHeight: 48
                 }
+            }
 
-                Item {
-                    Layout.fillHeight: true
+            Row {
+                Layout.alignment: Qt.AlignVCenter
+
+                spacing: 8
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    width: badgeText.implicitWidth + 14
+                    height: 22
+
+                    radius: 6
+
+                    color: swCtl.checked ? "#E7F7EE" : "#F3F4F8"
+
+                    Text {
+                        id: badgeText
+
+                        anchors.centerIn: parent
+
+                        text: swCtl.checked ? "On" : "Off"
+
+                        font.family: Theme.fontName
+                        font.pixelSize: 10
+                        font.weight: Font.DemiBold
+
+                        color: swCtl.checked ? "#159447" : "#64748B"
+                    }
                 }
 
                 SwitchCtl {
+                    id: swCtl
+
                     checked: toggleSetting.value
 
-                    Layout.alignment: Qt.AlignRight
-
                     onToggled: {
+                        if (toggleSetting.settingKey !== "")
+                            root.persistSetting(
+                                toggleSetting.settingKey,
+                                checked
+                            )
                         toggleSetting.toggled(checked)
                     }
                 }
@@ -418,14 +588,30 @@ Item {
         property alias model: combo.model
         property alias currentIndex: combo.currentIndex
 
+        property string settingKey: ""
+
         property bool showDivider: false
 
         signal pick(int index)
 
+        Component.onCompleted: {
+            if (dropdownSetting.settingKey !== "") {
+                var stored = root.storedValue(
+                    dropdownSetting.settingKey,
+                    null
+                )
+                if (stored !== null && stored !== undefined)
+                    combo.currentIndex = root.indexOfValue(
+                        combo.model,
+                        stored
+                    )
+            }
+        }
+
         Layout.fillWidth: true
         Layout.fillHeight: true
 
-        implicitHeight: 112
+        implicitHeight: 132
 
         Rectangle {
             visible: dropdownSetting.showDivider
@@ -442,20 +628,23 @@ Item {
         ColumnLayout {
             anchors.fill: parent
 
-            anchors.leftMargin: 8
-            anchors.rightMargin: 12
+            anchors.leftMargin: 4
+            anchors.rightMargin: 8
 
-            spacing: 7
+            anchors.topMargin: 14
+            anchors.bottomMargin: 12
+
+            spacing: 8
 
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 14
 
                 Rectangle {
-                    width: 42
-                    height: 42
+                    width: 40
+                    height: 40
 
-                    radius: 8
+                    radius: 11
 
                     color: dropdownSetting.iconBg
 
@@ -467,7 +656,7 @@ Item {
                         text: dropdownSetting.icon
 
                         font.family: Theme.fontName
-                        font.pixelSize: 20
+                        font.pixelSize: 18
 
                         color: dropdownSetting.iconColor
                     }
@@ -475,6 +664,8 @@ Item {
 
                 ColumnLayout {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignVCenter
+
                     spacing: 3
 
                     Text {
@@ -485,6 +676,8 @@ Item {
                         font.weight: Font.DemiBold
 
                         color: Theme.text
+
+                        wrapMode: Text.WordWrap
 
                         Layout.fillWidth: true
                     }
@@ -497,6 +690,8 @@ Item {
 
                         color: Theme.muted
 
+                        lineHeight: 1.2
+
                         wrapMode: Text.WordWrap
 
                         Layout.fillWidth: true
@@ -504,16 +699,35 @@ Item {
                 }
             }
 
-            AppComboBox {
-                id: combo
-
+            RowLayout {
                 Layout.fillWidth: true
-                Layout.maximumWidth: 230
+                Layout.bottomMargin: 4
+                spacing: 0
 
-                implicitHeight: 38
+                Item {
+                    Layout.fillWidth: true
+                }
 
-                onActivated: function(index) {
-                    dropdownSetting.pick(index)
+                AppComboBox {
+                    id: combo
+
+                    Layout.preferredWidth: 220
+                    Layout.maximumWidth: 220
+                    Layout.fillWidth: true
+
+                    implicitHeight: 38
+
+                    onActivated: function(index) {
+                        if (dropdownSetting.settingKey !== "") {
+                            var val = combo.model[index]
+                            if (val !== undefined && val !== null)
+                                root.persistSetting(
+                                    dropdownSetting.settingKey,
+                                    val
+                                )
+                        }
+                        dropdownSetting.pick(index)
+                    }
                 }
             }
         }
@@ -541,7 +755,7 @@ Item {
         Layout.fillWidth: true
         Layout.fillHeight: true
 
-        implicitHeight: 100
+        implicitHeight: 96
 
         Rectangle {
             visible: linkSetting.showDivider
@@ -555,23 +769,42 @@ Item {
             color: "#E5EAF1"
         }
 
+        Rectangle {
+            anchors.fill: parent
+
+            radius: 11
+
+            color: linkArea.containsMouse
+                   ? "#F7F8FB"
+                   : "transparent"
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: 140
+                }
+            }
+        }
+
         RowLayout {
             anchors.fill: parent
 
-            anchors.leftMargin: 8
+            anchors.leftMargin: 4
             anchors.rightMargin: 8
+
+            anchors.topMargin: 12
+            anchors.bottomMargin: 12
 
             spacing: 14
 
             Rectangle {
-                width: 42
-                height: 42
+                width: 40
+                height: 40
 
-                radius: 8
+                radius: 11
 
                 color: linkSetting.iconBg
 
-                Layout.alignment: Qt.AlignTop
+                Layout.alignment: Qt.AlignVCenter
 
                 Text {
                     anchors.centerIn: parent
@@ -579,7 +812,7 @@ Item {
                     text: linkSetting.icon
 
                     font.family: Theme.fontName
-                    font.pixelSize: 20
+                    font.pixelSize: 18
 
                     color: linkSetting.iconColor
                 }
@@ -587,8 +820,9 @@ Item {
 
             ColumnLayout {
                 Layout.fillWidth: true
+                Layout.alignment: Qt.AlignVCenter
 
-                spacing: 4
+                spacing: 3
 
                 Text {
                     text: linkSetting.title
@@ -598,6 +832,8 @@ Item {
                     font.weight: Font.DemiBold
 
                     color: Theme.text
+
+                    wrapMode: Text.WordWrap
 
                     Layout.fillWidth: true
                 }
@@ -610,6 +846,8 @@ Item {
 
                     color: Theme.muted
 
+                    lineHeight: 1.2
+
                     wrapMode: Text.WordWrap
 
                     Layout.fillWidth: true
@@ -620,16 +858,26 @@ Item {
                 text: "\u203A"
 
                 font.family: Theme.fontName
-                font.pixelSize: 26
+                font.pixelSize: 24
                 font.weight: Font.DemiBold
 
-                color: Theme.text
+                color: linkArea.containsMouse
+                       ? Theme.primary
+                       : Theme.faint
 
                 Layout.alignment: Qt.AlignVCenter
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 140
+                    }
+                }
             }
         }
 
         MouseArea {
+            id: linkArea
+
             anchors.fill: parent
 
             cursorShape: Qt.PointingHandCursor
@@ -677,35 +925,112 @@ Item {
 
             y: 28
 
-            spacing: 18
+            spacing: 22
 
 
             // ====================================================
             // PAGE HEADER
             // ====================================================
 
-            ColumnLayout {
+            RowLayout {
                 Layout.fillWidth: true
 
-                spacing: 4
+                spacing: 16
 
-                Text {
-                    text: "Settings"
+                Rectangle {
+                    Layout.preferredWidth: 46
+                    Layout.preferredHeight: 46
 
-                    font.family: Theme.fontName
-                    font.pixelSize: 28
-                    font.weight: Font.Bold
+                    radius: 13
 
-                    color: Theme.text
+                    color: "#F3E8FF"
+
+                    Text {
+                        anchors.centerIn: parent
+
+                        text: "\u2699\uFE0F"
+
+                        font.family: Theme.fontName
+                        font.pixelSize: 22
+
+                        color: "#7C3AED"
+                    }
                 }
 
-                Text {
-                    text: "Manage your preferences and system settings."
+                ColumnLayout {
+                    Layout.fillWidth: true
 
-                    font.family: Theme.fontName
-                    font.pixelSize: 13
+                    spacing: 4
 
-                    color: Theme.muted
+                    Text {
+                        text: "Settings"
+
+                        font.family: Theme.fontName
+                        font.pixelSize: 28
+                        font.weight: Font.Bold
+
+                        color: Theme.text
+                    }
+
+                    Text {
+                        text: "Manage your preferences and system settings."
+
+                        font.family: Theme.fontName
+                        font.pixelSize: 13
+
+                        color: Theme.muted
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                Button {
+                    id: resetBtn
+
+                    Layout.preferredHeight: 34
+
+                    implicitWidth: 132
+
+                    Layout.alignment: Qt.AlignVCenter
+
+                    contentItem: Text {
+                        text: resetBtn.text
+
+                        font.family: Theme.fontName
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+
+                        color: resetBtn.hovered
+                               ? Theme.primary
+                               : Theme.text
+
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    background: Rectangle {
+                        radius: 9
+
+                        color: resetBtn.hovered ? "#F3F0FF" : "#FFFFFF"
+
+                        border.color: resetBtn.hovered
+                                      ? Theme.primary
+                                      : "#E7EAF2"
+                        border.width: 1
+                    }
+
+                    onClicked: {
+                        confirmBox.openConfirm(
+                            "Reset Settings",
+                            "Reset all settings to their default values?",
+                            "Reset",
+                            function() {
+                                root.doReset()
+                            }
+                        )
+                    }
                 }
             }
 
@@ -727,10 +1052,14 @@ Item {
 
                     columns: root.notificationCols
 
-                    columnSpacing: 0
-                    rowSpacing: 12
+                    columnSpacing: 14
+                    rowSpacing: 6
 
                     ToggleSetting {
+                        id: notifRecommendations
+
+                        settingKey: "interviewRecommendations"
+
                         icon: "\u{1F4C5}"
 
                         title: "Interview Recommendations"
@@ -739,8 +1068,6 @@ Item {
                             "Get personalized interview recommendations and tips."
 
                         value: true
-
-                        showDivider: root.notificationCols > 1
 
                         iconBg: "#F3E8FF"
                         iconColor: "#7C3AED"
@@ -754,6 +1081,10 @@ Item {
                     }
 
                     ToggleSetting {
+                        id: notifFeedback
+
+                        settingKey: "interviewFeedback"
+
                         icon: "\u{1F4AC}"
 
                         title: "Interview Feedback"
@@ -762,8 +1093,6 @@ Item {
                             "Notify when interview feedback is ready."
 
                         value: true
-
-                        showDivider: root.notificationCols > 1
 
                         iconBg: "#DCFCE7"
                         iconColor: "#16A34A"
@@ -777,6 +1106,10 @@ Item {
                     }
 
                     ToggleSetting {
+                        id: notifWeekly
+
+                        settingKey: "weeklySummary"
+
                         icon: "\u{1F4C8}"
 
                         title: "Weekly Performance Summary"
@@ -785,8 +1118,6 @@ Item {
                             "Receive weekly performance reports."
 
                         value: false
-
-                        showDivider: false
 
                         iconBg: "#FFF7ED"
                         iconColor: "#EA580C"
@@ -819,11 +1150,15 @@ Item {
 
                     columns: root.privacyCols
 
-                    columnSpacing: 0
-                    rowSpacing: 16
+                    columnSpacing: 14
+                    rowSpacing: 12
 
 
                     DropdownSetting {
+                        id: privacyVisibility
+
+                        settingKey: "profileVisibility"
+
                         icon: "\u{1F464}"
 
                         title: "Profile Visibility"
@@ -838,12 +1173,14 @@ Item {
 
                         iconBg: "#DBEAFE"
                         iconColor: "#2563EB"
-
-                        showDivider: root.privacyCols > 1
                     }
 
 
                     ToggleSetting {
+                        id: privacyTracking
+
+                        settingKey: "activityTracking"
+
                         icon: "\u{1F6E1}"
 
                         title: "Activity Tracking"
@@ -856,8 +1193,6 @@ Item {
                         iconBg: "#DCFCE7"
                         iconColor: "#16A34A"
 
-                        showDivider: root.privacyCols > 1
-
                         onToggled: function(checked) {
                             App?.notify(
                                 "Activity Tracking "
@@ -868,6 +1203,10 @@ Item {
 
 
                     ToggleSetting {
+                        id: privacyData
+
+                        settingKey: "dataUsage"
+
                         icon: "\u{1F4CA}"
 
                         title: "Data Usage"
@@ -879,8 +1218,6 @@ Item {
 
                         iconBg: "#FFF7ED"
                         iconColor: "#EA580C"
-
-                        showDivider: root.privacyCols > 1
 
                         onToggled: function(checked) {
                             App?.notify(
@@ -902,10 +1239,15 @@ Item {
                         iconBg: "#F3E8FF"
                         iconColor: "#7C3AED"
 
-                        showDivider: false
-
                         onActivated: {
-                            App?.downloadData()
+                            confirmBox.openConfirm(
+                                "Download My Data",
+                                "Download all your data and reports?",
+                                "Download",
+                                function() {
+                                    App?.downloadData()
+                                }
+                            )
                         }
                     }
                 }
@@ -929,11 +1271,15 @@ Item {
 
                     columns: root.appearanceCols
 
-                    columnSpacing: 0
-                    rowSpacing: 16
+                    columnSpacing: 14
+                    rowSpacing: 12
 
 
                     DropdownSetting {
+                        id: appearanceTheme
+
+                        settingKey: "theme"
+
                         icon: "\u{2600}"
 
                         title: "Theme"
@@ -950,8 +1296,6 @@ Item {
                         iconBg: "#DBEAFE"
                         iconColor: "#2563EB"
 
-                        showDivider: root.appearanceCols > 1
-
                         onPick: function(index) {
                             if (index === 1) {
                                 App?.notify(
@@ -963,6 +1307,10 @@ Item {
 
 
                     DropdownSetting {
+                        id: appearanceLanguage
+
+                        settingKey: "language"
+
                         icon: "\u{1F310}"
 
                         title: "Language"
@@ -981,12 +1329,14 @@ Item {
 
                         iconBg: "#DBEAFE"
                         iconColor: "#2563EB"
-
-                        showDivider: root.appearanceCols > 1
                     }
 
 
                     DropdownSetting {
+                        id: appearanceDate
+
+                        settingKey: "dateFormat"
+
                         icon: "\u{1F4C5}"
 
                         title: "Date Format"
@@ -1003,12 +1353,14 @@ Item {
 
                         iconBg: "#F3E8FF"
                         iconColor: "#7C3AED"
-
-                        showDivider: root.appearanceCols > 1
                     }
 
 
                     DropdownSetting {
+                        id: appearanceTime
+
+                        settingKey: "timeFormat"
+
                         icon: "\u{1F552}"
 
                         title: "Time Format"
@@ -1023,8 +1375,6 @@ Item {
 
                         iconBg: "#F3E8FF"
                         iconColor: "#7C3AED"
-
-                        showDivider: false
                     }
                 }
             }
@@ -1047,8 +1397,8 @@ Item {
 
                     columns: root.supportCols
 
-                    columnSpacing: 0
-                    rowSpacing: 12
+                    columnSpacing: 14
+                    rowSpacing: 6
 
 
                     LinkSetting {
@@ -1061,8 +1411,6 @@ Item {
 
                         iconBg: "#F3E8FF"
                         iconColor: "#7C3AED"
-
-                        showDivider: root.supportCols > 1
 
                         onActivated: {
                             App?.notify(
@@ -1083,8 +1431,6 @@ Item {
                         iconBg: "#DCFCE7"
                         iconColor: "#16A34A"
 
-                        showDivider: false
-
                         onActivated: {
                             App?.notify(
                                 "Opening Contact Support."
@@ -1095,11 +1441,224 @@ Item {
             }
 
 
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 12
+            }
+
+
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+
+                spacing: 6
+
+                Text {
+                    text: "SynaptiRole AI"
+
+                    font.family: Theme.fontName
+                    font.pixelSize: 11
+                    font.weight: Font.DemiBold
+
+                    color: Theme.muted
+                }
+
+                Text {
+                    text: "\u2022"
+
+                    font.family: Theme.fontName
+                    font.pixelSize: 11
+
+                    color: Theme.faint
+                }
+
+                Text {
+                    text: "Version 1.0.0"
+
+                    font.family: Theme.fontName
+                    font.pixelSize: 11
+
+                    color: Theme.faint
+                }
+            }
+
+
             // Bottom spacing
             Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 10
             }
+        }
+    }
+
+
+    // ============================================================
+    // CONFIRMATION DIALOG
+    // ============================================================
+
+    Dialog {
+        id: confirmBox
+
+        modal: true
+
+        anchors.centerIn: parent
+
+        width: 400
+        padding: 20
+
+        property string boxTitle: "Confirm"
+        property string boxText: ""
+        property string confirmLabel: "Confirm"
+        property var confirmAction: null
+
+        background: Rectangle {
+            radius: 14
+
+            color: "#FFFFFF"
+
+            border.color: "#E7EAF2"
+            border.width: 1
+        }
+
+        contentItem: ColumnLayout {
+            spacing: 16
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                spacing: 12
+
+                Rectangle {
+                    Layout.preferredWidth: 40
+                    Layout.preferredHeight: 40
+
+                    radius: 11
+
+                    color: "#FDF3CC"
+
+                    Text {
+                        anchors.centerIn: parent
+
+                        text: "\u26A0\uFE0F"
+
+                        font.pixelSize: 18
+                    }
+                }
+
+                Text {
+                    text: confirmBox.boxTitle
+
+                    font.family: Theme.fontName
+                    font.pixelSize: 15
+                    font.weight: Font.Bold
+
+                    color: Theme.text
+                }
+            }
+
+            Text {
+                Layout.fillWidth: true
+
+                text: confirmBox.boxText
+
+                font.family: Theme.fontName
+                font.pixelSize: 12
+
+                color: Theme.muted
+
+                wrapMode: Text.WordWrap
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Layout.topMargin: 4
+
+                spacing: 10
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                Button {
+                    id: cancelBnt
+
+                    text: "Cancel"
+
+                    Layout.preferredHeight: 36
+
+                    implicitWidth: 92
+
+                    contentItem: Text {
+                        text: cancelBnt.text
+
+                        font.family: Theme.fontName
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
+
+                        color: Theme.text
+
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    background: Rectangle {
+                        radius: 9
+
+                        color: cancelBnt.hovered ? "#ECEEF4" : "#F3F4F8"
+                    }
+
+                    onClicked: confirmBox.close()
+                }
+
+                Button {
+                    id: confirmBnt
+
+                    text: confirmBox.confirmLabel
+
+                    Layout.preferredHeight: 36
+
+                    implicitWidth: 92
+
+                    contentItem: Text {
+                        text: confirmBnt.text
+
+                        font.family: Theme.fontName
+                        font.pixelSize: 12
+                        font.weight: Font.Bold
+
+                        color: "#FFFFFF"
+
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    background: Rectangle {
+                        radius: 9
+
+                        color: confirmBnt.hovered
+                               ? "#6D28D9"
+                               : Theme.primary
+                    }
+
+                    onClicked: {
+                        if (confirmBox.confirmAction)
+                            confirmBox.confirmAction()
+                        confirmBox.close()
+                    }
+                }
+            }
+        }
+
+        onClosed: {
+            confirmBox.confirmAction = null
+        }
+
+        function openConfirm(titleText, bodyText, labelText, action) {
+            confirmBox.boxTitle = titleText
+            confirmBox.boxText = bodyText
+            confirmBox.confirmLabel = labelText
+            confirmBox.confirmAction = action
+            confirmBox.open()
         }
     }
 }

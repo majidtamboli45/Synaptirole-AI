@@ -61,6 +61,28 @@ Item {
         root.statsJson = JSON.stringify(root.stats())
     }
 
+    function constellationNodes() {
+        var out = []
+        var n = priorityModel.count
+        if (n === 0) return out
+        var radius = 0.62
+        var codeMap = { "matched": 0, "partial": 1, "gap": 2 }
+        for (var i = 0; i < n; i++) {
+            var e = priorityModel.get(i)
+            var angle = -Math.PI / 2 + (i * 2 * Math.PI) / n
+            var code = codeMap[e.status]
+            if (code === undefined) code = 2
+            out.push({
+                x: Math.cos(angle) * radius,
+                y: Math.sin(angle) * radius,
+                name: e.skill || "",
+                score: Math.round((e.similarity || 0) * 100),
+                status: code
+            })
+        }
+        return out
+    }
+
     function stats() {
         return {
             matched: matchedModel.count,
@@ -332,47 +354,31 @@ Item {
                         spacing: 10
 
                         Text {
-                            text: "Priority Ranking"
+                            text: "Skill Constellation"
                             font.family: Theme.fontName
                             font.pixelSize: 15
                             font.weight: Font.Bold
                             color: Theme.text
                         }
 
-                        Flickable {
+                        Item {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            clip: true
-                            boundsBehavior: Flickable.StopAtBounds
-                            contentHeight: priorityCol.height
-                            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
 
-                            Column {
-                                id: priorityCol
-                                width: parent.width
-                                spacing: 8
+                            SkillConstellation {
+                                id: skillConstellation
+                                anchors.fill: parent
+                                nodes: constellationNodes()
+                                centerLabel: "Your Skills"
+                            }
 
-                                Repeater {
-                                    model: priorityModel
-                                    delegate: GapPriorityRow {
-                                        width: parent.width
-                                        skill: model.skill
-                                        type: model.type
-                                        status: model.status
-                                        priority: model.priority
-                                        similarity: model.similarity
-                                        barPct: model.similarity * 100
-                                    }
-                                }
-
-                                Text {
-                                    visible: priorityModel.count === 0
-                                    width: parent.width
-                                    text: (root.analysisData && root.analysisData.total_jd_skills) ? "No rankable skills." : "No skills to rank yet."
-                                    font.family: Theme.fontName
-                                    font.pixelSize: 13
-                                    color: Theme.muted
-                                }
+                            Text {
+                                visible: priorityModel.count === 0
+                                anchors.centerIn: parent
+                                text: (root.analysisData && root.analysisData.total_jd_skills) ? "No rankable skills." : "No skills to rank yet."
+                                font.family: Theme.fontName
+                                font.pixelSize: 13
+                                color: Theme.muted
                             }
                         }
 

@@ -26,12 +26,7 @@ Rectangle {
         "AI Engineer",
         "Frontend Developer",
         "Backend Developer",
-        "DevOps Engineer",
-        "Full Stack Developer",
-        "Mobile Developer",
-        "QA Engineer",
-        "Product Manager",
-        "Other"
+        "DevOps Engineer"
     ]
 
     // =========================================================
@@ -173,7 +168,14 @@ Rectangle {
 
             if (nameField.text.trim() === "") {
                 console.log("[AUTH DEBUG] FAIL: name empty")
-                errorLabel.text = "Please enter your full name."
+                errorLabel.text = "Full name is required."
+                errorLabel.visible = true
+                return
+            }
+
+            if (password === "") {
+                console.log("[AUTH DEBUG] FAIL: password required")
+                errorLabel.text = "Password is required."
                 errorLabel.visible = true
                 return
             }
@@ -214,7 +216,7 @@ Rectangle {
 
             if (root.selectedRole === "") {
                 console.log("[AUTH DEBUG] FAIL: role empty")
-                errorLabel.text = "Please select your role."
+                errorLabel.text = "Please select a target role."
                 errorLabel.visible = true
                 return
             }
@@ -224,7 +226,7 @@ Rectangle {
             if (!root.termsAccepted) {
                 console.log("[AUTH DEBUG] FAIL: terms not accepted")
                 errorLabel.text =
-                        "Please agree to the Terms of Service and Privacy Policy."
+                        "Please accept the Terms of Service and Privacy Policy."
                 errorLabel.visible = true
                 return
             }
@@ -1913,12 +1915,55 @@ Rectangle {
                             }
 
                             // =================================================
+                            // PASSWORD CRITERIA - SIGNUP ONLY
+                            // =================================================
+
+                            Item {
+                                width: 1
+                                height: root.signupMode ? 6 : 0
+
+                                visible: root.signupMode
+                            }
+
+                            Text {
+                                id: passwordCriteriaText
+
+                                width: parent.width
+
+                                text:
+                                    "Password must contain: 8+ characters, 1 uppercase, 1 number, 1 special character"
+
+                                visible: root.signupMode
+
+                                font.family: Theme.fontName
+                                font.pixelSize: 10
+
+                                color:
+                                    root.signupMode
+                                    && passwordField.text.length > 0
+                                    && validatePassword(passwordField.text) !== ""
+                                    ? "#ef4444"
+                                    : "#7a8296"
+
+                                wrapMode: Text.NoWrap
+
+                                elide: Text.ElideRight
+                            }
+
+                            Item {
+                                width: 1
+                                height: root.signupMode ? 8 : 0
+
+                                visible: root.signupMode
+                            }
+
+                            // =================================================
                             // CONFIRM PASSWORD - SIGNUP ONLY
                             // =================================================
 
                             Item {
                                 width: 1
-                                height: root.signupMode ? 22 : 0
+                                height: root.signupMode ? 14 : 0
 
                                 visible: root.signupMode
                             }
@@ -2055,6 +2100,27 @@ Rectangle {
                                             }
                                         }
                                     }
+                                }
+
+                                Text {
+                                    width: parent.width
+
+                                    visible:
+                                        root.signupMode
+                                        && confirmPasswordField.text.length > 0
+                                        && confirmPasswordField.text
+                                           !== passwordField.text
+
+                                    text: "Passwords do not match"
+
+                                    font.family: Theme.fontName
+                                    font.pixelSize: 10
+
+                                    color: "#ef4444"
+
+                                    wrapMode: Text.NoWrap
+
+                                    elide: Text.ElideRight
                                 }
                             }
 
@@ -2229,8 +2295,6 @@ Rectangle {
 
                                                     height: 40
 
-                                                    text: modelData
-
                                                     font.family:
                                                         Theme.fontName
 
@@ -2239,6 +2303,35 @@ Rectangle {
                                                     highlighted:
                                                         roleComboBox.highlightedIndex
                                                         === index
+
+                                                    contentItem: Text {
+                                                        leftPadding: 12
+                                                        rightPadding: 12
+
+                                                        verticalAlignment:
+                                                            Text.AlignVCenter
+
+                                                        text: modelData
+
+                                                        font.family:
+                                                            Theme.fontName
+
+                                                        font.pixelSize: 12
+
+                                                        color:
+                                                            parent.highlighted
+                                                            ? "#ffffff"
+                                                            : "#1d2539"
+                                                    }
+
+                                                    background: Rectangle {
+                                                        radius: 6
+
+                                                        color:
+                                                            parent.highlighted
+                                                            ? "#6246e8"
+                                                            : "transparent"
+                                                    }
 
                                                     onClicked: {
                                                         roleComboBox.currentIndex =
